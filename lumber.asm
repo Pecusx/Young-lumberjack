@@ -37,7 +37,7 @@ MODUL
     ;---------------------------------------------------
     .align $400
 font_game1
-    ins 'art/t1.fnt'  ;
+    ins 'art/t4.fnt'  ;
 dl_level
     .by $10
     .by $44
