@@ -39,10 +39,12 @@ MODUL
 font_game1
     ins 'art/t1.fnt'  ;
 dl_level
-    .by $90
+    .by $10
     .by $44
     .wo gamescreen
-    :27 .by $04
+    :17 .by $04
+    .by $84
+    :9 .by $04
     .by $41
     .wo dl_level
 ;---------------------------------------------------
@@ -101,6 +103,9 @@ skipSoundFrame */
 ;--------------------------------------------------
 .proc DLI
 ;--------------------------------------------------
+    pha
+    mva #$b6 COLPF0
+    pla
     rti
 .endp
 ;--------------------------------------------------
@@ -233,7 +238,7 @@ LevelOver
     mva #$f4 COLOR1
     mva #$0c COLOR2
     mva #$f6 COLOR3
-    mva #$ff COLOR4
+    ;mva #$ff COLOR4
 
     mva #0 dliCount
     sta RMT_blocked
@@ -253,7 +258,7 @@ LevelOver
     lda #@dmactl(standard|dma)
     sta dmactls
     mwa #dl_level dlptrs
-    ;vdli DLI
+    vdli DLI
 
                     
     ;VBI
