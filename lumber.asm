@@ -228,8 +228,12 @@ LevelOver
     mva #>font_game1 CHBAS
     mva #$00 PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
 
-    mva #$7C COLBAKS
-
+    mva #$00 COLBAKS
+    mva #$96 COLOR0
+    mva #$f4 COLOR1
+    mva #$0c COLOR2
+    mva #$f6 COLOR3
+    mva #$ff COLOR4
 
     mva #0 dliCount
     sta RMT_blocked
