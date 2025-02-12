@@ -250,8 +250,9 @@ skipSoundFrame */
 .proc DLI
 ;--------------------------------------------------
     pha
-    mva #$b6 COLPF0
+    mva #$c6 COLPF0
     mva #>font_game_lower CHBASE
+    mva #$0a COLPF2
     pla
     rti
 .endp
@@ -390,7 +391,7 @@ LevelOver
     mva #$00 PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
 
     mva #$00 COLBAKS
-    mva #$96 COLOR0
+    mva #$88 COLOR0
     mva #$f4 COLOR1
     mva #$0c COLOR2
     mva #$f6 COLOR3
