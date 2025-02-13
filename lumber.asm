@@ -45,11 +45,13 @@ dl_level
     .by $44
     .wo gamescreen_upper
     :17 .by $04
-    .by $84
+    .by $84 ; first DLI
     .by $44
 animation_addr
     .wo gamescreen_lower1r
-    :8 .by $04
+    :5 .by $04
+    .by $84 ; second DLI
+    :2 .by $04
     .by $41
     .wo dl_level
 ;---------------------------------------------------
@@ -551,12 +553,23 @@ skipSoundFrame */
     jmp XITVBV
 .endp
 ;--------------------------------------------------
-.proc DLI
+.proc IngameDLI1
 ;--------------------------------------------------
     pha
-    mva #$c6 COLPF0
+    lda dliCount
+    bne secondDLI
     mva #>font_game_lower CHBASE
     mva #$0c COLPF2
+    mva #$c6 COLPF0
+    inc dliCount
+    pla
+    rti
+secondDLI
+    sta WSYNC
+    sta WSYNC
+    sta WSYNC
+    sta WSYNC    
+    mva #$86 COLPF2
     pla
     rti
 .endp
@@ -734,12 +747,12 @@ LevelOver
     lda #@dmactl(standard|dma)
     sta dmactls
     mwa #dl_level dlptrs
-    vdli DLI
+    vdli IngameDLI1
 
                     
     ;VBI
 
-    ;vmain vint,7
+    vmain vint,7
     
     rts
 .endp
