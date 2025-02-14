@@ -187,7 +187,7 @@ for l, d in enumerate(dta[-9:-1], 1):
 print('gamescreen_lower10l  ; phase 3 page 5')
 with open('phase3l.atrview', 'rb') as f:
     pj=json.loads(f.read().decode('utf-8-sig'))
-dta = pj['Pages'][3]['View']
+dta = pj['Pages'][4]['View']
 dta = [dta[i*80:(i+1)*80][:64] for i in range(len(dta)//80)]
 for l, d in enumerate(dta[-9:-1], 1):
     print(f'  dta '+','.join([f'${d[i:i+2]}' for i in range(0, len(d), 2)]))
