@@ -38,8 +38,10 @@ MODUL
     .align $400
 font_game_upper
     ins 'art/tu.fnt'  ;
-font_game_lower
-    ins 'art/tl.fnt'  ;
+font_game_lower_right
+    ins 'art/tl_r.fnt'  ;
+font_game_lower_left
+    ins 'art/tl_l.fnt'  ;
 dl_level
     .by $10
     .by $44
@@ -558,7 +560,7 @@ skipSoundFrame */
     pha
     lda dliCount
     bne secondDLI
-    mva #>font_game_lower CHBASE
+    mva #>font_game_lower_right CHBASE
     mva #$0c COLPF2
     mva #$c6 COLPF0
     inc dliCount
