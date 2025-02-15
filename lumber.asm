@@ -48,7 +48,7 @@ font_game_lower_left
 dl_level
     .by $10
     .by $44
-    .wo gamescreen_upper    ; power indicator
+    .wo power_bar    ; power indicator
     .by $04
     .by $44
     .wo gamescreen_middle   ; branches
@@ -70,9 +70,6 @@ gamescreen_middle
     .ds 32*17   ; 17 lines 
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
-branch0 = l3
-branch1 = l8
-branch2 = l13
 ; Animation sequence:
 ; - phase 1 page 1 (standard position)
 ; - phase 2 page 1
