@@ -25,6 +25,7 @@ display = $a000
     .zpvar temp .word = $80
     .zpvar temp2 .word
     .zpvar tempbyte .byte
+    .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
     .zpvar DLI_A DLI_X dliCount .byte
@@ -162,7 +163,7 @@ secondDLI
 ;--------------------------------------------------
 main
 ;--------------------------------------------------
-    jsr wait_for_depress
+    jsr WaitForKeyRelease
     jsr MakeDarkScreen
     jsr initialize
     RMTsong song_main_menu
@@ -251,24 +252,24 @@ EndOfStartScreen */
 loop
 
     ; PUT GAME HERE
-    jsr wait_for_press
-    jsr wait_for_depress
+    jsr GetKey
+    cmp #@kbcode._left
+    beq left_pressed
+    cmp #@kbcode._right
+    beq right_pressed
+    bne loop
+right_pressed
     jsr ScoreUp
     jsr AnimationR
-    jsr wait_for_press
-    jsr wait_for_depress
-    jsr AnimationR
-    jsr wait_for_press
-    jsr wait_for_depress
-    jsr AnimationL
-    jsr wait_for_press
-    jsr wait_for_depress
-    jsr AnimationL
-NoAuto
     jmp loop
+left_pressed
+    jsr ScoreUp
+    jsr AnimationL
+    jmp loop
+
 LevelOver
     ; level over
-    jsr wait_for_depress
+    jsr WaitForKeyRelease
     rts
 .endp   
 
@@ -423,27 +424,6 @@ noingame
     jsr RASTERMUSICTRACKER     ; Init
     mva #0 RMT_blocked
  */    rts
-.endp
-;--------------------------------------------------
-.proc wait_for_press  ; ion
-;--------------------------------------------------
-    lda TRIG0
-    beq press_ok
-    lda CONSOL
-    and:cmp #%00000111
-    beq wait_for_press
-press_ok
-    rts
-.endp
-;--------------------------------------------------
-.proc wait_for_depress  ; ion
-;--------------------------------------------------
-    lda CONSOL
-    and:cmp #%00000111
-    bne wait_for_depress
-    lda TRIG0
-    beq wait_for_depress
-    rts
 .endp
 ;--------------------------------
 ; non ZP variables
@@ -691,6 +671,134 @@ branch_ready
     rts
 .endp
 ;--------------------------------------------------
+.proc GetKey
+; waits for pressing a key and returns pressed value in A
+; result: A=keycode
+;--------------------------------------------------
+    jsr WaitForKeyRelease
+getKeyAfterWait
+    jsr GetKeyFast
+    cmp #@kbcode._none
+    beq getKeyAfterWait
+    ldy #0
+    sty ATRACT                 ; reset atract mode
+    rts
+.endp
+
+;--------------------------------------------------
+.proc GetKeyFast
+; returns pressed value in A - no waits for press
+; result: A=keycode ($ff - no key pressed)
+;--------------------------------------------------
+    .IF TARGET = 800
+      lda SKSTAT
+      and #%00000100  ;  any key  
+      bne checkJoyGetKey       ; key not pressed, check Joy
+    .ELIF TARGET = 5200
+      lda SkStatSimulator
+      and #%11111110
+      bne checkJoyGetKey       ; key not pressed, check Joy
+    .ENDIF
+    lda kbcode
+    cmp #@kbcode._none
+    bne getkeyend
+checkJoyGetKey
+      ;------------JOY-------------
+      ;happy happy joy joy
+      ;check for joystick now
+      lda STICK0
+      and #$0f
+      cmp #$0f
+      beq notpressedJoyGetKey
+      tay
+      lda joyToKeyTable,y
+      bne getkeyend
+
+notpressedJoyGetKey
+    ;fire
+    lda STRIG0
+    beq JoyButton
+    .IF TARGET = 800           ; Second joy button , Select and Option key only on A800
+      jsr Check2button
+      bcc SecondButton
+      bne checkSelectKey
+checkSelectKey
+      lda CONSOL
+      and #%00000010           ; Select
+      beq SelectPressed
+      lda CONSOL
+      and #%00000100           ; Option
+      beq OptionPressed
+    .ENDIF
+    lda #@kbcode._none
+    bne getkeyend
+OptionPressed
+    lda #@kbcode._atari        ; Option key
+    bne getkeyend
+SecondButton
+SelectPressed
+    lda #@kbcode._tab          ; Select key
+    bne getkeyend
+JoyButton
+    lda #@kbcode._ret          ; Return key
+getkeyend
+    rts
+; ----
+    .IF TARGET = 800           ; Second joy button only on A800
+Check2button
+    lda PADDL0
+    and #$c0
+    eor #$C0
+    cmp PaddleState
+    sta PaddleState
+    rts
+    .ENDIF
+.endp
+
+;--------------------------------------------------
+.proc getkeynowait
+;--------------------------------------------------
+    jsr WaitForKeyRelease
+    lda kbcode
+    and #$3f                   ; CTRL and SHIFT ellimination
+    rts
+.endp
+
+
+;--------------------------------------------------
+.proc WaitForKeyRelease
+;--------------------------------------------------
+StillWait
+      lda STICK0
+      and #$0f
+      cmp #$0f
+      bne StillWait
+      lda STRIG0
+      beq StillWait
+    .IF TARGET = 800
+      lda SKSTAT
+      and #%00000100  ;  any key  
+      beq StillWait
+      lda CONSOL
+      and #%00000110           ; Select and Option only
+      cmp #%00000110
+      bne StillWait
+    .ELIF TARGET = 5200
+      lda SkStatSimulator
+      and #%11111110
+      beq StillWait
+    .ENDIF
+KeyReleased
+      rts
+.endp
+;--------------------------------------------------
+.proc CheckStartKey
+;--------------------------------------------------
+    lda CONSOL  ; turbo mode
+    and #%00000001 ; START KEY
+    rts
+.endp
+;--------------------------------------------------
 
 branch_addr_tableL
     .by <branch0
@@ -702,6 +810,24 @@ branch_addr_tableH
     .by >branch2
     
 ;--------------------------------
+joyToKeyTable
+    .by $ff             ;00
+    .by $ff             ;01
+    .by $ff             ;02
+    .by $ff             ;03
+    .by $ff             ;04
+    .by $ff             ;05
+    .by $ff             ;06
+    .by @kbcode._right  ;07
+    .by $ff             ;08
+    .by $ff             ;09
+    .by $ff             ;0a
+    .by @kbcode._left   ;0b
+    .by $ff             ;0c
+    .by @kbcode._down   ;0d
+    .by @kbcode._up     ;0e
+    .by $ff             ;0f
+;-----------------------------------
 ; names of RMT instruments (sfx)
 ;--------------------------------
 sfx_ping = $07
