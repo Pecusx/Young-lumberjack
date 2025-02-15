@@ -23,6 +23,8 @@
 
 display = $a000
     .zpvar temp .word = $80
+    .zpvar temp2 .word
+    .zpvar tempbyte .byte
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
     .zpvar DLI_A DLI_X dliCount .byte
@@ -46,8 +48,11 @@ font_game_lower_left
 dl_level
     .by $10
     .by $44
-    .wo gamescreen_upper
-    :17 .by $04
+    .wo gamescreen_upper    ; power indicator
+    .by $04
+    .by $44
+    .wo gamescreen_middle   ; branches
+    :15 .by $04
     .by $84 ; first DLI
     .by $44
 animation_addr
@@ -61,7 +66,13 @@ lastline_addr
     .by $41
     .wo dl_level
 ;---------------------------------------------------
+gamescreen_middle
+    .ds 32*17   ; 17 lines 
+;---------------------------------------------------
     icl 'art/anim_exported.asm'
+branch0 = l3
+branch1 = l8
+branch2 = l13
 ; Animation sequence:
 ; - phase 1 page 1 (standard position)
 ; - phase 2 page 1
@@ -277,14 +288,19 @@ LevelOver
     waitRTC
     mwa #gamescreen_lower6r animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower7r animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower8r animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower9r animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower10r animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower2r animation_addr
     waitRTC
     waitRTC
@@ -309,14 +325,19 @@ LevelOver
     waitRTC
     mwa #gamescreen_lower6l animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower7l animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower8l animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower9l animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower10l animation_addr
     waitRTC
+    jsr branches_go_down
     mwa #gamescreen_lower2l animation_addr
     waitRTC
     waitRTC
@@ -362,6 +383,8 @@ LevelOver
     sta sfx_effect
 
     JSR AudioInit
+    
+    jsr draw_branches
     
 /*     ;RMT INIT
     ldx #<MODUL                 ;low byte of RMT module to X reg
@@ -421,6 +444,196 @@ press_ok
     beq wait_for_depress
     rts
 .endp
+;--------------------------------
+; non ZP variables
+;--------------------------------
+branches_list
+    .by 0,1,2,1,1
+branches_anim_phase ; from 0 to 4
+    .by 1
+;--------------------------------------------------
+.proc draw_branches
+;--------------------------------------------------
+    ; branch 0 (off-screen if phase 0)
+draw_branch0
+    lda branches_anim_phase
+    beq draw_branch1
+    tax
+    ; this is partialy off-screen branch
+    ; we must draw only visible lines
+    ; now calculate start screen adress
+    lda #5
+    sec
+    sbc branches_anim_phase
+    :5 asl  ; skippedlines*32
+    tay ; to skip lines
+    txa
+    ; now calculate start screen adress
+    :5 asl  ; phase*32
+    ;clc
+    adc #<(gamescreen_middle-5*32)
+    sta temp
+    lda #>(gamescreen_middle-5*32)
+    adc #0
+    sta temp+1
+    ldx branches_list ; branch0
+    lda branch_addr_tableL,x
+    sta temp2
+    lda branch_addr_tableH,x
+    sta temp2+1
+    ; skiping off-screen lines    
+    ; ldy #$00  ; we hawe value in Y
+@   lda (temp2),y
+    sta (temp),y
+    iny
+    cpy #(5*32) ;5 lines - skipped lines
+    bne @-
+draw_branch1
+    lda branches_anim_phase
+    ; now calculate start screen adress
+    :5 asl  ; phase*32
+    ;clc
+    adc #<gamescreen_middle
+    sta temp
+    lda #>gamescreen_middle
+    adc #0
+    sta temp+1
+    ldy branches_list+1 ; branch1
+    lda branch_addr_tableL,y
+    sta temp2
+    lda branch_addr_tableH,y
+    sta temp2+1
+    ldy #$00
+@   lda (temp2),y
+    sta (temp),y
+    iny
+    cpy #(5*32) ;5 lines
+    bne @-
+draw_branch2
+    lda branches_anim_phase
+    ; now calculate start screen adress
+    :5 asl  ; phase*32
+    ;clc
+    adc #<(gamescreen_middle+5*32)
+    sta temp
+    lda #>(gamescreen_middle+5*32)
+    adc #0
+    sta temp+1
+    ldy branches_list+2 ; branch2
+    lda branch_addr_tableL,y
+    sta temp2
+    lda branch_addr_tableH,y
+    sta temp2+1
+    ldy #$00
+@   lda (temp2),y
+    sta (temp),y
+    iny
+    cpy #(5*32) ;5 lines
+    bne @-
+draw_branch3
+    lda branches_anim_phase
+    ldx #(5*32)     ; how many lines draw
+    cmp #3
+    bne not_phase3
+    ldx #(4*32)     ; how many lines draw
+not_phase3    
+    cmp #4
+    bne not_phase4
+    ldx #(3*32)     ; how many lines draw
+not_phase4
+    stx tempbyte
+    ; now calculate start screen adress
+    :5 asl  ; phase*32
+    ;clc
+    adc #<(gamescreen_middle+10*32)
+    sta temp
+    lda #>(gamescreen_middle+10*32)
+    adc #0
+    sta temp+1
+    ldy branches_list+3 ; branch3
+    lda branch_addr_tableL,y
+    sta temp2
+    lda branch_addr_tableH,y
+    sta temp2+1
+    ldy #$00
+@   lda (temp2),y
+    sta (temp),y
+    iny
+    cpy tempbyte ;? lines
+    bne @-
+draw_branch4    
+    lda branches_anim_phase
+    ; draw only if phase 0 or 1
+    cmp #2
+    bcs all_drawed
+    ldx #(2*32)     ; how many lines draw
+    cmp #1
+    bne not_phase1
+    ldx #(1*32)     ; how many lines draw
+not_phase1    
+    stx tempbyte
+    ; now calculate start screen adress
+    :5 asl  ; phase*32
+    ;clc
+    adc #<(gamescreen_middle+15*32)
+    sta temp
+    lda #>(gamescreen_middle+15*32)
+    adc #0
+    sta temp+1
+    ldy branches_list+4 ; branch3
+    lda branch_addr_tableL,y
+    sta temp2
+    lda branch_addr_tableH,y
+    sta temp2+1
+    ldy #$00
+@   lda (temp2),y
+    sta (temp),y
+    iny
+    cpy tempbyte ;? lines
+    bne @-    
+all_drawed
+    rts
+.endp
+;--------------------------------------------------
+.proc branches_go_down
+;--------------------------------------------------
+    inc branches_anim_phase
+    lda branches_anim_phase
+    cmp #5
+    bne next_phase_only
+    jsr new_branch
+next_phase_only
+    jsr draw_branches
+    rts
+.endp
+;--------------------------------------------------
+.proc new_branch
+;--------------------------------------------------
+    mva #0 branches_anim_phase
+    mva branches_list+3 branches_list+4
+    mva branches_list+2 branches_list+3
+    mva branches_list+1 branches_list+2
+    mva branches_list+0 branches_list+1
+    lda RANDOM  ; 0, 1 or 2
+    and #%00000011
+    cmp #3
+    bne branch_ready
+    lda #0
+branch_ready
+    sta branches_list+0
+    rts
+.endp
+;--------------------------------------------------
+
+branch_addr_tableL
+    .by <branch0
+    .by <branch1
+    .by <branch2
+branch_addr_tableH
+    .by >branch0
+    .by >branch1
+    .by >branch2
+    
 ;--------------------------------
 ; names of RMT instruments (sfx)
 ;--------------------------------
