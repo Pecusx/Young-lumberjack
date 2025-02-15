@@ -149,6 +149,7 @@ skipSoundFrame */
     mva LowCharsetBase CHBASE
     mva #$0c COLPF2
     mva #$c6 COLPF0
+    mva #$f6 COLPF3
     pla
     rti
 secondDLI
@@ -375,7 +376,7 @@ LevelOver
     mva #$88 COLOR0
     mva #$f4 COLOR1
     mva #$0c COLOR2
-    mva #$f6 COLOR3
+    mva #$38 COLOR3
     ;mva #$ff COLOR4
 
     mva #0 dliCount
