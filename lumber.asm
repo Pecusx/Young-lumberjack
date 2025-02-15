@@ -67,7 +67,9 @@ lastline_addr
     .wo dl_level
 ;---------------------------------------------------
 gamescreen_middle
-    .ds 32*17   ; 17 lines 
+    .ds 32*17   ; 17 lines
+screen_score = gamescreen_middle+6*32+14  
+screen_level = gamescreen_middle+9*32+13  
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animation sequence:
@@ -166,6 +168,7 @@ main
     RMTsong song_main_menu
     jsr StartScreen
     RMTSong song_ingame
+    jsr ScoreClear
 gameloop
     jsr MakeDarkScreen
     jsr LevelScreen
@@ -250,6 +253,7 @@ loop
     ; PUT GAME HERE
     jsr wait_for_press
     jsr wait_for_depress
+    jsr ScoreUp
     jsr AnimationR
     jsr wait_for_press
     jsr wait_for_depress
@@ -448,6 +452,66 @@ branches_list
     .by 0,1,2,1,1
 branches_anim_phase ; from 0 to 4
     .by 1
+score
+    dta d"0000"
+level
+    dta $1a, $1b, $1c, $1b, $1a, $24
+    dta d"1"
+;--------------------------------------------------
+.proc ScoreUp
+;--------------------------------------------------
+    inc score+3
+    lda score+3
+    cmp #"9"+1  ; 9+1 character code
+    bne ScoreReady
+    lda #"0"    ; 0 character code
+    sta score+3
+    inc score+2
+    lda score+2
+    cmp #"9"+1  ; 9+1 character code
+    bne ScoreReady
+    lda #"0"    ; 0 character code
+    sta score+2
+    inc score+1
+    lda score+1
+    cmp #"9"+1  ; 9+1 character code
+    bne ScoreReady
+    lda #"0"    ; 0 character code
+    sta score+1
+    inc score
+ScoreReady
+    rts
+.endp
+;--------------------------------------------------
+.proc ScoreClear
+;--------------------------------------------------
+    lda #"0"
+    ldx #3
+@   sta score,x
+    dex
+    bpl @-
+    rts
+.endp
+;--------------------------------------------------
+.proc ScoreToScreen
+;--------------------------------------------------
+    ldx #3
+@   lda score,x
+    sta screen_score,x
+    dex
+    bpl @-
+    rts
+.endp
+;--------------------------------------------------
+.proc LevelToScreen
+;--------------------------------------------------
+    ldx #6
+@   lda level,x
+    sta screen_level,x
+    dex
+    bpl @-
+    rts
+.endp
 ;--------------------------------------------------
 .proc draw_branches
 ;--------------------------------------------------
@@ -527,6 +591,8 @@ draw_branch2
     iny
     cpy #(5*32) ;5 lines
     bne @-
+    jsr ScoreToScreen
+    jsr LevelToScreen
 draw_branch3
     lda branches_anim_phase
     ldx #(5*32)     ; how many lines draw
