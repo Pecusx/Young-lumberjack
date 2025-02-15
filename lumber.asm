@@ -142,10 +142,10 @@ skipSoundFrame */
     pha
     lda dliCount
     bne secondDLI
+    inc dliCount
     mva LowCharsetBase CHBASE
     mva #$0c COLPF2
     mva #$c6 COLPF0
-    inc dliCount
     pla
     rti
 secondDLI
