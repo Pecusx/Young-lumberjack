@@ -52,7 +52,7 @@ dl_level
     .by $04
     .by $44
     .wo gamescreen_middle   ; branches
-    :15 .by $04
+    :16 .by $04
     .by $84 ; first DLI
     .by $44
 animation_addr
@@ -67,7 +67,7 @@ lastline_addr
     .wo dl_level
 ;---------------------------------------------------
 gamescreen_middle
-    .ds 32*17   ; 17 lines
+    .ds 32*18   ; 18 lines
 screen_score = gamescreen_middle+6*32+14  
 screen_level = gamescreen_middle+9*32+13  
 ;---------------------------------------------------
@@ -626,14 +626,18 @@ not_phase4
     bne @-
 draw_branch4    
     lda branches_anim_phase
-    ; draw only if phase 0 or 1
-    cmp #2
+    ; draw only if phase 0 or 1 or 2
+    cmp #3
     bcs all_drawed
-    ldx #(2*32)     ; how many lines draw
+    ldx #(3*32)     ; how many lines draw
     cmp #1
     bne not_phase1
-    ldx #(1*32)     ; how many lines draw
+    ldx #(2*32)     ; how many lines draw
 not_phase1    
+    cmp #2
+    bne not_phase2
+    ldx #(1*32)     ; how many lines draw
+not_phase2    
     stx tempbyte
     ; now calculate start screen adress
     :5 asl  ; phase*32
