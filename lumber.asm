@@ -25,6 +25,7 @@ display = $a000
     .zpvar temp .word = $80
     .zpvar temp2 .word
     .zpvar tempbyte .byte
+    .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
@@ -67,6 +68,7 @@ lastline_addr
     .by $41
     .wo dl_level
 ;---------------------------------------------------
+Power = power_bar+32+10
 gamescreen_middle
     .ds 32*18   ; 18 lines
 screen_score = gamescreen_middle+6*32+14  
@@ -261,10 +263,12 @@ loop
     bne loop
 right_pressed
     jsr ScoreUp
+    jsr PowerUp
     jsr AnimationR
     jmp loop
 left_pressed
     jsr ScoreUp
+    jsr PowerDown
     jsr AnimationL
     jmp loop
 
@@ -388,6 +392,8 @@ LevelOver
     JSR AudioInit
     
     jsr draw_branches
+    mva #0 PowerValue
+    jsr draw_PowerBar
     
 /*     ;RMT INIT
     ldx #<MODUL                 ;low byte of RMT module to X reg
@@ -491,6 +497,58 @@ ScoreReady
     sta screen_level,x
     dex
     bpl @-
+    rts
+.endp
+;--------------------------------------------------
+.proc PowerUp
+;--------------------------------------------------
+    inc PowerValue
+    lda PowerValue
+    cmp #49
+    bne not_max_pwr
+    mva #48 PowerValue
+not_max_pwr
+    jsr draw_PowerBar
+    rts
+.endp
+;--------------------------------------------------
+.proc PowerDown
+;--------------------------------------------------
+    dec PowerValue
+    bpl not_min_pwr
+    mva #0 PowerValue
+not_min_pwr
+    jsr draw_PowerBar
+    rts
+.endp
+;--------------------------------------------------
+.proc draw_PowerBar
+;--------------------------------------------------
+    lda PowerValue
+    tay
+    and #%00000011
+    clc
+    adc #PowerChar0
+    tax ; code of last char in bar
+    tya
+    :2 lsr  ; value/4   - number of full char in bar
+    sta tempbyte
+    ldy #0
+    lda #PowerCharFull
+draw_bar_loop
+    cpy tempbyte
+    bne not_last_bar_char
+    ; last char in bar
+    txa
+    sta Power,y
+    lda #PowerCharEmpty ; becouse naxt in bar chars are empty
+    bne next_char
+not_last_bar_char
+    sta Power,y
+next_char
+    iny
+    cpy #12
+    bne draw_bar_loop
     rts
 .endp
 ;--------------------------------------------------
@@ -809,7 +867,11 @@ branch_addr_tableH
     .by >branch0
     .by >branch1
     .by >branch2
-    
+
+;--------------------------------
+PowerChar0 = $87    ; power bar first (0) character 
+PowerCharFull = $8b
+PowerCharEmpty = PowerChar0    
 ;--------------------------------
 joyToKeyTable
     .by $ff             ;00
