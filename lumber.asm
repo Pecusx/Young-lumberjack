@@ -436,7 +436,7 @@ noingame
 ; non ZP variables
 ;--------------------------------
 branches_list
-    .by 0,1,2,1,1
+    .by 1,0,2,0,1,0 ; 
 branches_anim_phase ; from 0 to 4
     .by 1
 score
@@ -525,6 +525,10 @@ not_min_pwr
 .proc draw_PowerBar
 ;--------------------------------------------------
     lda PowerValue
+    cmp #48
+    bcc not_to_high
+    mva #48 PowerValue
+not_to_high
     tay
     and #%00000011
     clc
@@ -716,6 +720,7 @@ next_phase_only
 .proc new_branch
 ;--------------------------------------------------
     mva #0 branches_anim_phase
+    mva branches_list+4 branches_list+5
     mva branches_list+3 branches_list+4
     mva branches_list+2 branches_list+3
     mva branches_list+1 branches_list+2
