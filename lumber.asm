@@ -288,11 +288,35 @@ NoNextLevel
     beq LevelDeath
     jmp loop
 right_pressed
+    ; test for right lower branch
+    lda branches_list+5
+    cmp #1
+    bne no_r_branch
+    ; death by lower right branch
+    mva #>font_game_lower_right LowCharsetBase
+    mwa #last_line_r lastline_addr
+    waitRTC
+    mwa #gamescreen_lower1r animation_addr
+    mva #1 LumberjackDir    ; right side
+    bne LevelDeath
+no_r_branch
     jsr ScoreUp
     jsr PowerUp
     jsr AnimationR
     jmp loop
 left_pressed
+    ; test for left lower branch
+    lda branches_list+5
+    cmp #2
+    bne no_l_branch
+    ; death by lower left branch
+    mva #>font_game_lower_left LowCharsetBase
+    mwa #last_line_l lastline_addr
+    waitRTC
+    mwa #gamescreen_lower1l animation_addr
+    mva #2 LumberjackDir    ; left side
+    bne LevelDeath
+no_l_branch
     jsr ScoreUp
     jsr PowerUp
     jsr AnimationL
