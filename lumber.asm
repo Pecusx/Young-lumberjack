@@ -28,6 +28,7 @@ display = $a000
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
+    .zpvar LevelValue .byte
     .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
@@ -274,6 +275,12 @@ loop
     cmp #@kbcode._right
     beq right_pressed
     ; other keys or no key
+    cmp #@kbcode._up
+    bne NoNextLevel
+    ; next level if joy UP
+    jsr LevelUp
+    jsr WaitForKeyRelease
+NoNextLevel
     lda PowerValue
     beq LevelDeath
     lda branches_list+5
@@ -298,6 +305,7 @@ LevelDeath
     ; restart game
     jsr InitBranches
     jsr draw_branches
+    mva #1 LevelValue
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
     jmp loop
@@ -422,6 +430,7 @@ LevelOver
 
     JSR AudioInit
     
+    mva #1 LevelValue
     jsr InitBranches
     jsr draw_branches
     mva #24 PowerValue  ; half power
@@ -527,11 +536,29 @@ ScoreReady
 ;--------------------------------------------------
 .proc LevelToScreen
 ;--------------------------------------------------
-    ldx #6
+    lda LevelValue
+    clc
+    adc #"0"
+    sta screen_level+6
+    ldx #5
 @   lda level,x
     sta screen_level,x
     dex
     bpl @-
+    rts
+.endp
+;--------------------------------------------------
+.proc LevelUp
+;--------------------------------------------------
+    inc LevelValue
+    lda LevelValue
+    cmp #10
+    bne not_max_lev
+    mva #9 LevelValue
+not_max_lev
+    dec PowerDownSpeed
+    dec PowerDownSpeed    
+    jsr LevelToScreen
     rts
 .endp
 ;--------------------------------------------------
