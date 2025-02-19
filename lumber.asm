@@ -335,10 +335,12 @@ LevelDeath
     cmp #@kbcode._space
     bne LevelDeath
     ; restart game
+    jsr ScoreClear
     jsr InitBranches
     jsr draw_branches
     mva #1 LevelValue
     jsr LevelToScreen
+    mva #20 PowerDownSpeed
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
     mva #0 StateFlag
