@@ -739,6 +739,10 @@ next_phase_only
     mva branches_list+2 branches_list+3
     mva branches_list+1 branches_list+2
     mva branches_list+0 branches_list+1
+    beq make_random_branch
+    lda #0
+    beq branch_ready
+make_random_branch
     lda RANDOM  ; 0, 1 or 2
     and #%00000011
     cmp #3
