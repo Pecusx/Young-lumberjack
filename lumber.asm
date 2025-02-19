@@ -25,6 +25,7 @@ display = $a000
     .zpvar temp .word = $80
     .zpvar temp2 .word
     .zpvar tempbyte .byte
+    .zpvar StateFlag .byte    ; 0 - game, 1 - start screen, 2 game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
@@ -105,6 +106,9 @@ screen_level = gamescreen_middle+9*32+13
 
     mva #0 dliCount
 
+    lda StateFlag
+    bne wait_for_timer
+    ; only during game
     ; power down
     dec PowerTimer
     bne wait_for_timer
@@ -229,6 +233,7 @@ gameOver
 StartLoop
     ;jmp StartLoop
 EndOfStartScreen */
+    mva #1 StateFlag
     rts
 .endp
 ;--------------------------------------------------
@@ -241,6 +246,7 @@ EndOfStartScreen */
     sta dmactls
     mva #>font_game_upper CHBAS
     pause 5
+    mva #0 StateFlag
     rts
 .endp
 ;--------------------------------------------------
@@ -252,6 +258,7 @@ EndOfStartScreen */
     lda #%00110010  ; normal screen width, DL on, P/M off
     sta dmactls
     pause 20 */
+    mva #2 StateFlag
     
     rts
 .endp
@@ -322,6 +329,7 @@ no_l_branch
     jsr AnimationL
     jmp loop
 LevelDeath
+    mva #2 StateFlag
     mva RANDOM COLBAK
     jsr GetKeyFast
     cmp #@kbcode._space
@@ -332,6 +340,7 @@ LevelDeath
     mva #1 LevelValue
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
+    mva #0 StateFlag
     jmp loop
 LevelOver
     ; level over
