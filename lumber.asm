@@ -28,6 +28,7 @@ display = $a000
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
+    .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
@@ -275,6 +276,9 @@ loop
     ; other keys or no key
     lda PowerValue
     beq LevelDeath
+    lda branches_list+5
+    cmp LumberjackDir    ; branch and Lumerjack ?
+    beq LevelDeath
     jmp loop
 right_pressed
     jsr ScoreUp
@@ -292,7 +296,10 @@ LevelDeath
     cmp #@kbcode._space
     bne LevelDeath
     ; restart game
-    mva #24 PowerValue
+    jsr InitBranches
+    jsr draw_branches
+    mva #24 PowerValue  ; half power
+    jsr draw_PowerBar
     jmp loop
 LevelOver
     ; level over
@@ -335,6 +342,7 @@ LevelOver
     waitRTC
     waitRTC
     mwa #gamescreen_lower1r animation_addr
+    mva #1 LumberjackDir    ; right side
     rts
 .endp
 ;--------------------------------------------------
@@ -372,6 +380,7 @@ LevelOver
     waitRTC
     waitRTC
     mwa #gamescreen_lower1l animation_addr
+    mva #2 LumberjackDir    ; left side
     rts
 .endp
 ;--------------------------------------------------
@@ -413,11 +422,13 @@ LevelOver
 
     JSR AudioInit
     
+    jsr InitBranches
     jsr draw_branches
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
     mva #20 PowerDownSpeed
     sta PowerTimer
+    mva #1 LumberjackDir    ; right side
     
 /*     ;RMT INIT
     ldx #<MODUL                 ;low byte of RMT module to X reg
@@ -891,6 +902,18 @@ KeyReleased
     rts
 .endp
 ;--------------------------------------------------
+.proc InitBranches
+;--------------------------------------------------
+    ldy #5
+@   lda initial_branches_list,y
+    sta branches_list,y
+    dey
+    bpl @-
+    rts
+.endp
+;--------------------------------------------------
+initial_branches_list
+    .by 1,0,2,0,1,0 ; 
 
 branch_addr_tableL
     .by <branch0
