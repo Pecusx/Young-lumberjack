@@ -338,6 +338,7 @@ LevelDeath
     jsr InitBranches
     jsr draw_branches
     mva #1 LevelValue
+    jsr LevelToScreen
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
     mva #0 StateFlag
