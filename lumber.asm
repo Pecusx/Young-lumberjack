@@ -267,12 +267,15 @@ EndOfStartScreen */
 loop
 
     ; PUT GAME HERE
-    jsr GetKey
+    jsr GetKeyFast
     cmp #@kbcode._left
     beq left_pressed
     cmp #@kbcode._right
     beq right_pressed
-    bne loop
+    ; other keys or no key
+    lda PowerValue
+    beq LevelDeath
+    jmp loop
 right_pressed
     jsr ScoreUp
     jsr PowerUp
@@ -283,7 +286,14 @@ left_pressed
     jsr PowerUp
     jsr AnimationL
     jmp loop
-
+LevelDeath
+    mva RANDOM COLBAK
+    jsr GetKeyFast
+    cmp #@kbcode._space
+    bne LevelDeath
+    ; restart game
+    mva #24 PowerValue
+    jmp loop
 LevelOver
     ; level over
     jsr WaitForKeyRelease
