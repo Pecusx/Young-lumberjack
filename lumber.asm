@@ -26,6 +26,8 @@ display = $a000
     .zpvar temp2 .word
     .zpvar tempbyte .byte
     .zpvar PowerValue .byte ; power: 0 - 48
+    .zpvar PowerTimer .byte
+    .zpvar PowerDownSpeed .byte
     .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
@@ -100,6 +102,16 @@ screen_level = gamescreen_middle+9*32+13
 ;--------------------------------------------------
 
     mva #0 dliCount
+
+    ; power down
+    dec PowerTimer
+    bne wait_for_timer
+    ; one bar down
+    mva PowerDownSpeed PowerTimer
+    jsr PowerDown
+wait_for_timer
+
+    
     ; mva #13 VSCROL  ; FOX gfx mode only
 
 /*
@@ -268,7 +280,7 @@ right_pressed
     jmp loop
 left_pressed
     jsr ScoreUp
-    jsr PowerDown
+    jsr PowerUp
     jsr AnimationL
     jmp loop
 
@@ -392,8 +404,10 @@ LevelOver
     JSR AudioInit
     
     jsr draw_branches
-    mva #0 PowerValue
+    mva #24 PowerValue  ; half power
     jsr draw_PowerBar
+    mva #20 PowerDownSpeed
+    sta PowerTimer
     
 /*     ;RMT INIT
     ldx #<MODUL                 ;low byte of RMT module to X reg
