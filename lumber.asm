@@ -338,9 +338,7 @@ LevelDeath
     jsr ScoreClear
     jsr InitBranches
     jsr draw_branches
-    mva #1 LevelValue
-    jsr LevelToScreen
-    mva #20 PowerDownSpeed
+    jsr LevelReset
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
     mva #0 StateFlag
@@ -466,13 +464,12 @@ LevelOver
 
     JSR AudioInit
     
-    mva #1 LevelValue
+    jsr LevelReset
     jsr InitBranches
     jsr draw_branches
     mva #24 PowerValue  ; half power
+    mva #1 PowerTimer   ; reset timer ( 1, not 0! )
     jsr draw_PowerBar
-    mva #20 PowerDownSpeed
-    sta PowerTimer
     mva #1 LumberjackDir    ; right side
     
 /*     ;RMT INIT
@@ -539,6 +536,7 @@ level
     bne ScoreReady
     lda #"0"    ; 0 character code
     sta score+2
+    jsr LevelUp ; every 100pts.
     inc score+1
     lda score+1
     cmp #"9"+1  ; 9+1 character code
@@ -584,6 +582,16 @@ ScoreReady
     rts
 .endp
 ;--------------------------------------------------
+.proc LevelReset
+;--------------------------------------------------
+; set level to 1 and PowerDownSpeed to ??
+    mvx #1 LevelValue
+    lda PowerSpeedTable,x
+    sta PowerDownSpeed
+    jsr LevelToScreen
+    rts
+.endp
+;--------------------------------------------------
 .proc LevelUp
 ;--------------------------------------------------
     inc LevelValue
@@ -592,8 +600,9 @@ ScoreReady
     bne not_max_lev
     mva #9 LevelValue
 not_max_lev
-    dec PowerDownSpeed
-    dec PowerDownSpeed    
+    tax
+    lda PowerSpeedTable,x
+    sta PowerDownSpeed
     jsr LevelToScreen
     rts
 .endp
@@ -986,6 +995,9 @@ branch_addr_tableH
     .by >branch0
     .by >branch1
     .by >branch2
+; Level to power speed table
+PowerSpeedTable
+    .by 20,20,18,16,14,12,11,10,9,8
 
 ;--------------------------------
 PowerChar0 = $87    ; power bar first (0) character 
