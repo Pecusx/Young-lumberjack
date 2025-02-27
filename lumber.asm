@@ -56,16 +56,17 @@ dl_level
     .by $10
     .by $44
     .wo power_bar    ; power indicator
-    .by $04
+    .by $84  ; DLI1
     .by $44
     .wo gamescreen_middle   ; branches
     :16 .by $04
-    .by $84 ; first DLI
+    .by $84 ; DLI2
     .by $44
 animation_addr
     .wo gamescreen_lower1r
-    :5 .by $04
-    .by $84 ; second DLI
+    :4 .by $04
+    .by $84 ; DLI3
+    .by $84 ; DLI4
     .by $04
     .by $44
 lastline_addr
@@ -164,20 +165,36 @@ skipSoundFrame */
 ;--------------------------------------------------
     pha
     lda dliCount
-    bne secondDLI
+    bne DLI2
     inc dliCount
-    mva LowCharsetBase CHBASE
     mva #$0c COLPF2
-    mva #$c6 COLPF0
-    mva #$f6 COLPF3
     pla
     rti
-secondDLI
+DLI2
+    cmp #1
+    bne DLI3
+    inc dliCount
+    mva LowCharsetBase CHBASE
+    ;mva #$0c COLPF2
+    mva #$c6 COLPF0
+    mva #$f8 COLPF3
+    pla
+    rti
+DLI3
+    cmp #2
+    bne DLI4
+    sta WSYNC
+    mva #>font_game_upper CHBASE
+    inc dliCount
+    pla
+    rti
+DLI4
     sta WSYNC
     sta WSYNC
     sta WSYNC
     sta WSYNC    
     mva #$86 COLPF2
+    inc dliCount
     pla
     rti
 .endp
@@ -450,10 +467,10 @@ LevelOver
     mva #$00 PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
 
     mva #$00 COLBAKS
-    mva #$88 COLOR0
-    mva #$f4 COLOR1
-    mva #$0c COLOR2
-    mva #$38 COLOR3
+    mva #$88 COLOR0 ; sky
+    mva #$f6 COLOR1 ; dark brown
+    mva #$38 COLOR2 ; red
+    mva #$18 COLOR3 ; light brown
     ;mva #$ff COLOR4
 
     mva #0 dliCount
@@ -519,7 +536,7 @@ branches_anim_phase ; from 0 to 4
 score
     dta d"0000"
 level
-    dta $1a, $1b, $1c, $1b, $1a, $24
+    dta $1a, $1b, $1c, $1b, $1a, $A4
     dta d"1"
 ;--------------------------------------------------
 .proc ScoreUp
@@ -1000,8 +1017,8 @@ PowerSpeedTable
     .by 20,20,18,16,14,12,11,10,9,8
 
 ;--------------------------------
-PowerChar0 = $87    ; power bar first (0) character 
-PowerCharFull = $8b
+PowerChar0 = $07    ; power bar first (0) character 
+PowerCharFull = $0b
 PowerCharEmpty = PowerChar0    
 ;--------------------------------
 joyToKeyTable
