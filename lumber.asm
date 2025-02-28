@@ -175,9 +175,11 @@ DLI2
     bne DLI3
     inc dliCount
     mva LowCharsetBase CHBASE
-    ;mva #$0c COLPF2
-    mva #$c6 COLPF0
     mva #$f8 COLPF3
+    nop
+    nop
+    nop
+    mva #$c6 COLBAK
     pla
     rti
 DLI3
@@ -402,8 +404,8 @@ LevelOver
     jsr branches_go_down
     mwa #gamescreen_lower2r animation_addr
     waitRTC
-    waitRTC
-    waitRTC
+;    waitRTC
+;    waitRTC
     mwa #gamescreen_lower1r animation_addr
     mva #1 LumberjackDir    ; right side
     rts
@@ -440,8 +442,8 @@ LevelOver
     jsr branches_go_down
     mwa #gamescreen_lower2l animation_addr
     waitRTC
-    waitRTC
-    waitRTC
+;    waitRTC
+;    waitRTC
     mwa #gamescreen_lower1l animation_addr
     mva #2 LumberjackDir    ; left side
     rts
@@ -470,8 +472,8 @@ LevelOver
     mva #>font_game_lower_right LowCharsetBase
     mva #$00 PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
 
-    mva #$00 COLBAKS
-    mva #$88 COLOR0 ; sky
+    mva #$00 COLOR0
+    mva #$88 COLBAKS ; sky
     mva #$f6 COLOR1 ; dark brown
     mva #$38 COLOR2 ; red
     mva #$18 COLOR3 ; light brown
