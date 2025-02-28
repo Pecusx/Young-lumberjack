@@ -312,6 +312,7 @@ NoNextLevel
     beq LevelDeath
     jmp loop
 right_pressed
+/*  
     ; test for right lower branch
     lda branches_list+5
     cmp #1
@@ -324,11 +325,13 @@ right_pressed
     mva #1 LumberjackDir    ; right side
     bne LevelDeath
 no_r_branch
+*/ 
     jsr ScoreUp
     jsr PowerUp
     jsr AnimationR
     jmp loop
 left_pressed
+/* 
     ; test for left lower branch
     lda branches_list+5
     cmp #2
@@ -341,6 +344,7 @@ left_pressed
     mva #2 LumberjackDir    ; left side
     bne LevelDeath
 no_l_branch
+*/
     jsr ScoreUp
     jsr PowerUp
     jsr AnimationL
@@ -1014,7 +1018,8 @@ branch_addr_tableH
     .by >branch2
 ; Level to power speed table
 PowerSpeedTable
-    .by 20,20,18,16,14,12,11,10,9,8
+    .by 12,11,10,9,8,7,6,5,4,3
+    ;.by 20,20,18,16,14,12,11,10,9,8
 
 ;--------------------------------
 PowerChar0 = $07    ; power bar first (0) character 
