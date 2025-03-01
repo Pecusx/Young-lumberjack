@@ -103,6 +103,7 @@
     mwa #gamescreen_r_ph2p3 animation_addr
     waitRTC
     mwa #gamescreen_r_ph2p4 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_r_ph3p1 animation_addr
     waitRTC
@@ -138,6 +139,7 @@ AnimationR2 = AnimationR1
     mwa #gamescreen_l_ph2p3 animation_addr
     waitRTC
     mwa #gamescreen_l_ph2p4 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_l_ph3p1 animation_addr
     waitRTC
@@ -173,6 +175,7 @@ AnimationL2 = AnimationL1
     mwa #gamescreen_r_ph2p7 animation_addr
     waitRTC
     mwa #gamescreen_r_ph2p8 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_r_ph3p6 animation_addr
     waitRTC
@@ -207,6 +210,7 @@ AnimationL2 = AnimationL1
     mwa #gamescreen_l_ph2p7 animation_addr
     waitRTC
     mwa #gamescreen_l_ph2p8 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_l_ph3p6 animation_addr
     waitRTC
@@ -241,6 +245,7 @@ AnimationL2 = AnimationL1
     mwa #gamescreen_r_ph2p3 animation_addr
     waitRTC
     mwa #gamescreen_r_ph2p4 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_r_ph3p1 animation_addr
     waitRTC
@@ -274,6 +279,7 @@ AnimationR5 = AnimationR4
     mwa #gamescreen_l_ph2p3 animation_addr
     waitRTC
     mwa #gamescreen_l_ph2p4 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_l_ph3p1 animation_addr
     waitRTC
@@ -307,6 +313,7 @@ AnimationL5 = AnimationL4
     mwa #gamescreen_r_ph2p7 animation_addr
     waitRTC
     mwa #gamescreen_r_ph2p8 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_r_ph3p6 animation_addr
     waitRTC
@@ -339,6 +346,7 @@ AnimationL5 = AnimationL4
     mwa #gamescreen_l_ph2p7 animation_addr
     waitRTC
     mwa #gamescreen_l_ph2p8 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_l_ph3p6 animation_addr
     waitRTC
@@ -371,6 +379,7 @@ AnimationL5 = AnimationL4
     mwa #gamescreen_r_ph2p3 animation_addr
     waitRTC
     mwa #gamescreen_r_ph2p4 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_r_ph3p1 animation_addr
     waitRTC
@@ -406,6 +415,7 @@ AnimationR8 = AnimationR7
     mwa #gamescreen_l_ph2p3 animation_addr
     waitRTC
     mwa #gamescreen_l_ph2p4 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_l_ph3p1 animation_addr
     waitRTC
@@ -441,6 +451,7 @@ AnimationL8 = AnimationL7
     mwa #gamescreen_r_ph2p7 animation_addr
     waitRTC
     mwa #gamescreen_r_ph2p8 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_r_ph3p6 animation_addr
     waitRTC
@@ -475,6 +486,7 @@ AnimationL8 = AnimationL7
     mwa #gamescreen_l_ph2p7 animation_addr
     waitRTC
     mwa #gamescreen_l_ph2p8 animation_addr
+    jsr RestoreRedBar
     waitRTC
     mwa #gamescreen_l_ph3p6 animation_addr
     waitRTC
