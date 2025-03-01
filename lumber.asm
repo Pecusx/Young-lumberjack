@@ -758,13 +758,9 @@ draw_branch2
 draw_branch3
     lda branches_anim_phase
     ldx #(5*32)     ; how many lines draw
-    cmp #3
-    bne not_phase3
-    ldx #(4*32)     ; how many lines draw
-not_phase3    
     cmp #4
     bne not_phase4
-    ldx #(3*32)     ; how many lines draw
+    ldx #(4*32)     ; how many lines draw
 not_phase4
     stx tempbyte
     ; now calculate start screen adress
