@@ -63,7 +63,7 @@ dl_level
     .by $84 ; DLI2
     .by $44
 animation_addr
-    .wo gamescreen_lower1r
+    .wo gamescreen_r_ph1p1
     :4 .by $04
     .by $84 ; DLI3
     .by $84 ; DLI4
@@ -81,24 +81,16 @@ screen_score = gamescreen_middle+6*32+14
 screen_level = gamescreen_middle+9*32+13  
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
-; Animation sequence:
-; - phase 1 page 1 (standard position)
-; - phase 2 page 1
-; - phase 2 page 2
-; - phase 2 page 3
-; - phase 2 page 4
-; - phase 3 page 1
-; - phase 3 page 2
-; - phase 3 page 3
-; - phase 3 page 4
-; - phase 3 page 5
-; - phase 2 page 1
-; - phase 2 page 1
-; - phase 2 page 1
-; - phase 1 page 1 (standard position)
-    
-;--------------------------------------------------
-    ;icl 'lib/fileio.asm'
+; Animations:
+; v1 - if no branches
+; v2 - if the branch under (due to change of sides) the lumberjack and none above 
+; v3 - if the branch opposite the lumberjack and no branch and none above
+; v4 - if no branch at the level of the lumberjack and branch above (kill)
+; v5 - if the branch under (due to change of sides) the lumberjack and branch above (kill)
+; v6 - if the branch opposite the lumberjack and branch above (kill)
+; v7 - if no branch at the level of the lumberjack and branch above on the other side
+; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side
+; v9 - if the branch opposite the lumberjack and branch above on the other side
 ;--------------------------------------------------
 
 ;--------------------------------------------------
@@ -308,10 +300,10 @@ loop
     jsr WaitForKeyRelease
 NoNextLevel
     lda PowerValue
-    beq LevelDeath
+    jeq LevelDeath
     lda branches_list+5
     cmp LumberjackDir    ; branch and Lumerjack ?
-    beq LevelDeath
+    jeq LevelDeath
     jmp loop
 right_pressed
 /*  
@@ -323,14 +315,48 @@ right_pressed
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     waitRTC
-    mwa #gamescreen_lower1r animation_addr
+    mwa #gamescreen_r_ph1p1 animation_addr
     mva #1 LumberjackDir    ; right side
     bne LevelDeath
 no_r_branch
 */ 
     jsr ScoreUp
     jsr PowerUp
-    jsr AnimationR
+    lda branches_list+4  ; check branch over 
+    beq no_brancho_r
+    ; branch over lumberjack
+    cmp #1  ; right branch (kill)
+    bne no_kill_r
+    ;
+    lda branches_list+5 ; check branch on lumberjack level
+    beq kill_2branch_r
+    cmp #2  ; left branch - animation v4
+    bne kill_2branch_r    ; animation v5 (=v4)
+    jsr AnimationR6
+    jmp loop
+kill_2branch_r
+    jsr AnimationR4
+    jmp loop    
+no_kill_r
+    lda branches_list+5 ; check branch on lumberjack level
+    beq no_kill_2branch_r
+    cmp #2  ; left branch - animation v7
+    bne no_kill_2branch_r    ; animation v8 (=v7)
+    jsr AnimationR9
+    jmp loop
+no_kill_2branch_r
+    jsr AnimationR7
+    jmp loop    
+no_brancho_r
+    ;no branch over lumberjack
+    lda branches_list+5 ; check branch on lumberjack level
+    beq no_2branch_r
+    cmp #2  ; left branch - animation v3
+    bne no_2branch_r    ; animation v2 (=v1)
+    jsr AnimationR3
+    jmp loop
+no_2branch_r
+    jsr AnimationR1
     jmp loop
 left_pressed
 /* 
@@ -342,14 +368,49 @@ left_pressed
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     waitRTC
-    mwa #gamescreen_lower1l animation_addr
+    mwa #gamescreen_l_ph1p1 animation_addr
     mva #2 LumberjackDir    ; left side
     bne LevelDeath
 no_l_branch
 */
     jsr ScoreUp
     jsr PowerUp
-    jsr AnimationL
+    lda branches_list+4  ; check branch over
+    beq no_brancho_l
+    ; branch over lumberjack
+    cmp #2  ; left branch (kill)
+    bne no_kill_l
+    ;
+    lda branches_list+5 ; check branch on lumberjack level
+    beq kill_2branch_l
+    cmp #1  ; right branch - animation v4
+    bne kill_2branch_l    ; animation v5 (=v4)
+    jsr AnimationL6
+    jmp loop
+kill_2branch_l
+    jsr AnimationL4
+    jmp loop 
+no_kill_l
+    lda branches_list+5 ; check branch on lumberjack level
+    beq no_kill_2branch_l
+    cmp #1  ; right branch - animation v7
+    bne no_kill_2branch_l    ; animation v8 (=v7)
+    jsr AnimationL9
+    jmp loop
+no_kill_2branch_l
+    jsr AnimationL7
+    jmp loop    
+
+no_brancho_l
+    ; no branch over lumberjack
+    lda branches_list+5 ; check branch on lumberjack level
+    beq no_2branch_l
+    cmp #1 ; right branch - animation v3
+    bne no_2branch_l    ; animation v2 (=v1)
+    jsr AnimationL3
+    jmp loop
+no_2branch_l
+    jsr AnimationL1
     jmp loop
 LevelDeath
     mva #2 StateFlag
@@ -373,81 +434,9 @@ LevelOver
 .endp   
 
 ;--------------------------------------------------
-.proc AnimationR
+    icl 'art/animations.asm'
 ;--------------------------------------------------
-    mva #>font_game_lower_right LowCharsetBase
-    mwa #last_line_r lastline_addr
-;    mwa #gamescreen_lower1r animation_addr
-;    waitRTC
-    mwa #gamescreen_lower2r animation_addr
-    waitRTC
-    mwa #gamescreen_lower3r animation_addr
-    waitRTC
-    mwa #gamescreen_lower4r animation_addr
-    waitRTC
-    mwa #gamescreen_lower5r animation_addr
-    waitRTC
-    mwa #gamescreen_lower6r animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower7r animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower8r animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower9r animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower10r animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower2r animation_addr
-    waitRTC
-;    waitRTC
-;    waitRTC
-    mwa #gamescreen_lower1r animation_addr
-    mva #1 LumberjackDir    ; right side
-    rts
-.endp
-;--------------------------------------------------
-.proc AnimationL
-;--------------------------------------------------
-    mva #>font_game_lower_left LowCharsetBase
-    mwa #last_line_l lastline_addr
-;    mwa #gamescreen_lower1l animation_addr
-;    waitRTC
-    mwa #gamescreen_lower2l animation_addr
-    waitRTC
-    mwa #gamescreen_lower3l animation_addr
-    waitRTC
-    mwa #gamescreen_lower4l animation_addr
-    waitRTC
-    mwa #gamescreen_lower5l animation_addr
-    waitRTC
-    mwa #gamescreen_lower6l animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower7l animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower8l animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower9l animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower10l animation_addr
-    waitRTC
-    jsr branches_go_down
-    mwa #gamescreen_lower2l animation_addr
-    waitRTC
-;    waitRTC
-;    waitRTC
-    mwa #gamescreen_lower1l animation_addr
-    mva #2 LumberjackDir    ; left side
-    rts
-.endp
+
 ;--------------------------------------------------
 .proc AudioInit
 ;--------------------------------------------------
@@ -501,7 +490,7 @@ LevelOver
     lda #0                      ;starting song line 0-255 to A reg
     jsr RASTERMUSICTRACKER      ;Init
  */    
-    mwa #gamescreen_lower1r animation_addr
+    mwa #gamescreen_r_ph1p1 animation_addr
     lda #@dmactl(standard|dma)
     sta dmactls
     mwa #dl_level dlptrs
