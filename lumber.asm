@@ -287,8 +287,11 @@ EndOfStartScreen */
 .proc PlayLevel
 ;--------------------------------------------------
 loop
-
     ; PUT GAME HERE
+    lda branches_list+5
+    cmp LumberjackDir    ; branch and Lumerjack ?
+    jeq LevelDeath
+
     jsr GetKeyFast
     cmp #@kbcode._left
     beq left_pressed
@@ -299,12 +302,8 @@ loop
     bne NoNextLevel
     ; next level if joy UP
     jsr LevelUp
-    jsr WaitForKeyRelease
 NoNextLevel
     lda PowerValue
-    jeq LevelDeath
-    lda branches_list+5
-    cmp LumberjackDir    ; branch and Lumerjack ?
     jeq LevelDeath
     jmp loop
 right_pressed
@@ -335,20 +334,20 @@ no_r_branch
     cmp #2  ; left branch - animation v4
     bne kill_2branch_r    ; animation v5 (=v4)
     jsr AnimationR6
-    jmp loop
+    jmp go_loop
 kill_2branch_r
     jsr AnimationR4
-    jmp loop    
+    jmp go_loop    
 no_kill_r
     lda branches_list+5 ; check branch on lumberjack level
     beq no_kill_2branch_r
     cmp #2  ; left branch - animation v7
     bne no_kill_2branch_r    ; animation v8 (=v7)
     jsr AnimationR9
-    jmp loop
+    jmp go_loop
 no_kill_2branch_r
     jsr AnimationR7
-    jmp loop    
+    jmp go_loop    
 no_brancho_r
     ;no branch over lumberjack
     lda branches_list+5 ; check branch on lumberjack level
@@ -356,10 +355,10 @@ no_brancho_r
     cmp #2  ; left branch - animation v3
     bne no_2branch_r    ; animation v2 (=v1)
     jsr AnimationR3
-    jmp loop
+    jmp go_loop
 no_2branch_r
     jsr AnimationR1
-    jmp loop
+    jmp go_loop
 left_pressed
 /* 
     ; test for left lower branch
@@ -388,20 +387,20 @@ no_l_branch
     cmp #1  ; right branch - animation v4
     bne kill_2branch_l    ; animation v5 (=v4)
     jsr AnimationL6
-    jmp loop
+    jmp go_loop
 kill_2branch_l
     jsr AnimationL4
-    jmp loop 
+    jmp go_loop 
 no_kill_l
     lda branches_list+5 ; check branch on lumberjack level
     beq no_kill_2branch_l
     cmp #1  ; right branch - animation v7
     bne no_kill_2branch_l    ; animation v8 (=v7)
     jsr AnimationL9
-    jmp loop
+    jmp go_loop
 no_kill_2branch_l
     jsr AnimationL7
-    jmp loop    
+    jmp go_loop    
 
 no_brancho_l
     ; no branch over lumberjack
@@ -410,10 +409,10 @@ no_brancho_l
     cmp #1 ; right branch - animation v3
     bne no_2branch_l    ; animation v2 (=v1)
     jsr AnimationL3
-    jmp loop
+    jmp go_loop
 no_2branch_l
     jsr AnimationL1
-    jmp loop
+    jmp go_loop
 LevelDeath
     mva #2 StateFlag
     mva RANDOM COLBAK
@@ -428,6 +427,8 @@ LevelDeath
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
     mva #0 StateFlag
+go_loop
+    jsr WaitForKeyRelease
     jmp loop
 LevelOver
     ; level over
