@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.00" ; number of this build (4 bytes)
+    dta d"0.01" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -25,6 +25,7 @@ display = $a000
     .zpvar temp .word = $80
     .zpvar temp2 .word
     .zpvar tempbyte .byte
+    .zpvar SyncByte .byte
     .zpvar StateFlag .byte    ; 0 - game, 1 - start screen, 2 game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
@@ -172,6 +173,7 @@ DLI2
     nop
     nop
     mva #$c6 COLBAK
+    inc SyncByte
     pla
     rti
 DLI3
@@ -314,7 +316,7 @@ right_pressed
     ; death by lower right branch
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
-    waitRTC
+    WaitForSync
     mwa #gamescreen_r_ph1p1 animation_addr
     mva #1 LumberjackDir    ; right side
     bne LevelDeath
@@ -367,7 +369,7 @@ left_pressed
     ; death by lower left branch
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
-    waitRTC
+    WaitForSync
     mwa #gamescreen_l_ph1p1 animation_addr
     mva #2 LumberjackDir    ; left side
     bne LevelDeath
@@ -1000,6 +1002,15 @@ KeyReleased
     rts
 .endp
 ;--------------------------------------------------
+.proc WaitForSync
+;--------------------------------------------------
+    lda SyncByte
+@   cmp SyncByte
+    beq @-
+    rts
+.endp
+;--------------------------------------------------
+
 initial_branches_list
     .by 1,0,2,0,1,0 ; 
 
