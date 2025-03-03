@@ -53,6 +53,8 @@ font_game_lower_right
     ins 'art/tl_r.fnt'  ;
 font_game_lower_left
     ins 'art/tl_l.fnt'  ;
+font_game_rip
+    ins 'art/t_rip.fnt'  ;
 dl_level
     .by $10
     .by $44
@@ -160,7 +162,7 @@ skipSoundFrame */
     lda dliCount
     bne DLI2
     inc dliCount
-    mva #$0c COLPF2
+    mva #$0c COLPF2 ; white (numbers and letters)
     pla
     rti
 DLI2
@@ -168,11 +170,11 @@ DLI2
     bne DLI3
     inc dliCount
     mva LowCharsetBase CHBASE
-    mva #$f8 COLPF3
+    mva #$f6 COLPF3 ; light brown
     nop
     nop
     nop
-    mva #$c6 COLBAK
+    mva #$c6 COLBAK ; green
     inc SyncByte
     pla
     rti
@@ -188,8 +190,8 @@ DLI4
     sta WSYNC
     sta WSYNC
     sta WSYNC
-    sta WSYNC    
-    mva #$86 COLPF2
+    ;sta WSYNC    
+    mva #$86 COLPF2 ; blue pants
     inc dliCount
     pla
     rti
@@ -473,9 +475,9 @@ LevelOver
 
     mva #$00 COLOR0
     mva #$88 COLBAKS ; sky
-    mva #$f6 COLOR1 ; dark brown
+    mva #$f4 COLOR1 ; dark brown
     mva #$38 COLOR2 ; red
-    mva #$18 COLOR3 ; light brown
+    mva #$f6 COLOR3 ; light brown
     ;mva #$ff COLOR4
 
     mva #0 dliCount
