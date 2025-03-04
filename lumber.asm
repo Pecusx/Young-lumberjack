@@ -174,7 +174,7 @@ DLI2
     nop
     nop
     nop
-    mva #$84 COLBAK ; thin line
+    mva #$B4 COLBAK ; thin line
     sta WSYNC
     mva #$DA COLBAK ; additional lines
     sta WSYNC
