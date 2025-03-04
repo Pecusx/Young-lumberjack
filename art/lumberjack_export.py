@@ -238,3 +238,25 @@ print_lines(dta, -9, -1)
 print('gamescreen_l_ph3p14  ; phase 3 page 14')
 dta = load_atrview('phase3l.atrview', page=14)
 print_lines(dta, -9, -1)
+
+print("""
+; RIP screens    
+RIPscreen_l_nobranch  ; page 1""")
+with open('rip.atrview', 'rb') as f:
+    pj=json.loads(f.read().decode('utf-8-sig'))
+dta = pj['Pages'][0]['View']
+dta = [dta[i*80:(i+1)*80][:64] for i in range(len(dta)//80)]
+for l, d in enumerate(dta[-9:-1], 1):
+    print(f'  dta '+','.join([f'${d[i:i+2]}' for i in range(0, len(d), 2)]))
+
+print('RIPscreen_r_nobranch  ; page 2')
+dta = load_atrview('rip.atrview', page=2)
+print_lines(dta, -9, -1)
+
+print('RIPscreen_l_branch  ; page 3')
+dta = load_atrview('rip.atrview', page=3)
+print_lines(dta, -9, -1)
+
+print('RIPscreen_r_branch  ; page 4')
+dta = load_atrview('rip.atrview', page=4)
+print_lines(dta, -9, -1)

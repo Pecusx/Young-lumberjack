@@ -416,6 +416,7 @@ no_2branch_l
     jsr AnimationL1
     jmp go_loop
 LevelDeath
+    jsr SetRIPscreen
     mva #2 StateFlag
     mva RANDOM COLBAK
     jsr GetKeyFast
@@ -441,7 +442,33 @@ LevelOver
 ;--------------------------------------------------
     icl 'art/animations.asm'
 ;--------------------------------------------------
-
+;--------------------------------------------------
+.proc SetRIPscreen
+;--------------------------------------------------
+    WaitForSync
+    mva #>font_game_rip LowCharsetBase
+    lda LumberjackDir    ; branch and Lumerjack ?
+    cmp branches_list+5
+    beq BranchDeath
+    ;no branch
+    cmp #1
+    bne leftside
+    ; right branch
+    mwa #RIPscreen_r_nobranch animation_addr
+    rts
+leftside
+    mwa #RIPscreen_l_nobranch animation_addr
+    rts    
+BranchDeath
+    cmp #1
+    bne leftbranch
+    ; right branch
+    mwa #RIPscreen_r_branch animation_addr
+    rts
+leftbranch
+    mwa #RIPscreen_l_branch animation_addr
+    rts
+.endp
 ;--------------------------------------------------
 .proc AudioInit
 ;--------------------------------------------------
