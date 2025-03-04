@@ -174,7 +174,12 @@ DLI2
     nop
     nop
     nop
-    mva #$c6 COLBAK ; green
+    mva #$84 COLBAK ; thin line
+    sta WSYNC
+    mva #$DA COLBAK ; additional lines
+    sta WSYNC
+    sta WSYNC
+    mva #$c8 COLBAK ; green
     inc SyncByte
     pla
     rti
@@ -191,7 +196,7 @@ DLI4
     sta WSYNC
     sta WSYNC
     ;sta WSYNC    
-    mva #$86 COLPF2 ; blue pants
+    mva #$92 COLPF2 ; blue pants
     inc dliCount
     pla
     rti
@@ -418,14 +423,16 @@ no_2branch_l
 LevelDeath
     jsr SetRIPscreen
     mva #2 StateFlag
-@   mva RANDOM COLBAK
-    jsr GetKeyFast
+@   
+    ;mva RANDOM COLBAK
+    jsr GetKey
     cmp #@kbcode._space
     bne @-
     ; restart game
     jsr ScoreClear
     jsr InitBranches
     jsr draw_branches
+    jsr SetLumberjackPosition
     jsr LevelReset
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
@@ -447,6 +454,7 @@ LevelOver
 ;--------------------------------------------------
     :5 WaitForSync
     mva #>font_game_rip LowCharsetBase
+    mwa #last_line_RIP lastline_addr
     lda LumberjackDir    ; branch and Lumerjack ?
     cmp branches_list+5
     beq BranchDeath
@@ -467,6 +475,24 @@ BranchDeath
     rts
 leftbranch
     mwa #RIPscreen_l_branch animation_addr
+    rts
+.endp
+;--------------------------------------------------
+.proc SetLumberjackPosition
+;--------------------------------------------------
+    WaitForSync
+    lda LumberjackDir
+    cmp #1
+    beq right_side
+left_side
+    mva #>font_game_lower_left LowCharsetBase
+    mwa #last_line_l lastline_addr
+    mwa #gamescreen_l_ph1p1 animation_addr
+    rts
+right_side
+    mva #>font_game_lower_right LowCharsetBase
+    mwa #last_line_r lastline_addr
+    mwa #gamescreen_r_ph1p1 animation_addr
     rts
 .endp
 ;--------------------------------------------------
