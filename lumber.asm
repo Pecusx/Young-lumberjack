@@ -418,10 +418,10 @@ no_2branch_l
 LevelDeath
     jsr SetRIPscreen
     mva #2 StateFlag
-    mva RANDOM COLBAK
+@   mva RANDOM COLBAK
     jsr GetKeyFast
     cmp #@kbcode._space
-    bne LevelDeath
+    bne @-
     ; restart game
     jsr ScoreClear
     jsr InitBranches
@@ -445,7 +445,7 @@ LevelOver
 ;--------------------------------------------------
 .proc SetRIPscreen
 ;--------------------------------------------------
-    WaitForSync
+    :5 WaitForSync
     mva #>font_game_rip LowCharsetBase
     lda LumberjackDir    ; branch and Lumerjack ?
     cmp branches_list+5
