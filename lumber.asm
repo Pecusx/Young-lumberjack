@@ -35,6 +35,7 @@ display = $a000
     .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
+    .zpvar LastKey  .byte   ; $ff if no key pressed or last key released
     .zpvar DLI_A DLI_X dliCount .byte
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
@@ -152,7 +153,16 @@ SkipRMTVBL
 lab2
     jsr RASTERMUSICTRACKER+3
 skipSoundFrame */
-
+    ; key release flag
+    lda LastKey
+    cmp #$ff
+    beq key_released
+    jsr GetKeyFast
+    cmp LastKey
+    beq last_key_still_press
+    mva #$ff LastKey
+last_key_still_press
+key_released
     jmp XITVBV
 .endp
 ;--------------------------------------------------
@@ -298,7 +308,11 @@ loop
     lda branches_list+5
     cmp LumberjackDir    ; branch and Lumerjack ?
     jeq LevelDeath
-
+    lda LastKey
+    cmp #$ff
+    beq key_released_before
+    bne No_keys
+key_released_before
     jsr GetKeyFast
     cmp #@kbcode._left
     beq left_pressed
@@ -308,12 +322,15 @@ loop
     cmp #@kbcode._up
     bne NoNextLevel
     ; next level if joy UP
+    sta LastKey
     jsr LevelUp
 NoNextLevel
+No_keys
     lda PowerValue
     jeq LevelDeath
     jmp loop
 right_pressed
+    sta LastKey
 /*  
     ; test for right lower branch
     lda branches_list+5
@@ -367,6 +384,7 @@ no_2branch_r
     jsr AnimationR1
     jmp go_loop
 left_pressed
+    sta LastKey
 /* 
     ; test for left lower branch
     lda branches_list+5
@@ -443,7 +461,7 @@ branch_ok
     jsr draw_PowerBar
     mva #0 StateFlag
 go_loop
-    jsr WaitForKeyRelease
+    ;jsr WaitForKeyRelease
     jmp loop
 LevelOver
     ; level over
