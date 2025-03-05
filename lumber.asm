@@ -430,8 +430,13 @@ LevelDeath
     bne @-
     ; restart game
     jsr ScoreClear
-    jsr InitBranches
-    jsr draw_branches
+    ;jsr InitBranches
+    ;jsr draw_branches
+    lda branches_list+5
+    cmp LumberjackDir
+    bne branch_ok
+    mva #0 branches_list+5  ; branches at Lumberjack level and position - remove it
+branch_ok
     jsr SetLumberjackPosition
     jsr LevelReset
     mva #24 PowerValue  ; half power
@@ -500,11 +505,23 @@ leftbranch
 left_side
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
+    lda branches_list+5
+    cmp #1
+    bne no_branch_r
+    mwa #gamescreen_l_ph1p2 animation_addr
+    rts
+no_branch_r    
     mwa #gamescreen_l_ph1p1 animation_addr
     rts
 right_side
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
+    lda branches_list+5
+    cmp #2
+    bne no_branch_l
+    mwa #gamescreen_r_ph1p2 animation_addr
+    rts
+no_branch_l
     mwa #gamescreen_r_ph1p1 animation_addr
     rts
 .endp
