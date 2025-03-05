@@ -458,13 +458,26 @@ LevelOver
     lda LumberjackDir    ; branch and Lumerjack ?
     cmp branches_list+5
     beq BranchDeath
-    ;no branch
+    ;no branch death
     cmp #1
     bne leftside
-    ; right branch
+    ; right death
+    lda branches_list+5
+    beq no_branch_r
+    ; left side branch
+    mwa #RIPscreen_r_Lbranch animation_addr
+    rts
+no_branch_r    
     mwa #RIPscreen_r_nobranch animation_addr
     rts
 leftside
+    ; right death
+    lda branches_list+5
+    beq no_branch_l
+    ; right side branch
+    mwa #RIPscreen_l_Rbranch animation_addr
+    rts
+no_branch_l   
     mwa #RIPscreen_l_nobranch animation_addr
     rts    
 BranchDeath

@@ -278,3 +278,11 @@ print_lines(dta, -9, -1)
 print('RIPscreen_r_branch  ; page 4')
 dta = load_atrview('rip.atrview', page=4)
 print_lines(dta, -9, -1)
+
+print('RIPscreen_l_Rbranch  ; page 5')
+dta = load_atrview('rip.atrview', page=5)
+print_lines(dta, -9, -1)
+
+print('RIPscreen_r_Lbranch  ; page 6')
+dta = load_atrview('rip.atrview', page=6)
+print_lines(dta, -9, -1)
