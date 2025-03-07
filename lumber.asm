@@ -48,6 +48,8 @@ MODUL
     ;icl 'art/rmtplayr.a65'
     ;---------------------------------------------------
     .align $400
+PMmemory
+    .ds $400
 font_game_upper
     ins 'art/tu.fnt'  ;
 font_game_lower_right
@@ -270,11 +272,14 @@ EndOfStartScreen */
 .proc LevelScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
+    jsr PrepareLevelPM
     ldx #2
     mwa #dl_level dlptrs
-    lda #@dmactl(narrow|dma)  ; narrow screen width, DL on, P/M off
+    lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
+    mva #%00000011 GRACTL
     mva #>font_game_upper CHBAS
+    jsr SetPMr
     pause 5
     mva #0 StateFlag
     rts
@@ -347,6 +352,7 @@ no_r_branch
 */ 
     jsr ScoreUp
     jsr PowerUp
+    jsr SetPMr
     lda branches_list+4  ; check branch over 
     beq no_brancho_r
     ; branch over lumberjack
@@ -401,6 +407,7 @@ no_l_branch
 */
     jsr ScoreUp
     jsr PowerUp
+    jsr SetPMl
     lda branches_list+4  ; check branch over
     beq no_brancho_l
     ; branch over lumberjack
@@ -478,6 +485,7 @@ LevelOver
     :5 WaitForSync
     mva #>font_game_rip LowCharsetBase
     mwa #last_line_RIP lastline_addr
+    jsr HidePM
     lda LumberjackDir    ; branch and Lumerjack ?
     cmp branches_list+5
     beq BranchDeath
@@ -521,6 +529,7 @@ leftbranch
     cmp #1
     beq right_side
 left_side
+    jsr SetPMl
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     lda branches_list+5
@@ -532,6 +541,7 @@ no_branch_r
     mwa #gamescreen_l_ph1p1 animation_addr
     rts
 right_side
+    jsr SetPMr
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     lda branches_list+5
@@ -581,6 +591,18 @@ no_branch_l
     mva #$f6 COLOR3 ; light brown
     ;mva #$ff COLOR4
 
+    ;clear P/M memory
+    lda #0
+    tax
+@   sta PMmemory,x
+    sta PMmemory+$100,x
+    sta PMmemory+$200,x
+    sta PMmemory+$300,x
+    inx
+    bne @-
+    mva #>PMmemory PMBASE
+    jsr HidePM
+
     mva #0 dliCount
     sta RMT_blocked
     
@@ -603,9 +625,12 @@ no_branch_l
     lda #0                      ;starting song line 0-255 to A reg
     jsr RASTERMUSICTRACKER      ;Init
  */    
+    jsr PrepareLevelPM
+    jsr SetPMr
     mwa #gamescreen_r_ph1p1 animation_addr
-    lda #@dmactl(standard|dma)
+    lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
+    mva #%00000011 GRACTL
     mwa #dl_level dlptrs
     vdli IngameDLI1
 
@@ -614,6 +639,65 @@ no_branch_l
 
     vmain vint,7
     
+    rts
+.endp
+;--------------------------------------------------
+.proc HidePM
+; hide P/M on right side of screen
+;--------------------------------------------------
+    lda #$e0
+    ldx #$07 ; 8 registers. from HPOSP0 to HPOSM3
+@   sta HPOSP0,x
+    dex
+    bpl @-
+    rts
+.endp
+;--------------------------------------------------
+.proc PrepareLevelPM
+;--------------------------------------------------
+    ; Lumberjack shirt
+    ldx #datalines-1
+@   lda P2_data,x
+    sta PMmemory+$300+Hoffset,x
+    lda P3_data,x
+    sta PMmemory+$380+Hoffset,x
+    lda M_data,x
+    sta PMmemory+$180+Hoffset,x
+    dex
+    bpl @-
+    mva #1 SIZEP2
+    sta SIZEP3
+    lda #%01010101
+    sta SIZEM
+    mva #$22 PCOLR2
+    mva #$24 PCOLR3
+    rts
+P2_data
+    .by $55,$55,$aa,$aa,$55,$55,$aa,$aa,$55,$55,$aa,$aa,$55,$55,$ff,$ff
+P3_data
+    .by $ff,$ff,$55,$55,$ff,$ff,$55,$55,$ff,$ff,$55,$55,$ff,$ff,$00,$00
+M_data
+    .by $80,$80,$20,$20,$80,$80,$20,$20,$80,$80,$20,$20,$80,$80,$20,$20
+Hoffset=98
+datalines=16
+.endp
+;--------------------------------------------------
+.proc SetPMl
+;--------------------------------------------------
+    mva #$4f HPOSP2
+    sta HPOSP3
+    mva #$5f HPOSM2
+    sta HPOSM3
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMr
+;--------------------------------------------------
+    mva #$9f HPOSP2
+    sta HPOSP3
+    mva #$af HPOSM2
+    sta HPOSM3
+    rts
     rts
 .endp
 ;--------------------------------------------------
