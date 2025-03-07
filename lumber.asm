@@ -602,7 +602,7 @@ no_branch_l
     bne @-
     mva #>PMmemory PMBASE
     jsr HidePM
-
+    mva #%00100000 GPRIOR
     mva #0 dliCount
     sta RMT_blocked
     
