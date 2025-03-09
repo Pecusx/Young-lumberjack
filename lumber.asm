@@ -208,7 +208,7 @@ DLI4
     sta WSYNC
     sta WSYNC
     ;sta WSYNC    
-    mva #$92 COLPF2 ; blue pants
+    mva #$94 COLPF2 ; blue pants
     inc dliCount
     pla
     rti
