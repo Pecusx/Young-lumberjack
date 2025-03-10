@@ -656,30 +656,101 @@ no_branch_l
 .proc PrepareLevelPM
 ;--------------------------------------------------
     ; Lumberjack shirt
-    ldx #datalines-1
+    ldx #datalinesP2-1
 @   lda P2_data,x
-    sta PMmemory+$300+Hoffset,x
+    sta PMmemory+$300+HoffsetP2,x
     lda P3_data,x
-    sta PMmemory+$380+Hoffset,x
-    lda M_data,x
-    sta PMmemory+$180+Hoffset,x
+    sta PMmemory+$380+HoffsetP2,x
+    lda M23_data,x
+    sta PMmemory+$180+HoffsetP2,x
     dex
     bpl @-
     mva #1 SIZEP2
     sta SIZEP3
-    lda #%01010101
+    lda #%01011111
     sta SIZEM
     mva #$22 PCOLR2
     mva #$24 PCOLR3
+    ; Lumberjack hand
+    ldx #datalinesP0-1
+@   lda P0_data,x
+    sta PMmemory+$200+HoffsetP0,x
+    dex
+    bpl @-
+    mva #0 SIZEP0
+    mva #$2a PCOLR0
+    ; Lumberjack face
+    ldx #datalinesM0-1
+@   lda PMmemory+$180+HoffsetM0,x
+    ora M0_data,x
+    sta PMmemory+$180+HoffsetM0,x
+    dex
+    bpl @-
+    ; Lumberjack second hand
+    ldx #datalinesM1-1
+@   lda PMmemory+$180+HoffsetM1,x
+    ora M1_data,x
+    sta PMmemory+$180+HoffsetM1,x
+    dex
+    bpl @-
+    mva #$2a PCOLR1
+    ; Lumberjack both hands
+    ldx #datalinesP1-1
+@   lda P1_data,x
+    sta PMmemory+$280+HoffsetP1,x
+    dex
+    bpl @-
+    mva #1 SIZEP1
     rts
+; Lumberjack shirt data
 P2_data
     .by $55,$55,$aa,$aa,$55,$55,$aa,$aa,$55,$55,$aa,$aa,$55,$55,$ff,$ff
 P3_data
     .by $ff,$ff,$55,$55,$ff,$ff,$55,$55,$ff,$ff,$55,$55,$ff,$ff,$00,$00
-M_data
+M23_data
     .by $80,$80,$20,$20,$80,$80,$20,$20,$80,$80,$20,$20,$80,$80,$20,$20
-Hoffset=98
-datalines=16
+HoffsetP2=98
+datalinesP2=16
+; Lumberjack hand data
+P0_data
+    .by %11111000
+    .by %11111000
+    .by %11111000
+    .by %11111000
+    .by %11111000
+HoffsetP0=95
+datalinesP0=5
+; Lumberjack face data
+M0_data
+    .by %00000011
+    .by %00000011
+    .by %00000011
+    .by %00000011
+    .by %00000011
+    .by %00000011
+    .by %00000011
+    .by %00000011
+    .by %00000011
+HoffsetM0=94
+datalinesM0=9
+; Lumberjack second hand data
+M1_data
+    .by %00001100
+    .by %00001100
+    .by %00001100
+    .by %00001100
+    .by %00001100
+HoffsetM1=103
+datalinesM1=5
+; Lumberjack both hands data
+P1_data
+    .by %11101110
+    .by %11101110
+    .by %11101110
+    .by %11101110
+    .by %11101110
+HoffsetP1=103
+datalinesP1=5
 .endp
 ;--------------------------------------------------
 .proc SetPMl
@@ -688,6 +759,10 @@ datalines=16
     sta HPOSP3
     mva #$5f HPOSM2
     sta HPOSM3
+    mva #$4c HPOSP0
+    mva #$54 HPOSM0
+    mva #$4c HPOSM1
+    mva #$e0 HPOSP1 ; hide
     rts
 .endp
 ;--------------------------------------------------
@@ -697,7 +772,10 @@ datalines=16
     sta HPOSP3
     mva #$af HPOSM2
     sta HPOSM3
-    rts
+    mva #$af HPOSP0
+    mva #$a4 HPOSM0
+    mva #$ac HPOSM1
+    mva #$e0 HPOSP1 ; hide
     rts
 .endp
 ;--------------------------------------------------
