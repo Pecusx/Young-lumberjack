@@ -70,9 +70,10 @@ dl_level
     .by $44
 animation_addr
     .wo gamescreen_r_ph1p1
-    :4 .by $04
     .by $84 ; DLI3
+    :3 .by $04
     .by $84 ; DLI4
+    .by $84 ; DLI5
     .by $04
     .by $44
 lastline_addr
@@ -198,12 +199,21 @@ DLI2
 DLI3
     cmp #2
     bne DLI4
+    mva #$72 COLPF2 ; hat
+    :5 STA WSYNC
+    mva #$0c COLPF2
+    inc dliCount
+    pla
+    rti
+DLI4
+    cmp #3
+    bne DLI5
     sta WSYNC
     mva #>font_game_upper CHBASE
     inc dliCount
     pla
     rti
-DLI4
+DLI5
     sta WSYNC
     sta WSYNC
     sta WSYNC
