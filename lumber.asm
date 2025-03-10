@@ -279,7 +279,7 @@ EndOfStartScreen */
     sta dmactls
     mva #%00000011 GRACTL
     mva #>font_game_upper CHBAS
-    jsr SetPMr
+    jsr SetPMr1
     pause 5
     mva #0 StateFlag
     rts
@@ -352,7 +352,7 @@ no_r_branch
 */ 
     jsr ScoreUp
     jsr PowerUp
-    jsr SetPMr
+    jsr SetPMr1
     lda branches_list+4  ; check branch over 
     beq no_brancho_r
     ; branch over lumberjack
@@ -407,7 +407,7 @@ no_l_branch
 */
     jsr ScoreUp
     jsr PowerUp
-    jsr SetPMl
+    jsr SetPMl1
     lda branches_list+4  ; check branch over
     beq no_brancho_l
     ; branch over lumberjack
@@ -529,7 +529,7 @@ leftbranch
     cmp #1
     beq right_side
 left_side
-    jsr SetPMl
+    jsr SetPMl1
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     lda branches_list+5
@@ -541,7 +541,7 @@ no_branch_r
     mwa #gamescreen_l_ph1p1 animation_addr
     rts
 right_side
-    jsr SetPMr
+    jsr SetPMr1
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     lda branches_list+5
@@ -626,7 +626,7 @@ no_branch_l
     jsr RASTERMUSICTRACKER      ;Init
  */    
     jsr PrepareLevelPM
-    jsr SetPMr
+    jsr SetPMr1
     mwa #gamescreen_r_ph1p1 animation_addr
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
@@ -753,7 +753,7 @@ HoffsetP1=103
 datalinesP1=5
 .endp
 ;--------------------------------------------------
-.proc SetPMl
+.proc SetPMl1
 ;--------------------------------------------------
     mva #$4f HPOSP2
     sta HPOSP3
@@ -766,7 +766,7 @@ datalinesP1=5
     rts
 .endp
 ;--------------------------------------------------
-.proc SetPMr
+.proc SetPMr1
 ;--------------------------------------------------
     mva #$9f HPOSP2
     sta HPOSP3
@@ -776,6 +776,58 @@ datalinesP1=5
     mva #$a4 HPOSM0
     mva #$ac HPOSM1
     mva #$e0 HPOSP1 ; hide
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMl2
+;--------------------------------------------------
+    mva #$4f HPOSP2
+    sta HPOSP3
+    mva #$5f HPOSM2
+    sta HPOSM3
+    mva #$e0 HPOSP0 ; hide
+    mva #$55 HPOSM0
+    mva #$e0 HPOSM1 ; hide
+    mva #$50 HPOSP1
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMr2
+;--------------------------------------------------
+    mva #$9f HPOSP2
+    sta HPOSP3
+    mva #$af HPOSM2
+    sta HPOSM3
+    mva #$e0 HPOSP0 ; hide
+    mva #$a3 HPOSM0
+    mva #$e0 HPOSM1 ; hide
+    mva #$a2 HPOSP1
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMl3
+;--------------------------------------------------
+    mva #$4f HPOSP2
+    sta HPOSP3
+    mva #$5f HPOSM2
+    sta HPOSM3
+    mva #$e0 HPOSP0 ; hide
+    mva #$54 HPOSM0
+    mva #$56 HPOSM1
+    mva #$5b HPOSP1
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMr3
+;--------------------------------------------------
+    mva #$9f HPOSP2
+    sta HPOSP3
+    mva #$af HPOSM2
+    sta HPOSM3
+    mva #$e0 HPOSP0 ; hide
+    mva #$a4 HPOSM0
+    mva #$a4 HPOSM1
+    mva #$97 HPOSP1
     rts
 .endp
 ;--------------------------------------------------

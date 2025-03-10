@@ -97,6 +97,7 @@
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     mwa #gamescreen_r_ph2p1 animation_addr
+    jsr SetPMr2
     WaitForSync
     mwa #gamescreen_r_ph2p2 animation_addr
     WaitForSync
@@ -107,6 +108,7 @@
     WaitForSync
     mwa #gamescreen_r_ph3p1 animation_addr
     WaitForSync
+    jsr SetPMr3
     jsr branches_go_down
     mwa #gamescreen_r_ph3p2 animation_addr
     WaitForSync
@@ -122,7 +124,10 @@
     jsr branches_go_down
     mwa #gamescreen_r_ph2p1 animation_addr
     WaitForSync
+    jsr SetPMr2
     mwa #gamescreen_r_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMr1
     mva #1 LumberjackDir    ; right side
     rts
 .endp
@@ -133,6 +138,7 @@ AnimationR2 = AnimationR1
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     mwa #gamescreen_l_ph2p1 animation_addr
+    jsr SetPMl2
     WaitForSync
     mwa #gamescreen_l_ph2p2 animation_addr
     WaitForSync
@@ -143,6 +149,7 @@ AnimationR2 = AnimationR1
     WaitForSync
     mwa #gamescreen_l_ph3p1 animation_addr
     WaitForSync
+    jsr SetPMl3
     jsr branches_go_down
     mwa #gamescreen_l_ph3p2 animation_addr
     WaitForSync
@@ -158,7 +165,10 @@ AnimationR2 = AnimationR1
     jsr branches_go_down
     mwa #gamescreen_l_ph2p1 animation_addr
     WaitForSync
+    jsr SetPMl2
     mwa #gamescreen_l_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMl1
     mva #2 LumberjackDir    ; left side
     rts
 .endp
@@ -169,6 +179,7 @@ AnimationL2 = AnimationL1
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     mwa #gamescreen_r_ph2p5 animation_addr
+    jsr SetPMr2
     WaitForSync
     mwa #gamescreen_r_ph2p6 animation_addr
     WaitForSync
@@ -179,6 +190,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     mwa #gamescreen_r_ph3p6 animation_addr
     WaitForSync
+    jsr SetPMr3
     jsr branches_go_down
     mwa #gamescreen_r_ph3p2 animation_addr
     WaitForSync
@@ -194,7 +206,10 @@ AnimationL2 = AnimationL1
     jsr branches_go_down
     mwa #gamescreen_r_ph2p1 animation_addr
     WaitForSync
+    jsr SetPMr2
     mwa #gamescreen_r_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMr1
     mva #1 LumberjackDir    ; right side
     rts
 .endp
@@ -204,6 +219,7 @@ AnimationL2 = AnimationL1
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     mwa #gamescreen_l_ph2p5 animation_addr
+    jsr SetPMl2
     WaitForSync
     mwa #gamescreen_l_ph2p6 animation_addr
     WaitForSync
@@ -214,6 +230,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     mwa #gamescreen_l_ph3p6 animation_addr
     WaitForSync
+    jsr SetPMl3
     jsr branches_go_down
     mwa #gamescreen_l_ph3p2 animation_addr
     WaitForSync
@@ -229,7 +246,10 @@ AnimationL2 = AnimationL1
     jsr branches_go_down
     mwa #gamescreen_l_ph2p1 animation_addr
     WaitForSync
+    jsr SetPMl2
     mwa #gamescreen_l_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMl1
     mva #2 LumberjackDir    ; left side
     rts
 .endp
@@ -239,6 +259,7 @@ AnimationL2 = AnimationL1
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     mwa #gamescreen_r_ph2p1 animation_addr
+    jsr SetPMr2
     WaitForSync
     mwa #gamescreen_r_ph2p2 animation_addr
     WaitForSync
@@ -249,6 +270,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     mwa #gamescreen_r_ph3p1 animation_addr
     WaitForSync
+    jsr SetPMr3
     jsr branches_go_down
     mwa #gamescreen_r_ph3p11 animation_addr
     WaitForSync
@@ -263,6 +285,8 @@ AnimationL2 = AnimationL1
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMr1
     mva #1 LumberjackDir    ; right side (kill)
     rts
 .endp
@@ -273,6 +297,7 @@ AnimationR5 = AnimationR4
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     mwa #gamescreen_l_ph2p1 animation_addr
+    jsr SetPMl2
     WaitForSync
     mwa #gamescreen_l_ph2p2 animation_addr
     WaitForSync
@@ -283,6 +308,7 @@ AnimationR5 = AnimationR4
     WaitForSync
     mwa #gamescreen_l_ph3p1 animation_addr
     WaitForSync
+    jsr SetPMl3
     jsr branches_go_down
     mwa #gamescreen_l_ph3p11 animation_addr
     WaitForSync
@@ -297,6 +323,8 @@ AnimationR5 = AnimationR4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMl1
     mva #2 LumberjackDir    ; left side (kill)
     rts
 .endp
@@ -307,6 +335,7 @@ AnimationL5 = AnimationL4
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     mwa #gamescreen_r_ph2p5 animation_addr
+    jsr SetPMr2
     WaitForSync
     mwa #gamescreen_r_ph2p6 animation_addr
     WaitForSync
@@ -317,6 +346,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     mwa #gamescreen_r_ph3p6 animation_addr
     WaitForSync
+    jsr SetPMr3
     jsr branches_go_down
     mwa #gamescreen_r_ph3p11 animation_addr
     WaitForSync
@@ -331,6 +361,8 @@ AnimationL5 = AnimationL4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMr1
     mva #1 LumberjackDir    ; right side (kill)
     rts
 .endp
@@ -340,6 +372,7 @@ AnimationL5 = AnimationL4
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     mwa #gamescreen_l_ph2p5 animation_addr
+    jsr SetPMl2
     WaitForSync
     mwa #gamescreen_l_ph2p6 animation_addr
     WaitForSync
@@ -350,6 +383,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     mwa #gamescreen_l_ph3p6 animation_addr
     WaitForSync
+    jsr SetPMl3
     jsr branches_go_down
     mwa #gamescreen_l_ph3p11 animation_addr
     WaitForSync
@@ -364,6 +398,8 @@ AnimationL5 = AnimationL4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph1p1 animation_addr
+    WaitForSync
+    jsr SetPMl1
     mva #2 LumberjackDir    ; left side (kill)
     rts
 .endp
@@ -372,9 +408,8 @@ AnimationL5 = AnimationL4
 ;--------------------------------------------------
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
-    mwa #gamescreen_r_ph2p1 animation_addr
-    WaitForSync
     mwa #gamescreen_r_ph2p2 animation_addr
+    jsr SetPMr2
     WaitForSync
     mwa #gamescreen_r_ph2p3 animation_addr
     WaitForSync
@@ -383,6 +418,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     mwa #gamescreen_r_ph3p1 animation_addr
     WaitForSync
+    jsr SetPMr3
     jsr branches_go_down
     mwa #gamescreen_r_ph3p7 animation_addr
     WaitForSync
@@ -398,7 +434,10 @@ AnimationL5 = AnimationL4
     jsr branches_go_down
     mwa #gamescreen_r_ph2p5 animation_addr
     WaitForSync
+    jsr SetPMr2
     mwa #gamescreen_r_ph1p2 animation_addr
+    WaitForSync
+    jsr SetPMr1
     mva #1 LumberjackDir    ; right side
     rts
 .endp
@@ -408,9 +447,8 @@ AnimationR8 = AnimationR7
 ;--------------------------------------------------
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
-    mwa #gamescreen_l_ph2p1 animation_addr
-    WaitForSync
     mwa #gamescreen_l_ph2p2 animation_addr
+    jsr SetPMl2
     WaitForSync
     mwa #gamescreen_l_ph2p3 animation_addr
     WaitForSync
@@ -419,6 +457,7 @@ AnimationR8 = AnimationR7
     WaitForSync
     mwa #gamescreen_l_ph3p1 animation_addr
     WaitForSync
+    jsr SetPMl3
     jsr branches_go_down
     mwa #gamescreen_l_ph3p7 animation_addr
     WaitForSync
@@ -434,7 +473,10 @@ AnimationR8 = AnimationR7
     jsr branches_go_down
     mwa #gamescreen_l_ph2p5 animation_addr
     WaitForSync
+    jsr SetPMl2
     mwa #gamescreen_l_ph1p2 animation_addr
+    WaitForSync
+    jsr SetPMl1
     mva #2 LumberjackDir    ; left side
     rts
 .endp
@@ -445,6 +487,7 @@ AnimationL8 = AnimationL7
     mva #>font_game_lower_right LowCharsetBase
     mwa #last_line_r lastline_addr
     mwa #gamescreen_r_ph2p5 animation_addr
+    jsr SetPMr2
     WaitForSync
     mwa #gamescreen_r_ph2p6 animation_addr
     WaitForSync
@@ -455,6 +498,7 @@ AnimationL8 = AnimationL7
     WaitForSync
     mwa #gamescreen_r_ph3p6 animation_addr
     WaitForSync
+    jsr SetPMr3
     jsr branches_go_down
     mwa #gamescreen_r_ph3p7 animation_addr
     WaitForSync
@@ -470,7 +514,10 @@ AnimationL8 = AnimationL7
     jsr branches_go_down
     mwa #gamescreen_r_ph2p5 animation_addr
     WaitForSync
+    jsr SetPMr2
     mwa #gamescreen_r_ph1p2 animation_addr
+    WaitForSync
+    jsr SetPMr1
     mva #1 LumberjackDir    ; right side
     rts
 .endp
@@ -480,6 +527,7 @@ AnimationL8 = AnimationL7
     mva #>font_game_lower_left LowCharsetBase
     mwa #last_line_l lastline_addr
     mwa #gamescreen_l_ph2p5 animation_addr
+    jsr SetPMl2
     WaitForSync
     mwa #gamescreen_l_ph2p6 animation_addr
     WaitForSync
@@ -490,6 +538,7 @@ AnimationL8 = AnimationL7
     WaitForSync
     mwa #gamescreen_l_ph3p6 animation_addr
     WaitForSync
+    jsr SetPMl3
     jsr branches_go_down
     mwa #gamescreen_l_ph3p7 animation_addr
     WaitForSync
@@ -505,7 +554,10 @@ AnimationL8 = AnimationL7
     jsr branches_go_down
     mwa #gamescreen_l_ph2p5 animation_addr
     WaitForSync
+    jsr SetPMl2
     mwa #gamescreen_l_ph1p2 animation_addr
+    WaitForSync
+    jsr SetPMl1
     mva #2 LumberjackDir    ; left side
     rts
 .endp
