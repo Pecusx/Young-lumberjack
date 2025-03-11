@@ -210,6 +210,7 @@ DLI4
     bne DLI5
     sta WSYNC
     mva #>font_game_upper CHBASE
+    mva #$ec COLPF2 ; button and buckle
     inc dliCount
     pla
     rti
