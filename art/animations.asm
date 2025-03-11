@@ -108,6 +108,7 @@
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p4 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p5 animation_addr
@@ -140,6 +141,7 @@ AnimationR2 = AnimationR1
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p4 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p5 animation_addr
@@ -172,6 +174,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p4 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p5 animation_addr
@@ -203,6 +206,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p4 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p5 animation_addr
@@ -234,6 +238,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p13 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p14 animation_addr
@@ -263,6 +268,7 @@ AnimationR5 = AnimationR4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p13 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p14 animation_addr
@@ -292,6 +298,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p13 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p14 animation_addr
@@ -320,6 +327,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p13 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p14 animation_addr
@@ -348,6 +356,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p9 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p10 animation_addr
@@ -380,6 +389,7 @@ AnimationR8 = AnimationR7
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p9 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p10 animation_addr
@@ -412,6 +422,7 @@ AnimationL8 = AnimationL7
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p9 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p10 animation_addr
@@ -443,6 +454,7 @@ AnimationL8 = AnimationL7
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p9 animation_addr
+    jsr RestoreRedBar
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p10 animation_addr
