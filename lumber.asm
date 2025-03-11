@@ -199,7 +199,7 @@ DLI2
 DLI3
     cmp #2
     bne DLI4
-    mva #$72 COLPF2 ; hat
+    mva #$82 COLPF2 ; hat
     :5 STA WSYNC
     mva #$0c COLPF2
     inc dliCount
@@ -210,7 +210,7 @@ DLI4
     bne DLI5
     sta WSYNC
     mva #>font_game_upper CHBASE
-    mva #$ec COLPF2 ; button and buckle
+    mva #$ea COLPF2 ; button and buckle
     inc dliCount
     pla
     rti
@@ -322,7 +322,7 @@ EndOfStartScreen */
 loop
     ; PUT GAME HERE
     lda branches_list+5
-    cmp LumberjackDir    ; branch and Lumerjack ?
+    cmp LumberjackDir    ; branch and Lumberjack ?
     jeq LevelDeath
     lda LastKey
     cmp #$ff
@@ -497,7 +497,7 @@ LevelOver
     mva #>font_game_rip LowCharsetBase
     mwa #last_line_RIP lastline_addr
     jsr HidePM
-    lda LumberjackDir    ; branch and Lumerjack ?
+    lda LumberjackDir    ; branch and Lumberjack ?
     cmp branches_list+5
     beq BranchDeath
     ;no branch death
@@ -1003,7 +1003,7 @@ draw_bar_loop
     ; last char in bar
     txa
     sta Power,y
-    lda #PowerCharEmpty ; becouse naxt in bar chars are empty
+    lda #PowerCharEmpty ; because next in bar chars are empty
     bne next_char
 not_last_bar_char
     sta Power,y
@@ -1023,14 +1023,14 @@ draw_branch0
     tax
     ; this is partialy off-screen branch
     ; we must draw only visible lines
-    ; now calculate start screen adress
+    ; now calculate start screen address
     lda #5
     sec
     sbc branches_anim_phase
     :5 asl  ; skippedlines*32
     tay ; to skip lines
     txa
-    ; now calculate start screen adress
+    ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
     adc #<(gamescreen_middle-5*32)
@@ -1044,7 +1044,7 @@ draw_branch0
     lda branch_addr_tableH,x
     sta temp2+1
     ; skiping off-screen lines    
-    ; ldy #$00  ; we hawe value in Y
+    ; ldy #$00  ; we have value in Y
 @   lda (temp2),y
     sta (temp),y
     iny
@@ -1052,7 +1052,7 @@ draw_branch0
     bne @-
 draw_branch1
     lda branches_anim_phase
-    ; now calculate start screen adress
+    ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
     adc #<gamescreen_middle
@@ -1073,7 +1073,7 @@ draw_branch1
     bne @-
 draw_branch2
     lda branches_anim_phase
-    ; now calculate start screen adress
+    ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
     adc #<(gamescreen_middle+5*32)
@@ -1102,7 +1102,7 @@ draw_branch3
     ldx #(4*32)     ; how many lines draw
 not_phase4
     stx tempbyte
-    ; now calculate start screen adress
+    ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
     adc #<(gamescreen_middle+10*32)
@@ -1136,7 +1136,7 @@ not_phase1
     ldx #(1*32)     ; how many lines draw
 not_phase2    
     stx tempbyte
-    ; now calculate start screen adress
+    ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
     adc #<(gamescreen_middle+15*32)
@@ -1282,7 +1282,7 @@ Check2button
 ;--------------------------------------------------
     jsr WaitForKeyRelease
     lda kbcode
-    and #$3f                   ; CTRL and SHIFT ellimination
+    and #$3f                   ; CTRL and SHIFT elimination
     rts
 .endp
 
