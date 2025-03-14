@@ -97,6 +97,30 @@ print('gamescreen_r_ph2p8  ; phase 2 page 8')
 dta = load_atrview('phase2r.atrview', page=8)
 print_lines(dta, -9, -1)
 
+print('gamescreen_r_ph2p9  ; phase 2 page 9')
+dta = load_atrview('phase2r.atrview', page=9)
+print_lines(dta, -9, -1)
+
+print('gamescreen_r_ph2p10  ; phase 2 page 10')
+dta = load_atrview('phase2r.atrview', page=10)
+print_lines(dta, -9, -1)
+
+print('gamescreen_r_ph2p11  ; phase 2 page 11')
+dta = load_atrview('phase2r.atrview', page=11)
+print_lines(dta, -9, -1)
+
+print('gamescreen_r_ph2p12  ; phase 2 page 12')
+dta = load_atrview('phase2r.atrview', page=12)
+print_lines(dta, -9, -1)
+
+print('gamescreen_r_ph2p13  ; phase 2 page 13')
+dta = load_atrview('phase2r.atrview', page=13)
+print_lines(dta, -9, -1)
+
+print('gamescreen_r_ph2p14  ; phase 2 page 14')
+dta = load_atrview('phase2r.atrview', page=14)
+print_lines(dta, -9, -1)
+
 print('gamescreen_r_ph3p1  ; phase 3 page 1')
 dta = load_atrview('phase3r.atrview', page=1)
 print_lines(dta, -9, -1)
@@ -143,14 +167,6 @@ print_lines(dta, -9, -1)
 
 print('gamescreen_r_ph3p12  ; phase 3 page 12')
 dta = load_atrview('phase3r.atrview', page=12)
-print_lines(dta, -9, -1)
-
-print('gamescreen_r_ph3p13  ; phase 3 page 13')
-dta = load_atrview('phase3r.atrview', page=13)
-print_lines(dta, -9, -1)
-
-print('gamescreen_r_ph3p14  ; phase 3 page 14')
-dta = load_atrview('phase3r.atrview', page=14)
 print_lines(dta, -9, -1)
 
 print("""
@@ -201,6 +217,30 @@ print('gamescreen_l_ph2p8  ; phase 2 page 8')
 dta = load_atrview('phase2l.atrview', page=8)
 print_lines(dta, -9, -1)
 
+print('gamescreen_l_ph2p9  ; phase 2 page 9')
+dta = load_atrview('phase2l.atrview', page=9)
+print_lines(dta, -9, -1)
+
+print('gamescreen_l_ph2p10  ; phase 2 page 10')
+dta = load_atrview('phase2l.atrview', page=10)
+print_lines(dta, -9, -1)
+
+print('gamescreen_l_ph2p11  ; phase 2 page 11')
+dta = load_atrview('phase2l.atrview', page=11)
+print_lines(dta, -9, -1)
+
+print('gamescreen_l_ph2p12  ; phase 2 page 12')
+dta = load_atrview('phase2l.atrview', page=12)
+print_lines(dta, -9, -1)
+
+print('gamescreen_l_ph2p13  ; phase 2 page 13')
+dta = load_atrview('phase2l.atrview', page=13)
+print_lines(dta, -9, -1)
+
+print('gamescreen_l_ph2p14  ; phase 2 page 14')
+dta = load_atrview('phase2l.atrview', page=14)
+print_lines(dta, -9, -1)
+
 print('gamescreen_l_ph3p1  ; phase 3 page 1')
 dta = load_atrview('phase3l.atrview', page=1)
 print_lines(dta, -9, -1)
@@ -247,14 +287,6 @@ print_lines(dta, -9, -1)
 
 print('gamescreen_l_ph3p12  ; phase 3 page 12')
 dta = load_atrview('phase3l.atrview', page=12)
-print_lines(dta, -9, -1)
-
-print('gamescreen_l_ph3p13  ; phase 3 page 13')
-dta = load_atrview('phase3l.atrview', page=13)
-print_lines(dta, -9, -1)
-
-print('gamescreen_l_ph3p14  ; phase 3 page 14')
-dta = load_atrview('phase3l.atrview', page=14)
 print_lines(dta, -9, -1)
 
 print("""
