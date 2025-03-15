@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.01" ; number of this build (4 bytes)
+    dta d"0.20" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -30,6 +30,7 @@ display = $a000
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
+    .zpvar PowerSpeedIndex .byte
     .zpvar LevelValue .byte
     .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
@@ -882,10 +883,15 @@ level
     sta score+3
     inc score+2
     lda score+2
+    cmp #"5"
+    bne no_speed_power
+    jsr PowerSpeedUP     ; every 50pts.
+no_speed_power
     cmp #"9"+1  ; 9+1 character code
     bne ScoreReady
     lda #"0"    ; 0 character code
     sta score+2
+    jsr PowerSpeedUP     ; every 50pts.
     jsr LevelUp ; every 100pts.
     inc score+1
     lda score+1
@@ -936,6 +942,8 @@ ScoreReady
 ;--------------------------------------------------
 ; set level to 1 and PowerDownSpeed to ??
     mvx #1 LevelValue
+    dex
+    stx PowerSpeedIndex
     lda PowerSpeedTable,x
     sta PowerDownSpeed
     jsr LevelToScreen
@@ -950,10 +958,16 @@ ScoreReady
     bne not_max_lev
     mva #9 LevelValue
 not_max_lev
-    tax
+    jsr LevelToScreen
+    rts
+.endp
+;--------------------------------------------------
+.proc PowerSpeedUP
+;--------------------------------------------------
+    inc PowerSpeedIndex
+    ldx PowerSpeedIndex
     lda PowerSpeedTable,x
     sta PowerDownSpeed
-    jsr LevelToScreen
     rts
 .endp
 ;--------------------------------------------------
@@ -1356,10 +1370,12 @@ branch_addr_tableH
     .by >branch0
     .by >branch1
     .by >branch2
-; Level to power speed table
+; power speed table - every 50pts.
 PowerSpeedTable
-    .by 12,11,10,9,8,7,6,5,4,3
-    ;.by 20,20,18,16,14,12,11,10,9,8
+    ; in original game double speed after 400pts.
+    ;   000,050,100,150,200,250,300,350,400,450,500,550,600,650,700,750
+    .by 011,010,010,009,008,007,007,006,005,005,004,004,003,003,002,002,1,1,1
+    
 
 ;--------------------------------
 PowerChar0 = $07    ; power bar first (0) character 
