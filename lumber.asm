@@ -199,7 +199,7 @@ DLI2
 DLI3
     cmp #2
     bne DLI4
-    mva #$72 COLPF2 ; hat
+    mva #$82 COLPF2 ; hat
     :5 STA WSYNC
     mva #$0c COLPF2
     inc dliCount
@@ -210,7 +210,7 @@ DLI4
     bne DLI5
     sta WSYNC
     mva #>font_game_upper CHBASE
-    mva #$ec COLPF2 ; button and buckle
+    mva #$ea COLPF2 ; button and buckle
     inc dliCount
     pla
     rti
