@@ -40,6 +40,29 @@ display = $a000
     .zpvar DLI_A DLI_X dliCount .byte
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
+    .zpvar HPOSP0_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSP1_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSP2_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSP3_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSM0_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSM1_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSM2_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar HPOSM3_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar SIZEP0_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar SIZEP1_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar SIZEP2_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar SIZEP3_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar SIZEM_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar GRAFP0_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar GRAFP1_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar GRAFP2_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar GRAFP3_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar GRAFM_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar COLPM0_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar COLPM1_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar COLPM2_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar COLPM3_d   .byte ; PMG registers for sprites under horizon	
+
 RMT_zpvars = AutoPlay+1  ; POZOR!!! RMT vars go here
 ;---------------------------------------------------
     org $2000
@@ -194,6 +217,17 @@ DLI2
     sta WSYNC
     sta WSYNC
     mva #$c8 COLBAK ; green
+    ; under horizon
+    ; PMG colors, horizontal coordinates and sizes
+    txa
+    pha
+    ldx #$15
+@   lda HPOSP0_d,x
+    sta HPOSP0,x
+    dex
+    bpl @-
+    pla
+    tax
     inc SyncByte
     pla
     rti
@@ -658,8 +692,9 @@ no_branch_l
 ; hide P/M on right side of screen
 ;--------------------------------------------------
     lda #$e0
-    ldx #$07 ; 8 registers. from HPOSP0 to HPOSM3
-@   sta HPOSP0,x
+    ldx #$07 ; 8 registers. from HPOSP0_d to HPOSM3_d
+@   sta HPOSP0_d,x
+    sta HPOSP0,x
     dex
     bpl @-
     rts
@@ -677,20 +712,20 @@ no_branch_l
     sta PMmemory+$180+HoffsetP2,x
     dex
     bpl @-
-    mva #1 SIZEP2
-    sta SIZEP3
+    mva #1 SIZEP2_d
+    sta SIZEP3_d
     lda #%01011111
-    sta SIZEM
-    mva #$22 PCOLR2
-    mva #$24 PCOLR3
+    sta SIZEM_d
+    mva #$22 COLPM2_d
+    mva #$24 COLPM3_d
     ; Lumberjack hand
     ldx #datalinesP0-1
 @   lda P0_data,x
     sta PMmemory+$200+HoffsetP0,x
     dex
     bpl @-
-    mva #0 SIZEP0
-    mva #$2a PCOLR0
+    mva #0 SIZEP0_d
+    mva #$2a COLPM0_d
     ; Lumberjack face
     ldx #datalinesM0-1
 @   lda PMmemory+$180+HoffsetM0,x
@@ -705,14 +740,14 @@ no_branch_l
     sta PMmemory+$180+HoffsetM1,x
     dex
     bpl @-
-    mva #$2a PCOLR1
+    mva #$2a COLPM1_d
     ; Lumberjack both hands
     ldx #datalinesP1-1
 @   lda P1_data,x
     sta PMmemory+$280+HoffsetP1,x
     dex
     bpl @-
-    mva #1 SIZEP1
+    mva #1 SIZEP1_d
     rts
 ; Lumberjack shirt data
 P2_data
@@ -767,79 +802,79 @@ datalinesP1=5
 ;--------------------------------------------------
 .proc SetPMl1
 ;--------------------------------------------------
-    mva #$4f HPOSP2
-    sta HPOSP3
-    mva #$5f HPOSM2
-    sta HPOSM3
-    mva #$4c HPOSP0
-    mva #$54 HPOSM0
-    mva #$4c HPOSM1
-    mva #$e0 HPOSP1 ; hide
+    mva #$4f HPOSP2_d
+    sta HPOSP3_d
+    mva #$5f HPOSM2_d
+    sta HPOSM3_d
+    mva #$4c HPOSP0_d
+    mva #$54 HPOSM0_d
+    mva #$4c HPOSM1_d
+    mva #$e0 HPOSP1_d ; hide
     rts
 .endp
 ;--------------------------------------------------
 .proc SetPMr1
 ;--------------------------------------------------
-    mva #$9f HPOSP2
-    sta HPOSP3
-    mva #$af HPOSM2
-    sta HPOSM3
-    mva #$af HPOSP0
-    mva #$a4 HPOSM0
-    mva #$ac HPOSM1
-    mva #$e0 HPOSP1 ; hide
+    mva #$9f HPOSP2_d
+    sta HPOSP3_d
+    mva #$af HPOSM2_d
+    sta HPOSM3_d
+    mva #$af HPOSP0_d
+    mva #$a4 HPOSM0_d
+    mva #$ac HPOSM1_d
+    mva #$e0 HPOSP1_d ; hide
     rts
 .endp
 ;--------------------------------------------------
 .proc SetPMl2
 ;--------------------------------------------------
-    mva #$4f HPOSP2
-    sta HPOSP3
-    mva #$5f HPOSM2
-    sta HPOSM3
-    mva #$e0 HPOSP0 ; hide
-    mva #$55 HPOSM0
-    mva #$e0 HPOSM1 ; hide
-    mva #$50 HPOSP1
+    mva #$4f HPOSP2_d
+    sta HPOSP3_d
+    mva #$5f HPOSM2_d
+    sta HPOSM3_d
+    mva #$e0 HPOSP0_d ; hide
+    mva #$55 HPOSM0_d
+    mva #$e0 HPOSM1_d ; hide
+    mva #$50 HPOSP1_d
     rts
 .endp
 ;--------------------------------------------------
 .proc SetPMr2
 ;--------------------------------------------------
-    mva #$9f HPOSP2
-    sta HPOSP3
-    mva #$af HPOSM2
-    sta HPOSM3
-    mva #$e0 HPOSP0 ; hide
-    mva #$a3 HPOSM0
-    mva #$e0 HPOSM1 ; hide
-    mva #$a2 HPOSP1
+    mva #$9f HPOSP2_d
+    sta HPOSP3_d
+    mva #$af HPOSM2_d
+    sta HPOSM3_d
+    mva #$e0 HPOSP0_d ; hide
+    mva #$a3 HPOSM0_d
+    mva #$e0 HPOSM1_d ; hide
+    mva #$a2 HPOSP1_d
     rts
 .endp
 ;--------------------------------------------------
 .proc SetPMl3
 ;--------------------------------------------------
-    mva #$4f HPOSP2
-    sta HPOSP3
-    mva #$5f HPOSM2
-    sta HPOSM3
-    mva #$e0 HPOSP0 ; hide
-    mva #$54 HPOSM0
-    mva #$56 HPOSM1
-    mva #$5b HPOSP1
+    mva #$4f HPOSP2_d
+    sta HPOSP3_d
+    mva #$5f HPOSM2_d
+    sta HPOSM3_d
+    mva #$e0 HPOSP0_d ; hide
+    mva #$54 HPOSM0_d
+    mva #$56 HPOSM1_d
+    mva #$5b HPOSP1_d
     rts
 .endp
 ;--------------------------------------------------
 .proc SetPMr3
 ;--------------------------------------------------
-    mva #$9f HPOSP2
-    sta HPOSP3
-    mva #$af HPOSM2
-    sta HPOSM3
-    mva #$e0 HPOSP0 ; hide
-    mva #$a4 HPOSM0
-    mva #$a4 HPOSM1
-    mva #$97 HPOSP1
+    mva #$9f HPOSP2_d
+    sta HPOSP3_d
+    mva #$af HPOSM2_d
+    sta HPOSM3_d
+    mva #$e0 HPOSP0_d ; hide
+    mva #$a4 HPOSM0_d
+    mva #$a4 HPOSM1_d
+    mva #$97 HPOSP1_d
     rts
 .endp
 ;--------------------------------------------------
