@@ -856,7 +856,7 @@ datalinesP1=5
     ; bird 2, 1 and 3
     jsr bird_a
     mva #0 SIZEP0_u
-    sta SIZEP1_d
+    sta SIZEP1_u
     mva #$04 PCOLR0
     sta PCOLR1
     lda #0
