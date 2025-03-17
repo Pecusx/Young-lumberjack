@@ -158,6 +158,9 @@ screen_level = gamescreen_middle+9*32+13
     pla
     tax
     ; fly birds
+    lda RTCLOK+2
+    and #%00000001
+    beq no_wings_change
     inc birdsHpos
     lda birdsHpos
     sta HPOSP0_u
