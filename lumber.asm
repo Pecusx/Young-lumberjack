@@ -164,7 +164,18 @@ screen_level = gamescreen_middle+9*32+13
     clc
     adc #6
     sta HPOSP1_u
-
+    ; wings
+    lda birdsHpos
+    and #%00000011
+    bne no_wings_change
+    lda birdsHpos
+    and #%00000100
+    bne wings_phase_a
+    jsr PrepareBirdsCloudsPM.bird_b
+    jmp no_wings_change
+wings_phase_a
+    jsr PrepareBirdsCloudsPM.bird_a
+no_wings_change    
 
     lda StateFlag
     bne wait_for_timer
