@@ -40,28 +40,44 @@ display = $a000
     .zpvar DLI_A DLI_X dliCount .byte
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
-    .zpvar HPOSP0_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSP1_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSP2_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSP3_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSM0_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSM1_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSM2_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar HPOSM3_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar SIZEP0_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar SIZEP1_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar SIZEP2_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar SIZEP3_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar SIZEM_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar GRAFP0_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar GRAFP1_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar GRAFP2_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar GRAFP3_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar GRAFM_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar COLPM0_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar COLPM1_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar COLPM2_d   .byte ; PMG registers for sprites under horizon	
-    .zpvar COLPM3_d   .byte ; PMG registers for sprites under horizon	
+    .zpvar birdsHpos    .byte
+     ; PMG registers for sprites over horizon	
+    .zpvar HPOSP0_u   .byte	
+    .zpvar HPOSP1_u   .byte	
+    .zpvar HPOSP2_u   .byte	
+    .zpvar HPOSP3_u   .byte	
+    .zpvar HPOSM0_u   .byte	
+    .zpvar HPOSM1_u   .byte	
+    .zpvar HPOSM2_u   .byte	
+    .zpvar HPOSM3_u   .byte	
+    .zpvar SIZEP0_u   .byte	
+    .zpvar SIZEP1_u   .byte	
+    .zpvar SIZEP2_u   .byte	
+    .zpvar SIZEP3_u   .byte	
+    .zpvar SIZEM_u   .byte 	
+    ; PMG registers for sprites under horizon
+    .zpvar HPOSP0_d   .byte
+    .zpvar HPOSP1_d   .byte
+    .zpvar HPOSP2_d   .byte
+    .zpvar HPOSP3_d   .byte
+    .zpvar HPOSM0_d   .byte
+    .zpvar HPOSM1_d   .byte
+    .zpvar HPOSM2_d   .byte
+    .zpvar HPOSM3_d   .byte
+    .zpvar SIZEP0_d   .byte
+    .zpvar SIZEP1_d   .byte
+    .zpvar SIZEP2_d   .byte
+    .zpvar SIZEP3_d   .byte
+    .zpvar SIZEM_d   .byte 
+    .zpvar GRAFP0_d   .byte
+    .zpvar GRAFP1_d   .byte
+    .zpvar GRAFP2_d   .byte
+    .zpvar GRAFP3_d   .byte
+    .zpvar GRAFM_d   .byte 
+    .zpvar COLPM0_d   .byte
+    .zpvar COLPM1_d   .byte
+    .zpvar COLPM2_d   .byte
+    .zpvar COLPM3_d   .byte
 
 RMT_zpvars = AutoPlay+1  ; POZOR!!! RMT vars go here
 ;---------------------------------------------------
@@ -129,6 +145,26 @@ screen_level = gamescreen_middle+9*32+13
 ;--------------------------------------------------
 
     mva #0 dliCount
+
+    ; over horizon
+    ; PMG horizontal coordinates and sizes
+    txa
+    pha
+    ldx #$0c
+@   lda HPOSP0_u,x
+    sta HPOSP0,x
+    dex
+    bpl @-
+    pla
+    tax
+    ; fly birds
+    inc birdsHpos
+    lda birdsHpos
+    sta HPOSP0_u
+    clc
+    adc #6
+    sta HPOSP1_u
+
 
     lda StateFlag
     bne wait_for_timer
@@ -319,6 +355,7 @@ EndOfStartScreen */
 ;--------------------------------------------------
     jsr MakeDarkScreen
     jsr PrepareLevelPM
+    jsr PrepareBirdsCloudsPM
     ldx #2
     mwa #dl_level dlptrs
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
@@ -672,6 +709,7 @@ no_branch_l
     jsr RASTERMUSICTRACKER      ;Init
  */    
     jsr PrepareLevelPM
+    jsr PrepareBirdsCloudsPM
     jsr SetPMr1
     mwa #gamescreen_r_ph1p1 animation_addr
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
@@ -694,8 +732,10 @@ no_branch_l
     lda #$e0
     ldx #$07 ; 8 registers. from HPOSP0_d to HPOSM3_d
 @   sta HPOSP0_d,x
+    sta HPOSP0_u,x
     sta HPOSP0,x
     dex
+    sta birdsHpos
     bpl @-
     rts
 .endp
@@ -798,6 +838,49 @@ P1_data
     .by %11101110
 HoffsetP1=103
 datalinesP1=5
+.endp
+;--------------------------------------------------
+.proc PrepareBirdsCloudsPM
+;--------------------------------------------------
+    ; bird 2, 1 and 3
+    jsr bird_a
+    mva #0 SIZEP0_u
+    sta SIZEP1_d
+    mva #$04 PCOLR0
+    sta PCOLR1
+    lda #0
+    sta birdsHpos
+    sta HPOSP0_u
+    sta HPOSP1_u
+
+    rts
+bird_a
+    ldx #datalines_bird-1
+@   lda bird_data_a,x
+    sta PMmemory+$200+Hoffset_bird2,x
+    sta PMmemory+$280+Hoffset_bird1,x
+    sta PMmemory+$280+Hoffset_bird3,x
+    dex
+    bpl @-
+    rts
+bird_b
+    ldx #datalines_bird-1
+@   lda bird_data_b,x
+    sta PMmemory+$200+Hoffset_bird2,x
+    sta PMmemory+$280+Hoffset_bird1,x
+    sta PMmemory+$280+Hoffset_bird3,x
+    dex
+    bpl @-
+    rts
+; bird data
+bird_data_a
+  dta $00, $00, $00, $3f, $7c, $18, $18, $08
+bird_data_b
+  dta $00, $30, $18, $18, $3f, $7c, $00, $00
+Hoffset_bird1=25
+Hoffset_bird2=35
+Hoffset_bird3=45
+datalines_bird=8
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
