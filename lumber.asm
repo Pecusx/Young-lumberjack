@@ -159,8 +159,8 @@ screen_level = gamescreen_middle+9*32+13
     tax
     ; fly birds
     lda RTCLOK+2
-    and #%00000001
-    beq no_wings_change
+    and #%00000011
+    bne no_wings_change
     inc birdsHpos
     lda birdsHpos
     sta HPOSP0_u
@@ -749,7 +749,7 @@ no_branch_l
     sta HPOSP0_u,x
     sta HPOSP0,x
     dex
-    sta birdsHpos
+    ;sta birdsHpos
     bpl @-
     rts
 .endp
@@ -1505,8 +1505,8 @@ branch_addr_tableH
 ; power speed table - every 50pts.
 PowerSpeedTable
     ; in original game double speed after 400pts.
-    ;   000,050,100,150,200,250,300,350,400,450,500,550,600,650,700,750
-    .by 011,010,010,009,008,007,007,006,005,005,004,004,003,003,002,002,1,1,1
+    ;   000,050,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950
+    .by 011,010,010,009,008,007,007,006,005,005,004,004,004,003,003,003,002,002,001,001
     
 
 ;--------------------------------
