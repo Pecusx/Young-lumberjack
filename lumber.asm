@@ -37,7 +37,6 @@ display = $a000
     .zpvar LowCharsetBase .byte
     .zpvar displayposition .word
     .zpvar LastKey  .byte   ; $ff if no key pressed or last key released
-    .zpvar DLI_A DLI_X dliCount .byte
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen 
@@ -102,18 +101,22 @@ dl_level
     .by $10
     .by $44
     .wo power_bar    ; power indicator
-    .by $84  ; DLI1
+    .by $04 
     .by $44
     .wo gamescreen_middle   ; branches
-    :16 .by $04
-    .by $84 ; DLI2
+    :2 .by $04
+    .by $84  ; DLI1 - color change (power bar - letters) and second clouds
+    :5 .by $04
+    .by $84     ; DLI2 - last clouds
+    :7 .by $04
+    .by $84 ; DLI3
     .by $44
 animation_addr
     .wo gamescreen_r_ph1p1
-    .by $84 ; DLI3
-    :3 .by $04
     .by $84 ; DLI4
+    :3 .by $04
     .by $84 ; DLI5
+    .by $84 ; DLI6
     .by $04
     .by $44
 lastline_addr
@@ -144,7 +147,7 @@ screen_level = gamescreen_middle+9*32+13
 .proc vint
 ;--------------------------------------------------
 
-    mva #0 dliCount
+    vdli IngameDLI1
 
     ; over horizon
     ; PMG horizontal coordinates and sizes
@@ -253,21 +256,23 @@ key_released
 .proc IngameDLI1
 ;--------------------------------------------------
     pha
-    lda dliCount
-    bne DLI2
-    inc dliCount
     mva #$0c COLPF2 ; white (numbers and letters)
+    mwa #IngameDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
-    cmp #1
-    bne DLI3
-    inc dliCount
+    pha
+    mwa #IngameDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
+    pha
+    sta WSYNC
     mva LowCharsetBase CHBASE
     mva #$f6 COLPF3 ; light brown
-    nop
-    nop
-    nop
+    ;nop
+    ;nop
+    ;nop
     mva #$B4 COLBAK ; thin line
     sta WSYNC
     mva #$DA COLBAK ; additional lines
@@ -286,33 +291,32 @@ DLI2
     pla
     tax
     inc SyncByte
-    pla
-    rti
-DLI3
-    cmp #2
-    bne DLI4
-    mva #$82 COLPF2 ; hat
-    :5 STA WSYNC
-    mva #$0c COLPF2
-    inc dliCount
+    mwa #IngameDLI1.DLI4 VDSLST
     pla
     rti
 DLI4
-    cmp #3
-    bne DLI5
+    pha
     sta WSYNC
-    mva #>font_game_upper CHBASE
-    mva #$ea COLPF2 ; button and buckle
-    inc dliCount
+    mva #$82 COLPF2 ; hat
+    :4 STA WSYNC
+    mva #$0c COLPF2
+    mwa #IngameDLI1.DLI5 VDSLST
     pla
     rti
 DLI5
+    pha
+    sta WSYNC
+    mva #$ea COLPF2 ; button and buckle
+    mva #>font_game_upper CHBASE
+    mwa #IngameDLI1.DLI6 VDSLST
+    pla
+    rti
+DLI6
+    pha
     sta WSYNC
     sta WSYNC
     sta WSYNC
-    ;sta WSYNC    
     mva #$94 COLPF2 ; blue pants
-    inc dliCount
     pla
     rti
 .endp
@@ -707,8 +711,7 @@ no_branch_l
     mva #>PMmemory PMBASE
     jsr HidePM
     mva #%00100100 GPRIOR
-    mva #0 dliCount
-    sta RMT_blocked
+    mva #0 RMT_blocked
     
     lda #$ff
     sta sfx_effect
