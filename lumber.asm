@@ -40,7 +40,7 @@ display = $a000
     .zpvar DLI_A DLI_X dliCount .byte
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
-    .zpvar birdsHpos    .byte
+    .zpvar birdsHpos    .byte   ; 0 - no birds on screen 
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -158,6 +158,13 @@ screen_level = gamescreen_middle+9*32+13
     pla
     tax
     ; fly birds
+    lda birdsHpos
+    bne fly_birds
+    ; if no birds then randomize new birds start
+    lda RANDOM
+    and #%11111100  ;   1:64
+    bne no_birds
+fly_birds
     lda RTCLOK+2
     and #%00000011
     bne no_wings_change
@@ -179,7 +186,7 @@ screen_level = gamescreen_middle+9*32+13
 wings_phase_a
     jsr PrepareBirdsCloudsPM.bird_a
 no_wings_change    
-
+no_birds
     lda StateFlag
     bne wait_for_timer
     ; only during game
