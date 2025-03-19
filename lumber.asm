@@ -1023,19 +1023,9 @@ make_cloud1
     dex
     bpl @-
     randomize 0 (28-5-datalines_clouds)
-    adc #(datalines_clouds-1)
+    adc #(datalines_clouds-1+5)
     tay
-    ldx #datalines_clouds-1
-@   lda cloud2_P2,x
-    sta PMmemory+$300+5,y
-    lda cloud2_P3,x
-    sta PMmemory+$380+5,y
-    lda cloud2_M,x
-    sta PMmemory+$180+5,y
-    dey
-    dex
-    bpl @-
-    rts
+    bne fill_cloud
 make_cloud2
     ; clear cloud 2 PMG memory 
     ldx #(52-29)
@@ -1046,19 +1036,9 @@ make_cloud2
     dex
     bpl @-
     randomize 0 (52-29-datalines_clouds)
-    adc #(datalines_clouds-1)
+    adc #(datalines_clouds-1+29)
     tay
-    ldx #datalines_clouds-1
-@   lda cloud3_P2,x
-    sta PMmemory+$300+29,y
-    lda cloud3_P3,x
-    sta PMmemory+$380+29,y
-    lda cloud3_M,x
-    sta PMmemory+$180+29,y
-    dey
-    dex
-    bpl @-
-    rts
+    bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
     ldx #(84-53)
@@ -1069,15 +1049,61 @@ make_cloud3
     dex
     bpl @-
     randomize 0 (70-53-datalines_clouds)
-    adc #(datalines_clouds-1)
+    adc #(datalines_clouds-1+53)
     tay
+    ; fill cloud PMG memory
+fill_cloud
     ldx #datalines_clouds-1
+    lda RANDOM
+    and #%00000011
+    bne not_shape_1
+    ; shape1
+@   lda cloud1_P2,x
+    sta PMmemory+$300,y
+    lda cloud1_P3,x
+    sta PMmemory+$380,y
+    lda cloud1_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_1
+    cmp #1
+    bne not_shape_2
+    ; shape 2
+@   lda cloud2_P2,x
+    sta PMmemory+$300,y
+    lda cloud2_P3,x
+    sta PMmemory+$380,y
+    lda cloud2_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_2
+    cmp #2
+    bne not_shape_3
+    ; shape 3
+@   lda cloud3_P2,x
+    sta PMmemory+$300,y
+    lda cloud3_P3,x
+    sta PMmemory+$380,y
+    lda cloud3_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_3
+    ; shape 4
 @   lda cloud4_P2,x
-    sta PMmemory+$300+53,y
+    sta PMmemory+$300,y
     lda cloud4_P3,x
-    sta PMmemory+$380+53,y
+    sta PMmemory+$380,y
     lda cloud4_M,x
-    sta PMmemory+$180+53,y
+    sta PMmemory+$180,y
     dey
     dex
     bpl @-
@@ -1112,9 +1138,6 @@ cloud4_P3
 cloud4_M
     .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$90
 datalines_clouds=12
-Hoffset_cloud1=8
-Hoffset_cloud2=30
-Hoffset_cloud3=54
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
