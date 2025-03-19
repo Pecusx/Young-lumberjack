@@ -193,7 +193,7 @@ wings_phase_a
 no_wings_change    
 no_birds
     lda RTCLOK+2
-    and #%00000011
+    and #%00000111
     bne no_clouds_change
     ; fly clouds
     lda clouds1Hpos
@@ -756,7 +756,7 @@ no_branch_l
 ;--------------------------------------------------
 .proc RestoreRedBar
 ;--------------------------------------------------
-    mva #$38 COLOR2 ; red
+    mva #$36 COLOR2 ; red
     rts
 .endp
 ;--------------------------------------------------
@@ -770,7 +770,7 @@ no_branch_l
     mva #$00 COLOR0
     mva #$88 COLBAKS ; sky
     mva #$f4 COLOR1 ; dark brown
-    mva #$38 COLOR2 ; red
+    mva #$36 COLOR2 ; red
     mva #$f6 COLOR3 ; light brown
     ;mva #$ff COLOR4
 
@@ -1686,7 +1686,8 @@ PowerSpeedTable
     ; in original game double speed after 400pts.
     ;   000,050,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950
     .by 011,010,010,009,008,007,007,006,005,005,004,004,004,003,003,003,002,002,001,001
-    
+    ; level for old men 
+    .by 022,020,018,017,015,013,012,011,010,010,009,009,008,007,006,005,004,003,002,001,001,001,001
 
 ;--------------------------------
 PowerChar0 = $07    ; power bar first (0) character 
