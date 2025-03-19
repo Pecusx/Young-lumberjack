@@ -39,9 +39,9 @@ display = $a000
     .zpvar LastKey  .byte   ; $ff if no key pressed or last key released
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
-    .zpvar birdsHpos    .byte   ; 0 - no birds on screen
+    .zpvar birdsHpos    .byte   ; 0 - no birds on screen (from $13 to $de)
     .zpvar birdsOffset  .byte
-    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen
+    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen (from $0e to $de)
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -200,11 +200,11 @@ no_birds
     bne cloud1_fly
     ; if no cloud 1 then randomize new cloud 2 start
     lda RANDOM
-    and #%11111100  ;   1:64
+    and #%11111000  ;   1:32
     bne no_new_cloud1
-    ; then randomize new cloud 1 shape
-    lda RANDOM
-    ;
+    ; then create new cloud 1 shape
+    jsr PrepareCloudsPM.make_cloud1
+    mva #$de clouds1Hpos
 cloud1_fly
     dec clouds1Hpos
     lda clouds1Hpos
@@ -222,11 +222,11 @@ no_new_cloud1
     bne cloud2_fly
     ; if no cloud 2 randomize new cloud 2 start
     lda RANDOM
-    and #%11111100  ;   1:64
+    and #%11111000  ;   1:32
     bne no_new_cloud2
-    ; then randomize new cloud 2 shape
-    lda RANDOM
-    ;
+    ; then create new cloud 2 shape
+    jsr PrepareCloudsPM.make_cloud2
+    mva #$de clouds2Hpos
 cloud2_fly
     dec clouds2Hpos
 no_new_cloud2
@@ -234,11 +234,11 @@ no_new_cloud2
     bne cloud3_fly
     ; if no cloud 3 then randomize new cloud 3 start
     lda RANDOM
-    and #%11111100  ;   1:64
+    and #%11111000  ;   1:32
     bne no_new_cloud3
-    ; then randomize new cloud 3 shape
-    lda RANDOM
-    ;
+    ; then create new cloud 3 shape
+    jsr PrepareCloudsPM.make_cloud3
+    mva #$de clouds3Hpos
 cloud3_fly
     dec clouds3Hpos
 no_new_cloud3
@@ -1000,7 +1000,10 @@ datalines_bird=8
     mva #$0c PCOLR2
     sta PCOLR3
     lda #36
+    sta clouds2Hpos
+    lda #98
     sta clouds1Hpos
+    
     clc
     sta HPOSM2_u
     adc #4
@@ -1011,33 +1014,71 @@ datalines_bird=8
     sta HPOSM3_u
     rts
 make_cloud1
+    ; clear cloud 1 PMG memory 
+    ldx #(28-5)
+    lda #0
+@   sta PMmemory+$300+5,x
+    sta PMmemory+$380+5,x
+    sta PMmemory+$180+5,x
+    dex
+    bpl @-
+    randomize 0 (28-5-datalines_clouds)
+    adc #(datalines_clouds-1)
+    tay
     ldx #datalines_clouds-1
 @   lda cloud2_P2,x
-    sta PMmemory+$300+Hoffset_cloud1,x
+    sta PMmemory+$300+5,y
     lda cloud2_P3,x
-    sta PMmemory+$380+Hoffset_cloud1,x
+    sta PMmemory+$380+5,y
     lda cloud2_M,x
-    sta PMmemory+$180+Hoffset_cloud1,x
+    sta PMmemory+$180+5,y
+    dey
     dex
     bpl @-
+    rts
 make_cloud2
+    ; clear cloud 2 PMG memory 
+    ldx #(52-29)
+    lda #0
+@   sta PMmemory+$300+29,x
+    sta PMmemory+$380+29,x
+    sta PMmemory+$180+29,x
+    dex
+    bpl @-
+    randomize 0 (52-29-datalines_clouds)
+    adc #(datalines_clouds-1)
+    tay
     ldx #datalines_clouds-1
 @   lda cloud3_P2,x
-    sta PMmemory+$300+Hoffset_cloud2,x
+    sta PMmemory+$300+29,y
     lda cloud3_P3,x
-    sta PMmemory+$380+Hoffset_cloud2,x
+    sta PMmemory+$380+29,y
     lda cloud3_M,x
-    sta PMmemory+$180+Hoffset_cloud2,x
+    sta PMmemory+$180+29,y
+    dey
     dex
     bpl @-
+    rts
 make_cloud3
+    ; clear cloud 3 PMG memory 
+    ldx #(84-53)
+    lda #0
+@   sta PMmemory+$300+53,x
+    sta PMmemory+$380+53,x
+    sta PMmemory+$180+53,x
+    dex
+    bpl @-
+    randomize 0 (70-53-datalines_clouds)
+    adc #(datalines_clouds-1)
+    tay
     ldx #datalines_clouds-1
 @   lda cloud4_P2,x
-    sta PMmemory+$300+Hoffset_cloud3,x
+    sta PMmemory+$300+53,y
     lda cloud4_P3,x
-    sta PMmemory+$380+Hoffset_cloud3,x
+    sta PMmemory+$380+53,y
     lda cloud4_M,x
-    sta PMmemory+$180+Hoffset_cloud3,x
+    sta PMmemory+$180+53,y
+    dey
     dex
     bpl @-
     rts
