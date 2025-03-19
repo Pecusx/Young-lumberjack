@@ -39,8 +39,11 @@ display = $a000
     .zpvar LastKey  .byte   ; $ff if no key pressed or last key released
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
-    .zpvar birdsHpos    .byte   ; 0 - no birds on screen 
-    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte
+    .zpvar birdsHpos    .byte   ; 0 - no birds on screen
+    .zpvar birdsOffset  .byte
+    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen
+    .zpvar cloud1Type,cloud2Type,cloud3Type .byte
+    .zpvar cloud1Offset,cloud2Offset,cloud3Offset   .byte
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -191,6 +194,58 @@ wings_phase_a
     jsr PrepareBirdsPM.bird_a
 no_wings_change    
 no_birds
+    lda RTCLOK+2
+    and #%00000011
+    bne no_clouds_change
+    ; fly clouds
+    lda clouds1Hpos
+    bne cloud1_fly
+    ; if no cloud 1 then randomize new cloud 2 start
+    lda RANDOM
+    and #%11111100  ;   1:64
+    bne no_new_cloud1
+    ; then randomize new cloud 1 shape
+    lda RANDOM
+    ;
+cloud1_fly
+    dec clouds1Hpos
+    lda clouds1Hpos
+    clc
+    sta HPOSM2_u
+    adc #4
+    sta HPOSP2_u
+    adc #8
+    sta HPOSP3_u
+    adc #8
+    sta HPOSM3_u
+    
+no_new_cloud1
+    lda clouds2Hpos
+    bne cloud2_fly
+    ; if no cloud 2 randomize new cloud 2 start
+    lda RANDOM
+    and #%11111100  ;   1:64
+    bne no_new_cloud2
+    ; then randomize new cloud 2 shape
+    lda RANDOM
+    ;
+cloud2_fly
+    dec clouds2Hpos
+no_new_cloud2
+    lda clouds3Hpos
+    bne cloud3_fly
+    ; if no cloud 3 then randomize new cloud 3 start
+    lda RANDOM
+    and #%11111100  ;   1:64
+    bne no_new_cloud3
+    ; then randomize new cloud 3 shape
+    lda RANDOM
+    ;
+cloud3_fly
+    dec clouds3Hpos
+no_new_cloud3
+no_clouds_change
+
     lda StateFlag
     bne wait_for_timer
     ; only during game
@@ -258,11 +313,31 @@ key_released
 ;--------------------------------------------------
     pha
     mva #$0c COLPF2 ; white (numbers and letters)
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
     mwa #IngameDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
     pha
+    ; set cloud 3 horizontal position
+    lda clouds3Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
     mwa #IngameDLI1.DLI3 VDSLST
     pla
     rti
@@ -912,13 +987,17 @@ datalines_bird=8
 ;--------------------------------------------------
 .proc PrepareCloudsPM
 ;--------------------------------------------------
+    ; 3 clouds
+    ; 1 - vertical offset in PM from 5 (first byte) to 28 (last byte)
+    ; 2 - vertical offset in PM from 29 (first byte) to 52 (last byte)
+    ; 3 - vertical offset in PM from 53 (first byte) to 84 (last byte)
     ; cloud
     jsr make_cloud
     mva #0 SIZEP2_u
     sta SIZEP3_u
     lda #%01010101
     sta SIZEM_u
-    mva #$0a PCOLR2
+    mva #$0c PCOLR2
     sta PCOLR3
     lda #36
     sta clouds1Hpos
@@ -933,12 +1012,30 @@ datalines_bird=8
     rts
 make_cloud
     ldx #datalines_clouds-1
+@   lda cloud2_P2,x
+    sta PMmemory+$300+Hoffset_cloud1,x
+    lda cloud2_P3,x
+    sta PMmemory+$380+Hoffset_cloud1,x
+    lda cloud2_M,x
+    sta PMmemory+$180+Hoffset_cloud1,x
+    dex
+    bpl @-
+    ldx #datalines_clouds-1
+@   lda cloud3_P2,x
+    sta PMmemory+$300+Hoffset_cloud2,x
+    lda cloud3_P3,x
+    sta PMmemory+$380+Hoffset_cloud2,x
+    lda cloud3_M,x
+    sta PMmemory+$180+Hoffset_cloud2,x
+    dex
+    bpl @-
+    ldx #datalines_clouds-1
 @   lda cloud4_P2,x
-    sta PMmemory+$300+Hoffset_cloud,x
+    sta PMmemory+$300+Hoffset_cloud3,x
     lda cloud4_P3,x
-    sta PMmemory+$380+Hoffset_cloud,x
+    sta PMmemory+$380+Hoffset_cloud3,x
     lda cloud4_M,x
-    sta PMmemory+$180+Hoffset_cloud,x
+    sta PMmemory+$180+Hoffset_cloud3,x
     dex
     bpl @-
     rts
@@ -972,7 +1069,9 @@ cloud4_P3
 cloud4_M
     .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$90
 datalines_clouds=12
-Hoffset_cloud=30
+Hoffset_cloud1=8
+Hoffset_cloud2=30
+Hoffset_cloud3=54
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
