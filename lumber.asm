@@ -40,6 +40,7 @@ display = $a000
     .zpvar RMT_blocked noSfx SFX_EFFECT .byte
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen 
+    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -184,10 +185,10 @@ fly_birds
     lda birdsHpos
     and #%00000100
     bne wings_phase_a
-    jsr PrepareBirdsCloudsPM.bird_b
+    jsr PrepareBirdsPM.bird_b
     jmp no_wings_change
 wings_phase_a
-    jsr PrepareBirdsCloudsPM.bird_a
+    jsr PrepareBirdsPM.bird_a
 no_wings_change    
 no_birds
     lda StateFlag
@@ -380,7 +381,8 @@ EndOfStartScreen */
 ;--------------------------------------------------
     jsr MakeDarkScreen
     jsr PrepareLevelPM
-    jsr PrepareBirdsCloudsPM
+    jsr PrepareBirdsPM
+    jsr PrepareCloudsPM
     ldx #2
     mwa #dl_level dlptrs
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
@@ -733,7 +735,8 @@ no_branch_l
     jsr RASTERMUSICTRACKER      ;Init
  */    
     jsr PrepareLevelPM
-    jsr PrepareBirdsCloudsPM
+    jsr PrepareBirdsPM
+    jsr PrepareCloudsPM
     jsr SetPMr1
     mwa #gamescreen_r_ph1p1 animation_addr
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
@@ -756,7 +759,7 @@ no_branch_l
     lda #$e0
     ldx #$07 ; 8 registers. from HPOSP0_d to HPOSM3_d
 @   sta HPOSP0_d,x
-    sta HPOSP0_u,x
+    ;sta HPOSP0_u,x
     sta HPOSP0,x
     dex
     ;sta birdsHpos
@@ -864,7 +867,7 @@ HoffsetP1=103
 datalinesP1=5
 .endp
 ;--------------------------------------------------
-.proc PrepareBirdsCloudsPM
+.proc PrepareBirdsPM
 ;--------------------------------------------------
     ; bird 2, 1 and 3
     jsr bird_a
@@ -905,6 +908,71 @@ Hoffset_bird1=25
 Hoffset_bird2=35
 Hoffset_bird3=45
 datalines_bird=8
+.endp
+;--------------------------------------------------
+.proc PrepareCloudsPM
+;--------------------------------------------------
+    ; cloud
+    jsr make_cloud
+    mva #0 SIZEP2_u
+    sta SIZEP3_u
+    lda #%01010101
+    sta SIZEM_u
+    mva #$0a PCOLR2
+    sta PCOLR3
+    lda #36
+    sta clouds1Hpos
+    clc
+    sta HPOSM2_u
+    adc #4
+    sta HPOSP2_u
+    adc #8
+    sta HPOSP3_u
+    adc #8
+    sta HPOSM3_u
+    rts
+make_cloud
+    ldx #datalines_clouds-1
+@   lda cloud4_P2,x
+    sta PMmemory+$300+Hoffset_cloud,x
+    lda cloud4_P3,x
+    sta PMmemory+$380+Hoffset_cloud,x
+    lda cloud4_M,x
+    sta PMmemory+$180+Hoffset_cloud,x
+    dex
+    bpl @-
+    rts
+; clouds data
+; shape 1
+cloud1_P2
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$08,$1D,$3F,$3F
+cloud1_P3
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$E0,$F8
+cloud1_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; shape2
+cloud2_P2
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$07,$1F,$3F,$FF
+cloud2_P3
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$80,$DC,$FE,$FF
+cloud2_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; shape 3
+cloud3_P2
+    .by $00,$00,$00,$00,$00,$00,$00,$38,$7D,$FF,$FF,$FF
+cloud3_P3
+    .by $00,$00,$00,$00,$00,$00,$00,$C0,$F0,$FC,$FE,$FF
+cloud3_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10,$30
+; shape 4
+cloud4_P2
+    .by $00,$00,$00,$00,$00,$00,$0E,$1F,$1F,$7F,$FF,$FF
+cloud4_P3
+    .by $00,$00,$00,$00,$00,$00,$30,$78,$78,$FB,$FF,$FF
+cloud4_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$90
+datalines_clouds=12
+Hoffset_cloud=30
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
