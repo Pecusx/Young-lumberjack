@@ -42,8 +42,6 @@ display = $a000
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen
     .zpvar birdsOffset  .byte
     .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen
-    .zpvar cloud1Type,cloud2Type,cloud3Type .byte
-    .zpvar cloud1Offset,cloud2Offset,cloud3Offset   .byte
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -992,7 +990,9 @@ datalines_bird=8
     ; 2 - vertical offset in PM from 29 (first byte) to 52 (last byte)
     ; 3 - vertical offset in PM from 53 (first byte) to 84 (last byte)
     ; cloud
-    jsr make_cloud
+    jsr make_cloud1
+    jsr make_cloud2
+    jsr make_cloud3
     mva #0 SIZEP2_u
     sta SIZEP3_u
     lda #%01010101
@@ -1010,7 +1010,7 @@ datalines_bird=8
     adc #8
     sta HPOSM3_u
     rts
-make_cloud
+make_cloud1
     ldx #datalines_clouds-1
 @   lda cloud2_P2,x
     sta PMmemory+$300+Hoffset_cloud1,x
@@ -1020,6 +1020,7 @@ make_cloud
     sta PMmemory+$180+Hoffset_cloud1,x
     dex
     bpl @-
+make_cloud2
     ldx #datalines_clouds-1
 @   lda cloud3_P2,x
     sta PMmemory+$300+Hoffset_cloud2,x
@@ -1029,6 +1030,7 @@ make_cloud
     sta PMmemory+$180+Hoffset_cloud2,x
     dex
     bpl @-
+make_cloud3
     ldx #datalines_clouds-1
 @   lda cloud4_P2,x
     sta PMmemory+$300+Hoffset_cloud3,x
