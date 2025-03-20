@@ -106,11 +106,10 @@ dl_level
     .by $04 
     .by $44
     .wo gamescreen_middle   ; branches
-    :2 .by $04
     .by $84  ; DLI1 - color change (power bar - letters) and second clouds
-    :5 .by $04
+    :3 .by $04
     .by $84     ; DLI2 - last clouds
-    :7 .by $04
+    :11 .by $04
     .by $84 ; DLI3
     .by $44
 animation_addr
@@ -986,9 +985,9 @@ datalines_bird=8
 .proc PrepareCloudsPM
 ;--------------------------------------------------
     ; 3 clouds
-    ; 1 - vertical offset in PM from 5 (first byte) to 28 (last byte)
-    ; 2 - vertical offset in PM from 29 (first byte) to 52 (last byte)
-    ; 3 - vertical offset in PM from 53 (first byte) to 84 (last byte)
+    ; 1 - vertical offset in PM from 5 (first byte) to 20 (last byte)
+    ; 2 - vertical offset in PM from 21 (first byte) to 36 (last byte)
+    ; 3 - vertical offset in PM from 37 (first byte) to 84 (last byte)
     ; cloud
     jsr make_cloud1
     jsr make_cloud2
@@ -1015,47 +1014,47 @@ datalines_bird=8
     rts
 make_cloud1
     ; clear cloud 1 PMG memory 
-    ldx #(28-5)
+    ldx #(20-5)
     lda #0
 @   sta PMmemory+$300+5,x
     sta PMmemory+$380+5,x
     sta PMmemory+$180+5,x
     dex
     bpl @-
-    randomize 0 (28-5-datalines_clouds)
+    randomize 0 (20-5-datalines_clouds)
     adc #(datalines_clouds-1+5)
     tay
     bne fill_cloud
 make_cloud2
     ; clear cloud 2 PMG memory 
-    ldx #(52-29)
+    ldx #(36-21)
     lda #0
-@   sta PMmemory+$300+29,x
-    sta PMmemory+$380+29,x
-    sta PMmemory+$180+29,x
+@   sta PMmemory+$300+21,x
+    sta PMmemory+$380+21,x
+    sta PMmemory+$180+21,x
     dex
     bpl @-
-    randomize 0 (52-29-datalines_clouds)
-    adc #(datalines_clouds-1+29)
+    randomize 0 (36-21-datalines_clouds)
+    adc #(datalines_clouds-1+21)
     tay
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
-    ldx #(84-53)
+    ldx #(84-37)
     lda #0
-@   sta PMmemory+$300+53,x
-    sta PMmemory+$380+53,x
-    sta PMmemory+$180+53,x
+@   sta PMmemory+$300+37,x
+    sta PMmemory+$380+37,x
+    sta PMmemory+$180+37,x
     dex
     bpl @-
-    randomize 0 (70-53-datalines_clouds)
-    adc #(datalines_clouds-1+53)
+    randomize 0 (51-37-datalines_clouds)
+    adc #(datalines_clouds-1+37)
     tay
     ; fill cloud PMG memory
 fill_cloud
     ldx #datalines_clouds-1
     lda RANDOM
-    and #%00000011
+    and #%00000111
     bne not_shape_1
     ; shape1
 @   lda cloud1_P2,x
@@ -1097,6 +1096,8 @@ not_shape_2
     bpl @-
     rts
 not_shape_3
+    cmp #3
+    bne not_shape_4
     ; shape 4
 @   lda cloud4_P2,x
     sta PMmemory+$300,y
@@ -1108,35 +1109,115 @@ not_shape_3
     dex
     bpl @-
     rts
+not_shape_4
+    cmp #4
+    bne not_shape_5
+    ; shape 5
+@   lda cloud5_P2,x
+    sta PMmemory+$300,y
+    lda cloud5_P3,x
+    sta PMmemory+$380,y
+    lda cloud5_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_5
+    cmp #5
+    bne not_shape_6
+    ; shape 6
+@   lda cloud6_P2,x
+    sta PMmemory+$300,y
+    lda cloud6_P3,x
+    sta PMmemory+$380,y
+    lda cloud6_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_6
+    cmp #6
+    bne not_shape_7
+    ; shape 7
+@   lda cloud7_P2,x
+    sta PMmemory+$300,y
+    lda cloud7_P3,x
+    sta PMmemory+$380,y
+    lda cloud7_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_7
+    ; shape 8
+@   lda cloud8_P2,x
+    sta PMmemory+$300,y
+    lda cloud8_P3,x
+    sta PMmemory+$380,y
+    lda cloud8_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
 ; clouds data
-; shape 1
+; shapes 1 to 8 for clouds
+; player 2
 cloud1_P2
     .by $00,$00,$00,$00,$00,$00,$00,$00,$08,$1D,$3F,$3F
-cloud1_P3
-    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$E0,$F8
-cloud1_M
-    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-; shape2
 cloud2_P2
     .by $00,$00,$00,$00,$00,$00,$00,$00,$07,$1F,$3F,$FF
-cloud2_P3
-    .by $00,$00,$00,$00,$00,$00,$00,$00,$80,$DC,$FE,$FF
-cloud2_M
-    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-; shape 3
 cloud3_P2
     .by $00,$00,$00,$00,$00,$00,$00,$38,$7D,$FF,$FF,$FF
-cloud3_P3
-    .by $00,$00,$00,$00,$00,$00,$00,$C0,$F0,$FC,$FE,$FF
-cloud3_M
-    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10,$30
-; shape 4
 cloud4_P2
     .by $00,$00,$00,$00,$00,$00,$0E,$1F,$1F,$7F,$FF,$FF
+cloud5_P2
+    .by $00,$00,$00,$00,$00,$00,$01,$73,$FF,$FF,$FF,$FF
+cloud6_P2
+    .by $00,$00,$00,$00,$00,$3E,$FF,$FF,$FF,$FF,$FF,$7C
+cloud7_P2
+    .by $00,$00,$01,$03,$77,$FF,$FF,$FF,$FF,$FF,$07,$01
+cloud8_P2
+    .by $00,$0F,$1F,$BF,$FF,$FF,$FF,$FF,$FF,$FF,$1F,$07
+; player 3
+cloud1_P3
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$E0,$F8
+cloud2_P3
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$80,$DC,$FE,$FF
+cloud3_P3
+    .by $00,$00,$00,$00,$00,$00,$00,$C0,$F0,$FC,$FE,$FF
 cloud4_P3
     .by $00,$00,$00,$00,$00,$00,$30,$78,$78,$FB,$FF,$FF
+cloud5_P3
+    .by $00,$00,$00,$00,$00,$00,$C0,$F6,$FF,$FF,$FF,$FF
+cloud6_P3
+    .by $00,$00,$00,$00,$00,$00,$7C,$FF,$FF,$FF,$FF,$FF
+cloud7_P3
+    .by $00,$00,$F0,$FB,$FF,$FF,$FF,$FF,$FF,$FF,$FC,$F8
+cloud8_P3
+    .by $0F,$1F,$BF,$FF,$FF,$FF,$FF,$FF,$FF,$FC,$C0,$80
+; missiles
+cloud1_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+cloud2_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+cloud3_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10,$30
 cloud4_M
     .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$90
+cloud5_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$10,$B0,$F0
+cloud6_M
+    .by $00,$00,$00,$00,$00,$00,$10,$30,$B0,$B0,$90,$00
+cloud7_M
+    .by $00,$00,$00,$80,$C0,$C0,$D0,$F0,$F0,$80,$00,$00
+cloud8_M
+    .by $00,$80,$80,$D0,$F0,$F0,$F0,$F0,$B0,$10,$00,$00
+
+
 datalines_clouds=12
 .endp
 ;--------------------------------------------------
