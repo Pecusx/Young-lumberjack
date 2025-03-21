@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.20" ; number of this build (4 bytes)
+    dta d"0.30" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -1024,6 +1024,10 @@ make_cloud1
     randomize 0 (20-5-datalines_clouds)
     adc #(datalines_clouds-1+5)
     tay
+    lda RANDOM
+    and #%00000011
+    clc
+    adc #4  ; (4 to 7 = shapes 5 to 8)
     bne fill_cloud
 make_cloud2
     ; clear cloud 2 PMG memory 
@@ -1037,6 +1041,10 @@ make_cloud2
     randomize 0 (36-21-datalines_clouds)
     adc #(datalines_clouds-1+21)
     tay
+    lda RANDOM
+    and #%00000011
+    clc
+    adc #2  ; (2 to 5 = shapes 3 to 6)
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
@@ -1050,10 +1058,11 @@ make_cloud3
     randomize 0 (51-37-datalines_clouds)
     adc #(datalines_clouds-1+37)
     tay
+    lda RANDOM
+    and #%00000011  ; (0 to 3 = shapes 1 to 4)
     ; fill cloud PMG memory
 fill_cloud
     ldx #datalines_clouds-1
-    lda RANDOM
     and #%00000111
     bne not_shape_1
     ; shape1
