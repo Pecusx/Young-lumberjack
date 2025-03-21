@@ -168,6 +168,8 @@ screen_level = gamescreen_middle+9*32+13
     lda RANDOM
     and #%11111100  ;   1:64
     bne no_birds
+    jsr PrepareBirdsPM  ; new birds position
+    jmp no_birds
 fly_birds
     lda RTCLOK+2
     and #%00000011
@@ -942,32 +944,54 @@ datalinesP1=5
 .proc PrepareBirdsPM
 ;--------------------------------------------------
     ; bird 2, 1 and 3
+    ; hoffset (16 - 40) - (all) birds hsize - 28
+    randomize 16 40
+    sta birdsOffset
+    jsr clearbirds
     jsr bird_a
     mva #0 SIZEP0_u
     sta SIZEP1_u
     mva #$04 PCOLR0
     sta PCOLR1
-    lda #0
+    lda #1
     sta birdsHpos
     sta HPOSP0_u
     sta HPOSP1_u
 
     rts
+clearbirds
+    ldx #(40+28-16)
+    lda #0
+@   sta PMmemory+$200+16,x
+    sta PMmemory+$280+16,x
+    dex
+    bpl @-
+    rts
 bird_a
     ldx #datalines_bird-1
+    lda birdsOffset
+    clc
+    adc #datalines_bird
+    tay
 @   lda bird_data_a,x
-    sta PMmemory+$200+Hoffset_bird2,x
-    sta PMmemory+$280+Hoffset_bird1,x
-    sta PMmemory+$280+Hoffset_bird3,x
+    sta PMmemory+$200+Hoffset_bird2,y
+    sta PMmemory+$280+Hoffset_bird1,y
+    sta PMmemory+$280+Hoffset_bird3,y
+    dey
     dex
     bpl @-
     rts
 bird_b
     ldx #datalines_bird-1
+    lda birdsOffset
+    clc
+    adc #datalines_bird
+    tay
 @   lda bird_data_b,x
-    sta PMmemory+$200+Hoffset_bird2,x
-    sta PMmemory+$280+Hoffset_bird1,x
-    sta PMmemory+$280+Hoffset_bird3,x
+    sta PMmemory+$200+Hoffset_bird2,y
+    sta PMmemory+$280+Hoffset_bird1,y
+    sta PMmemory+$280+Hoffset_bird3,y
+    dey
     dex
     bpl @-
     rts
@@ -976,9 +1000,9 @@ bird_data_a
   dta $00, $00, $00, $3f, $7c, $18, $18, $08
 bird_data_b
   dta $00, $30, $18, $18, $3f, $7c, $00, $00
-Hoffset_bird1=25
-Hoffset_bird2=35
-Hoffset_bird3=45
+Hoffset_bird1=0
+Hoffset_bird2=10
+Hoffset_bird3=20
 datalines_bird=8
 .endp
 ;--------------------------------------------------
