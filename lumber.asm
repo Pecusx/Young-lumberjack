@@ -42,7 +42,6 @@ display = $a000
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen (from $13 to $de)
     .zpvar birdsOffset  .byte
     .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen (from $0e to $de)
-    .zpvar PAL_NTSC_colors  .byte  ; $10 - NTSC , $00 - PAL
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -312,8 +311,7 @@ key_released
 .proc IngameDLI1
 ;--------------------------------------------------
     pha
-    SetColor #$0c
-    sta COLPF2 ; white (numbers and letters)
+    mva #$0c COLPF2 ; white (numbers and letters)
     ; set cloud 2 horizontal position
     lda clouds2Hpos
     clc
@@ -346,20 +344,16 @@ DLI3
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
-    SetColor #$f6
-    sta COLPF3 ; light brown
+    mva #$f6 COLPF3 ; light brown
     ;nop
     ;nop
     ;nop
-    SetColor #$B4
-    sta COLBAK ; thin line
+    mva #$B4 COLBAK ; thin line
     sta WSYNC
-    SetColor #$DA
-    sta COLBAK ; additional lines
+    mva #$DA COLBAK ; additional lines
     sta WSYNC
     sta WSYNC
-    SetColor #$c8
-    sta COLBAK ; green
+    mva #$c8 COLBAK ; green
     ; under horizon
     ; PMG colors, horizontal coordinates and sizes
     txa
@@ -378,19 +372,16 @@ DLI3
 DLI4
     pha
     sta WSYNC
-    SetColor #$82
-    sta COLPF2 ; hat
+    mva #$82 COLPF2 ; hat
     :4 STA WSYNC
-    SetColor #$0c
-    sta COLPF2
+    mva #$0c COLPF2
     mwa #IngameDLI1.DLI5 VDSLST
     pla
     rti
 DLI5
     pha
     sta WSYNC
-    SetColor #$ea
-    sta COLPF2 ; button and buckle
+    mva #$ea COLPF2 ; button and buckle
     mva #>font_game_upper CHBASE
     mwa #IngameDLI1.DLI6 VDSLST
     pla
@@ -400,8 +391,7 @@ DLI6
     sta WSYNC
     sta WSYNC
     sta WSYNC
-    SetColor #$94
-    sta COLPF2 ; blue pants
+    mva #$94 COLPF2 ; blue pants
     pla
     rti
 .endp
@@ -767,36 +757,22 @@ no_branch_l
 ;--------------------------------------------------
 .proc RestoreRedBar
 ;--------------------------------------------------
-    SetColor #$36
-    sta COLOR2 ; red
+    mva #$36 COLOR2 ; red
     rts
 .endp
 ;--------------------------------------------------
 .proc initialize
 ;--------------------------------------------------
-    lda #$00
-    sta PAL_NTSC_colors
-    lda PAL
-    and #%00001110
-    beq not_NTSC
-    lda #$10
-    sta PAL_NTSC_colors ; color value modifier for SetColor macro
-not_NTSC
+     
     mva #>font_game_upper CHBAS
     mva #>font_game_lower_right LowCharsetBase
-    SetColor #$00
-    sta PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
+    mva #$00 PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
 
-    SetColor #$00
-    sta COLOR0
-    SetColor #$88
-    sta COLBAKS ; sky
-    SetColor #$f4
-    sta COLOR1 ; dark brown
-    SetColor #$36
-    sta COLOR2 ; red
-    SetColor #$f6
-    sta COLOR3 ; light brown
+    mva #$00 COLOR0
+    mva #$88 COLBAKS ; sky
+    mva #$f4 COLOR1 ; dark brown
+    mva #$36 COLOR2 ; red
+    mva #$f6 COLOR3 ; light brown
     ;mva #$ff COLOR4
 
     ;clear P/M memory
@@ -881,10 +857,8 @@ not_NTSC
     sta SIZEP3_d
     lda #%01011111
     sta SIZEM_d
-    SetColor #$22
-    sta COLPM2_d
-    SetColor #$24
-    sta COLPM3_d
+    mva #$22 COLPM2_d
+    mva #$24 COLPM3_d
     ; Lumberjack hand
     ldx #datalinesP0-1
 @   lda P0_data,x
@@ -892,8 +866,7 @@ not_NTSC
     dex
     bpl @-
     mva #0 SIZEP0_d
-    SetColor #$2a
-    sta COLPM0_d
+    mva #$2a COLPM0_d
     ; Lumberjack face
     ldx #datalinesM0-1
 @   lda PMmemory+$180+HoffsetM0,x
@@ -908,8 +881,7 @@ not_NTSC
     sta PMmemory+$180+HoffsetM1,x
     dex
     bpl @-
-    SetColor #$2a
-    sta COLPM1_d
+    mva #$2a COLPM1_d
     ; Lumberjack both hands
     ldx #datalinesP1-1
 @   lda P1_data,x
@@ -979,8 +951,7 @@ datalinesP1=5
     jsr bird_a
     mva #0 SIZEP0_u
     sta SIZEP1_u
-    SetColor #$04
-    sta PCOLR0
+    mva #$04 PCOLR0
     sta PCOLR1
     lda #1
     sta birdsHpos
@@ -1049,8 +1020,7 @@ datalines_bird=8
     sta SIZEP3_u
     lda #%01010101
     sta SIZEM_u
-    SetColor #$0c
-    sta PCOLR2
+    mva #$0c PCOLR2
     sta PCOLR3
     lda #36
     sta clouds2Hpos
@@ -1931,12 +1901,5 @@ song_main_menu  = $00
 song_ingame     = $07
 song_game_over  = $12
 
-;-------------------------------------
-  .MACRO SetColor
-    lda :1
-    clc
-    adc PAL_NTSC_colors
-  .ENDM
-;-------------------------------------
 
     RUN main
