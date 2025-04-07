@@ -365,11 +365,8 @@ DLI3
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
-    mva GameColors+c_light_brown COLPF3 ; light brown
-    ;nop
-    ;nop
-    ;nop
     mva GameColors+c_horizonA COLBAK ; thin line
+    mva GameColors+c_light_brown COLPF3 ; light brown
     sta WSYNC
     mva GameColors+c_horizonB COLBAK ; additional lines
     sta WSYNC
