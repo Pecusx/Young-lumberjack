@@ -131,6 +131,27 @@ gamescreen_middle
 screen_score = gamescreen_middle+6*32+14  
 screen_level = gamescreen_middle+9*32+13  
 ;---------------------------------------------------
+GameColors
+    .ds 32
+c_black = 0
+c_white = 1 ; (numbers and letters)
+c_sky = 2
+c_dark_brown = 3
+c_light_brown = 4
+c_red = 5   ; (power bar)
+c_shirtA = 6    ; Lumberjack shirt A
+c_shirtB = 7    ; Lumberjack shirt B
+c_hands = 8    ; Lumberjack hand/face
+c_birds = 9
+c_clouds = 10
+c_light_red = 11    ; (power bar up)
+c_horizonA = 12    ; thin horizon line A
+c_horizonB = 13    ; thin horizon line B
+c_grass = 14    ; green grass
+c_hat = 15
+c_buckle = 16    ; button and buckle
+c_pants = 17    ; blue pants   
+;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
 ; v1 - if no branches
@@ -311,7 +332,7 @@ key_released
 .proc IngameDLI1
 ;--------------------------------------------------
     pha
-    mva #$0c COLPF2 ; white (numbers and letters)
+    mva GameColors+c_white COLPF2 ; white (numbers and letters)
     ; set cloud 2 horizontal position
     lda clouds2Hpos
     clc
@@ -344,16 +365,16 @@ DLI3
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
-    mva #$f6 COLPF3 ; light brown
+    mva GameColors+c_light_brown COLPF3 ; light brown
     ;nop
     ;nop
     ;nop
-    mva #$B4 COLBAK ; thin line
+    mva GameColors+c_horizonA COLBAK ; thin line
     sta WSYNC
-    mva #$DA COLBAK ; additional lines
+    mva GameColors+c_horizonB COLBAK ; additional lines
     sta WSYNC
     sta WSYNC
-    mva #$c8 COLBAK ; green
+    mva GameColors+c_grass COLBAK ; green
     ; under horizon
     ; PMG colors, horizontal coordinates and sizes
     txa
@@ -372,16 +393,16 @@ DLI3
 DLI4
     pha
     sta WSYNC
-    mva #$82 COLPF2 ; hat
+    mva GameColors+c_hat COLPF2 ; hat
     :4 STA WSYNC
-    mva #$0c COLPF2
+    mva GameColors+c_white COLPF2 ; white
     mwa #IngameDLI1.DLI5 VDSLST
     pla
     rti
 DLI5
     pha
     sta WSYNC
-    mva #$ea COLPF2 ; button and buckle
+    mva GameColors+c_buckle COLPF2 ; button and buckle
     mva #>font_game_upper CHBASE
     mwa #IngameDLI1.DLI6 VDSLST
     pla
@@ -391,7 +412,7 @@ DLI6
     sta WSYNC
     sta WSYNC
     sta WSYNC
-    mva #$94 COLPF2 ; blue pants
+    mva GameColors+c_pants COLPF2 ; blue pants
     pla
     rti
 .endp
@@ -400,6 +421,7 @@ main
 ;--------------------------------------------------
     jsr WaitForKeyRelease
     jsr MakeDarkScreen
+    jsr PAL_NTSC
     jsr initialize
     RMTsong song_main_menu
     jsr StartScreen
@@ -757,7 +779,7 @@ no_branch_l
 ;--------------------------------------------------
 .proc RestoreRedBar
 ;--------------------------------------------------
-    mva #$36 COLOR2 ; red
+    mva GameColors+c_red COLOR2 ; red
     rts
 .endp
 ;--------------------------------------------------
@@ -766,13 +788,13 @@ no_branch_l
      
     mva #>font_game_upper CHBAS
     mva #>font_game_lower_right LowCharsetBase
-    mva #$00 PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
+    mva GameColors+c_black PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
 
-    mva #$00 COLOR0
-    mva #$88 COLBAKS ; sky
-    mva #$f4 COLOR1 ; dark brown
-    mva #$36 COLOR2 ; red
-    mva #$f6 COLOR3 ; light brown
+    mva GameColors+c_black COLOR0
+    mva GameColors+c_sky COLBAKS ; sky
+    mva GameColors+c_dark_brown COLOR1 ; dark brown
+    mva GameColors+c_red COLOR2 ; red
+    mva GameColors+c_light_brown COLOR3 ; light brown
     ;mva #$ff COLOR4
 
     ;clear P/M memory
@@ -857,8 +879,8 @@ no_branch_l
     sta SIZEP3_d
     lda #%01011111
     sta SIZEM_d
-    mva #$22 COLPM2_d
-    mva #$24 COLPM3_d
+    mva GameColors+c_shirtA COLPM2_d
+    mva GameColors+c_shirtB COLPM3_d
     ; Lumberjack hand
     ldx #datalinesP0-1
 @   lda P0_data,x
@@ -866,7 +888,7 @@ no_branch_l
     dex
     bpl @-
     mva #0 SIZEP0_d
-    mva #$2a COLPM0_d
+    mva GameColors+c_hands COLPM0_d
     ; Lumberjack face
     ldx #datalinesM0-1
 @   lda PMmemory+$180+HoffsetM0,x
@@ -881,7 +903,7 @@ no_branch_l
     sta PMmemory+$180+HoffsetM1,x
     dex
     bpl @-
-    mva #$2a COLPM1_d
+    mva GameColors+c_hands COLPM1_d
     ; Lumberjack both hands
     ldx #datalinesP1-1
 @   lda P1_data,x
@@ -951,7 +973,7 @@ datalinesP1=5
     jsr bird_a
     mva #0 SIZEP0_u
     sta SIZEP1_u
-    mva #$04 PCOLR0
+    mva GameColors+c_birds PCOLR0
     sta PCOLR1
     lda #1
     sta birdsHpos
@@ -1020,7 +1042,7 @@ datalines_bird=8
     sta SIZEP3_u
     lda #%01010101
     sta SIZEM_u
-    mva #$0c PCOLR2
+    mva GameColors+c_clouds PCOLR2
     sta PCOLR3
     lda #36
     sta clouds2Hpos
@@ -1462,7 +1484,7 @@ not_max_lev
 ;--------------------------------------------------
 .proc PowerUp
 ;--------------------------------------------------
-    mva #$3F COLOR2 ; red
+    mva GameColors+c_light_red COLOR2 ; light red
     inc PowerValue
     lda PowerValue
     cmp #49
@@ -1846,6 +1868,103 @@ KeyReleased
     beq @-
     rts
 .endp
+;--------------------------------------------------
+.proc PAL_NTSC
+;--------------------------------------------------
+    lda PAL
+    and #%00001110
+    beq is_PAL
+is_NTSC
+    ldx #31
+@   lda NTSC_colors,x
+    sta GameColors,x
+    dex
+    bpl @-
+    rts
+is_PAL
+    ldx #31
+@   lda PAL_colors,x
+    sta GameColors,x
+    dex
+    bpl @-
+    rts
+.endp
+;--------------------------------------------------
+; colors tables
+PAL_colors
+    ; black
+    .by $00
+    ; white (numbers and letters)
+    .by $0c
+    ; sky
+    .by $88
+    ; dark brown
+    .by $f4
+    ; light brown
+    .by $f6
+    ; red (bower bar)
+    .by $34
+    ; Lumberjack shirt A
+    .by $22
+    ; Lumberjack shirt B
+    .by $24
+    ; Lumberjack hand/face
+    .by $2a
+    ; birds
+    .by $04
+    ; clouds
+    .by $0c
+    ; light red (power bar up)
+    .by $3f
+    ; thin horizon line A
+    .by $b4
+    ; thin horizon line B
+    .by $da
+    ; green grass
+    .by $c8
+    ; hat
+    .by $82
+    ; button and buckle
+    .by $ea
+    ; blue pants
+    .by $94    
+NTSC_colors
+    ; black
+    .by $00
+    ; white (numbers and letters)
+    .by $0c
+    ; sky
+    .by $98
+    ; dark brown
+    .by $24
+    ; light brown
+    .by $26
+    ; red (bower bar)
+    .by $44
+    ; Lumberjack shirt A
+    .by $32
+    ; Lumberjack shirt B
+    .by $34
+    ; Lumberjack hand/face
+    .by $3a
+    ; birds
+    .by $04
+    ; clouds
+    .by $0c
+    ; light red (power bar up)
+    .by $4f
+    ; thin horizon line A
+    .by $c4
+    ; thin horizon line B
+    .by $ea
+    ; green grass
+    .by $d8
+    ; hat
+    .by $92
+    ; button and buckle
+    .by $fa
+    ; blue pants
+    .by $a4    
 ;--------------------------------------------------
 
 initial_branches_list
