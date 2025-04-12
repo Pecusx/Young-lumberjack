@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.30" ; number of this build (4 bytes)
+    dta d"0.31" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -41,6 +41,7 @@ display = $a000
     .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen (from $13 to $de)
     .zpvar birdsOffset  .byte
+    .zpvar birds_order  .byte   ; $00 - standard , $80 - reverse
     .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen (from $0e to $de)
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
@@ -189,6 +190,8 @@ c_pants = 17    ; blue pants
     lda RANDOM
     and #%11111100  ;   1:64
     bne no_birds
+    ; new birds
+    mva RANDOM birds_order  ; randomize birds order
     jsr PrepareBirdsPM  ; new birds position
     jmp no_birds
 fly_birds
@@ -197,10 +200,19 @@ fly_birds
     bne no_wings_change
     inc birdsHpos
     lda birdsHpos
+    bit birds_order
+    bmi reverse_b_order
     sta HPOSP0_u
     clc
     adc #6
     sta HPOSP1_u
+    bne new_b_h_pos ; always
+reverse_b_order
+    sta HPOSP1_u
+    clc
+    adc #6
+    sta HPOSP0_u
+new_b_h_pos
     ; wings
     lda birdsHpos
     and #%00000011
@@ -813,6 +825,7 @@ no_branch_l
 
     JSR AudioInit
     
+    mva #$00 birds_order    ; standard birds order
     jsr LevelReset
     jsr InitBranches
     jsr draw_branches
