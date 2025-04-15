@@ -699,7 +699,14 @@ LevelOver
 ;--------------------------------------------------
     :5 WaitForSync
     mva #>font_game_rip LowCharsetBase
-    mwa #last_line_RIP lastline_addr
+    lda LumberjackDir    ; RIP direction
+    cmp #1
+    bne leftRIP
+    mwa #last_line_RIP_r lastline_addr
+    jmp afterLastLine
+leftRIP
+    mwa #last_line_RIP_l lastline_addr
+afterLastLine
     jsr HidePM
     lda LumberjackDir    ; branch and Lumberjack ?
     cmp branches_list+5

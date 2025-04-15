@@ -47,8 +47,13 @@ dta = load_atrview('phase1l.atrview')
 d = dta[-1]
 print(f'  dta ' + ','.join([f'${d[i:i + 2]}' for i in range(0, len(d), 2)]))
 
-print('last_line_RIP')
-dta = load_atrview('rip.atrview')
+print('last_line_RIP_l')
+dta = load_atrview('rip.atrview', page=1)
+d = dta[-1]
+print(f'  dta ' + ','.join([f'${d[i:i + 2]}' for i in range(0, len(d), 2)]))
+
+print('last_line_RIP_r')
+dta = load_atrview('rip.atrview', page=2)
 d = dta[-1]
 print(f'  dta ' + ','.join([f'${d[i:i + 2]}' for i in range(0, len(d), 2)]))
 
