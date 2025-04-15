@@ -279,6 +279,7 @@ no_new_cloud3
 no_clouds_change
 
     lda StateFlag
+    cmp #1
     bne wait_for_timer
     ; only during game
     ; power down
@@ -410,19 +411,25 @@ DLI4
     rti
 DLI5
     pha
+    lda StateFlag
     sta WSYNC
+    cmp #1  ; game
+    bne @+
     mva GameColors+c_buckle COLPF2 ; button and buckle
-    mva #>font_game_upper CHBASE
+@   mva #>font_game_upper CHBASE
     mwa #IngameDLI1.DLI6 VDSLST
     pla
     rti
 DLI6
     pha
+    lda StateFlag
+    cmp #1  ; game
+    bne @+
     sta WSYNC
     sta WSYNC
     sta WSYNC
     mva GameColors+c_pants COLPF2 ; blue pants
-    pla
+@   pla
     rti
 .endp
 ;--------------------------------------------------
@@ -496,7 +503,7 @@ EndOfStartScreen */
     mva #>font_game_upper CHBAS
     jsr SetPMr1
     pause 5
-    mva #0 StateFlag
+    mva #1 StateFlag
     rts
 .endp
 ;--------------------------------------------------
@@ -681,7 +688,7 @@ branch_ok
     jsr LevelReset
     mva #24 PowerValue  ; half power
     jsr draw_PowerBar
-    mva #0 StateFlag
+    mva #1 StateFlag
 go_loop
     ;jsr WaitForKeyRelease
     jmp loop
