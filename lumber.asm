@@ -101,7 +101,7 @@ font_game_lower_left
 font_game_rip
     ins 'art/t_rip.fnt'  ;
 dl_level
-    .by $10
+    ;.by $10
     .by $44
     .wo power_bar    ; power indicator
     .by $04 
