@@ -151,7 +151,8 @@ c_horizonB = 13    ; thin horizon line B
 c_grass = 14    ; green grass
 c_hat = 15
 c_buckle = 16    ; button and buckle
-c_pants = 17    ; blue pants   
+c_pants = 17    ; blue pants
+c_greyRIP = 18
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -684,6 +685,7 @@ LevelDeath
     bne branch_ok
     mva #0 branches_list+5  ; branches at Lumberjack level and position - remove it
 branch_ok
+    jsr PrepareLevelPM
     jsr SetLumberjackPosition
     jsr LevelReset
     mva #24 PowerValue  ; half power
@@ -706,15 +708,18 @@ LevelOver
 ;--------------------------------------------------
     :5 WaitForSync
     mva #>font_game_rip LowCharsetBase
+    jsr HidePM
+    jsr PrepareRIPPM
     lda LumberjackDir    ; RIP direction
     cmp #1
     bne leftRIP
     mwa #last_line_RIP_r lastline_addr
+    jsr SetPMr_RIP
     jmp afterLastLine
 leftRIP
     mwa #last_line_RIP_l lastline_addr
+    jsr SetPMl_RIP
 afterLastLine
-    jsr HidePM
     lda LumberjackDir    ; branch and Lumberjack ?
     cmp branches_list+5
     beq BranchDeath
@@ -887,8 +892,24 @@ no_branch_l
     rts
 .endp
 ;--------------------------------------------------
+.proc ClearLowerPM
+;--------------------------------------------------
+    ; clear PMG memory under horizon line
+    ldx #90
+    lda #0
+@   sta PMmemory+$180,x
+    sta PMmemory+$200,x
+    sta PMmemory+$280,x
+    sta PMmemory+$300,x
+    sta PMmemory+$380,x
+    inx
+    bpl @-
+    rts
+.endp
+;--------------------------------------------------
 .proc PrepareLevelPM
 ;--------------------------------------------------
+    jsr ClearLowerPM
     ; Lumberjack shirt
     ldx #datalinesP2-1
 @   lda P2_data,x
@@ -985,6 +1006,41 @@ P1_data
     .by %11101110
 HoffsetP1=103
 datalinesP1=5
+.endp
+;--------------------------------------------------
+.proc PrepareRIPPM
+;--------------------------------------------------
+    jsr ClearLowerPM
+    ; RIP
+    ldx #datalinesP0-1
+@   lda P0_data,x
+    sta PMmemory+$200+HoffsetP0,x
+    dex
+    bpl @-
+    mva #1 SIZEP0_d
+    mva GameColors+c_greyRIP COLPM0_d
+    rts
+; RIP data
+P0_data
+    .by %00111110
+    .by %01111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+    .by %11111111
+HoffsetP0=102
+datalinesP0=17
 .endp
 ;--------------------------------------------------
 .proc PrepareBirdsPM
@@ -1375,6 +1431,18 @@ datalines_clouds=12
     mva #$a4 HPOSM0_d
     mva #$a4 HPOSM1_d
     mva #$97 HPOSP1_d
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMl_RIP
+;--------------------------------------------------
+    mva #$4f HPOSP0_d
+    rts
+.endp
+;--------------------------------------------------
+.proc SetPMr_RIP
+;--------------------------------------------------
+    mva #$9f HPOSP0_d
     rts
 .endp
 ;--------------------------------------------------
@@ -1951,7 +2019,9 @@ PAL_colors
     ; button and buckle
     .by $ea
     ; blue pants
-    .by $94    
+    .by $94
+    ; grey RIP
+    .by $06
 NTSC_colors
     ; black
     .by $00
@@ -1989,6 +2059,8 @@ NTSC_colors
     .by $fa
     ; blue pants
     .by $a4    
+    ; grey RIP
+    .by $06
 ;--------------------------------------------------
 
 initial_branches_list
