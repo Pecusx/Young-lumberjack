@@ -964,7 +964,7 @@ P3_data
     .by $ff,$ff,$55,$55,$ff,$ff,$55,$55,$ff,$ff,$55,$55,$ff,$ff,$00,$00
 M23_data
     .by $80,$80,$20,$20,$80,$80,$20,$20,$80,$80,$20,$20,$80,$80,$20,$20
-HoffsetP2=98
+HoffsetP2=97
 datalinesP2=16
 ; Lumberjack hand data
 P0_data
@@ -973,7 +973,7 @@ P0_data
     .by %11111000
     .by %11111000
     .by %11111000
-HoffsetP0=95
+HoffsetP0=94
 datalinesP0=5
 ; Lumberjack face data
 M0_data
@@ -986,7 +986,7 @@ M0_data
     .by %00000011
     .by %00000011
     .by %00000011
-HoffsetM0=94
+HoffsetM0=93
 datalinesM0=9
 ; Lumberjack second hand data
 M1_data
@@ -995,7 +995,7 @@ M1_data
     .by %00001100
     .by %00001100
     .by %00001100
-HoffsetM1=103
+HoffsetM1=102
 datalinesM1=5
 ; Lumberjack both hands data
 P1_data
@@ -1004,7 +1004,7 @@ P1_data
     .by %11101110
     .by %11101110
     .by %11101110
-HoffsetP1=103
+HoffsetP1=102
 datalinesP1=5
 .endp
 ;--------------------------------------------------
@@ -1039,7 +1039,7 @@ P0_data
     .by %11111111
     .by %11111111
     .by %11111111
-HoffsetP0=102
+HoffsetP0=101
 datalinesP0=17
 .endp
 ;--------------------------------------------------
@@ -1111,9 +1111,9 @@ datalines_bird=8
 .proc PrepareCloudsPM
 ;--------------------------------------------------
     ; 3 clouds
-    ; 1 - vertical offset in PM from 5 (first byte) to 20 (last byte)
-    ; 2 - vertical offset in PM from 21 (first byte) to 36 (last byte)
-    ; 3 - vertical offset in PM from 37 (first byte) to 84 (last byte)
+    ; 1 - vertical offset in PM from 5 (first byte) to 19 (last byte)
+    ; 2 - vertical offset in PM from 20 (first byte) to 35 (last byte)
+    ; 3 - vertical offset in PM from 36 (first byte) to 84 (last byte)
     ; cloud
     jsr make_cloud1
     jsr make_cloud2
@@ -1140,14 +1140,14 @@ datalines_bird=8
     rts
 make_cloud1
     ; clear cloud 1 PMG memory 
-    ldx #(20-5)
+    ldx #(19-5)
     lda #0
 @   sta PMmemory+$300+5,x
     sta PMmemory+$380+5,x
     sta PMmemory+$180+5,x
     dex
     bpl @-
-    randomize 0 (20-5-datalines_clouds)
+    randomize 0 (19-5-datalines_clouds)
     adc #(datalines_clouds-1+5)
     tay
     lda RANDOM
@@ -1157,15 +1157,15 @@ make_cloud1
     bne fill_cloud
 make_cloud2
     ; clear cloud 2 PMG memory 
-    ldx #(36-21)
+    ldx #(35-20)
     lda #0
-@   sta PMmemory+$300+21,x
-    sta PMmemory+$380+21,x
-    sta PMmemory+$180+21,x
+@   sta PMmemory+$300+20,x
+    sta PMmemory+$380+20,x
+    sta PMmemory+$180+20,x
     dex
     bpl @-
-    randomize 0 (36-21-datalines_clouds)
-    adc #(datalines_clouds-1+21)
+    randomize 0 (35-20-datalines_clouds)
+    adc #(datalines_clouds-1+20)
     tay
     lda RANDOM
     and #%00000011
@@ -1174,15 +1174,15 @@ make_cloud2
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
-    ldx #(84-37)
+    ldx #(84-36)
     lda #0
-@   sta PMmemory+$300+37,x
-    sta PMmemory+$380+37,x
-    sta PMmemory+$180+37,x
+@   sta PMmemory+$300+36,x
+    sta PMmemory+$380+36,x
+    sta PMmemory+$180+36,x
     dex
     bpl @-
-    randomize 0 (51-37-datalines_clouds)
-    adc #(datalines_clouds-1+37)
+    randomize 0 (51-36-datalines_clouds)
+    adc #(datalines_clouds-1+36)
     tay
     lda RANDOM
     and #%00000011  ; (0 to 3 = shapes 1 to 4)
