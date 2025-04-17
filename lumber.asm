@@ -26,6 +26,7 @@ display = $a000
     .zpvar temp2 .word
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
+    .zpvar NTSCCounter  .byte
     .zpvar StateFlag .byte    ; 0 - game, 1 - start screen, 2 game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
@@ -172,7 +173,7 @@ c_greyRIP = 18
 ;--------------------------------------------------
 
     vdli IngameDLI1
-
+    
     ; over horizon
     ; PMG horizontal coordinates and sizes
     txa
@@ -279,6 +280,19 @@ cloud3_fly
 no_new_cloud3
 no_clouds_change
 
+
+    ; NTSC speed correction
+    lda PAL
+    and #%00001110
+    beq is_PAL
+    inc NTSCCounter
+    lda NTSCCounter
+    cmp #6
+    bne is_PAL
+    mva #0 NTSCCounter
+    jmp VBI_end
+is_PAL
+
     lda StateFlag
     cmp #1
     bne wait_for_timer
@@ -292,7 +306,6 @@ no_clouds_change
 wait_for_timer
 
     
-    ; mva #13 VSCROL  ; FOX gfx mode only
 
 /*
     bit RMT_blocked
@@ -330,6 +343,8 @@ SkipRMTVBL
 lab2
     jsr RASTERMUSICTRACKER+3
 skipSoundFrame */
+
+VBI_end
     ; key release flag
     lda LastKey
     cmp #$ff
@@ -872,7 +887,7 @@ no_branch_l
 
                     
     ;VBI
-
+    mva #0 NTSCCounter
     vmain vint,7
     
     rts
