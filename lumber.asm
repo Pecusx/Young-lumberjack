@@ -2020,7 +2020,7 @@ PAL_colors
     ; birds
     .by $04
     ; clouds
-    .by $0c
+    .by $0e
     ; light red (power bar up)
     .by $3f
     ; thin horizon line A
@@ -2059,7 +2059,7 @@ NTSC_colors
     ; birds
     .by $04
     ; clouds
-    .by $0c
+    .by $0e
     ; light red (power bar up)
     .by $4f
     ; thin horizon line A
