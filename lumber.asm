@@ -164,6 +164,9 @@ c_hat = 15
 c_buckle = 16    ; button and buckle
 c_pants = 17    ; blue pants
 c_greyRIP = 18
+c_font1 = 19    ; title fonts colors
+c_font2 = 20
+c_font3 = 21
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -538,11 +541,11 @@ gameOver
     mva #0 StateFlag
     mva #>font_titles CHBAS
     mwa #dl_title dlptrs
-    mva #$c8 COLBAKS
-    mva #$00 COLOR0
-    mva #$fc COLOR1
-    mva #$ee COLOR2
-    mva #$de COLOR3
+    mva GameColors+c_grass COLBAKS
+    mva GameColors+c_black COLOR0
+    mva GameColors+c_font1 COLOR1
+    mva GameColors+c_font2 COLOR2
+    mva GameColors+c_font3 COLOR3
     lda #@dmactl(standard|dma) ; normal screen width, DL on, P/M off
     sta dmactls
     pause 1
@@ -2103,6 +2106,10 @@ PAL_colors
     .by $94
     ; grey RIP
     .by $06
+     ; title fonts colors
+    .by $fc
+    .by $ee
+    .by $de
 NTSC_colors
     ; black
     .by $00
@@ -2142,6 +2149,10 @@ NTSC_colors
     .by $a4    
     ; grey RIP
     .by $06
+     ; title fonts colors
+    .by $2c
+    .by $fe
+    .by $ee
 ;--------------------------------------------------
 
 initial_branches_list
