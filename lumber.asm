@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.35" ; number of this build (4 bytes)
+    dta d"0.37" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -27,7 +27,7 @@ display = $a000
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
-    .zpvar StateFlag .byte    ; 0 - game, 1 - start screen, 2 game over screen, etc.
+    .zpvar StateFlag .byte    ; 0 - menu, 1 - game screen, 2 RIP screen, 5 - game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
@@ -101,6 +101,16 @@ font_game_lower_left
     ins 'art/tl_l.fnt'  ;
 font_game_rip
     ins 'art/t_rip.fnt'  ;
+font_titles
+    ins 'art/title_fonts.fnt'   ;
+dl_title
+    .by $10,$70
+    .by $45
+    .wo title_screen    ; title screen (menu?)
+    :12 .by $05 
+    .by $41
+    .wo dl_title
+;---------------------------------------------------
 dl_level
     ;.by $10
     .by $44
@@ -167,13 +177,38 @@ c_greyRIP = 18
 ; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side
 ; v9 - if the branch opposite the lumberjack and branch above on the other side
 ;--------------------------------------------------
+title_screen
+    icl 'art/title_screen.asm'
 
 ;--------------------------------------------------
 .proc vint
 ;--------------------------------------------------
-
+    lda StateFlag
+    bne no_titles
+    ; titles (StateFlag=0) - set DLI
+    vdli NoDLI
+    jmp DLI_OK
+no_titles
+    cmp #3
+    beq no_geme_and_RIP
+    ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
     vdli IngameDLI1
-    
+    jmp DLI_OK
+no_geme_and_RIP    
+    ; game over screen (StateFlag=3) - set DLI
+    vdli NoDLI
+
+DLI_OK
+    lda StateFlag
+    jeq titles_VBI
+    cmp #1
+    beq game_VBI
+    cmp #2
+    beq game_VBI
+    cmp #3
+    jeq gameover_VBI
+game_VBI
+    ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     txa
@@ -279,8 +314,12 @@ cloud3_fly
     dec clouds3Hpos
 no_new_cloud3
 no_clouds_change
+    jmp common_VBI
 
+titles_VBI
+gameover_VBI
 
+common_VBI
     ; NTSC speed correction
     lda PAL
     and #%00001110
@@ -356,6 +395,11 @@ VBI_end
 last_key_still_press
 key_released
     jmp XITVBV
+.endp
+;--------------------------------------------------
+.proc NoDLI
+;--------------------------------------------------
+    rti
 .endp
 ;--------------------------------------------------
 .proc IngameDLI1
@@ -490,24 +534,46 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
-/*     jsr MakeDarkScreen
-    mwa #dl_start dlptrs
-    lda #$0 ;+GTIACTLBITS
-    sta GPRIOR
-    sta COLBAKS
+    jsr MakeDarkScreen
+    mva #0 StateFlag
+    mva #>font_titles CHBAS
+    mwa #dl_title dlptrs
+    mva #$c8 COLBAKS
+    mva #$00 COLOR0
+    mva #$fc COLOR1
+    mva #$ee COLOR2
+    mva #$de COLOR3
     lda #@dmactl(standard|dma) ; normal screen width, DL on, P/M off
     sta dmactls
     pause 1
 StartLoop
-    ;jmp StartLoop
-EndOfStartScreen */
-    mva #1 StateFlag
+    jsr GetKey
+EndOfStartScreen
     rts
 .endp
 ;--------------------------------------------------
 .proc LevelScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
+
+    mva #>font_game_upper CHBAS
+    mva #>font_game_lower_right LowCharsetBase
+    mva GameColors+c_black PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
+    mva GameColors+c_black COLOR0
+    mva GameColors+c_sky COLBAKS ; sky
+    mva GameColors+c_dark_brown COLOR1 ; dark brown
+    mva GameColors+c_red COLOR2 ; red
+    mva GameColors+c_light_brown COLOR3 ; light brown
+    
+    mva #$00 birds_order    ; standard birds order
+    jsr LevelReset
+    jsr InitBranches
+    jsr draw_branches
+    mva #24 PowerValue  ; half power
+    mva #1 PowerTimer   ; reset timer ( 1, not 0! )
+    jsr draw_PowerBar
+    mva #1 LumberjackDir    ; right side
+    
     jsr PrepareLevelPM
     jsr PrepareBirdsPM
     jsr PrepareCloudsPM
@@ -518,8 +584,8 @@ EndOfStartScreen */
     mva #%00000011 GRACTL
     mva #>font_game_upper CHBAS
     jsr SetPMr1
-    pause 5
     mva #1 StateFlag
+    pause 5
     rts
 .endp
 ;--------------------------------------------------
@@ -883,7 +949,7 @@ no_branch_l
     sta dmactls
     mva #%00000011 GRACTL
     mwa #dl_level dlptrs
-    vdli IngameDLI1
+    ;vdli IngameDLI1
 
                     
     ;VBI
