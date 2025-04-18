@@ -502,6 +502,7 @@ main
     jsr MakeDarkScreen
     jsr PAL_NTSC
     jsr initialize
+GameStart
     RMTsong song_main_menu
     jsr StartScreen
     RMTSong song_ingame
@@ -510,34 +511,28 @@ gameloop
     jsr MakeDarkScreen
     jsr LevelScreen
     jsr PlayLevel
-    jsr MakeDarkScreen
     ;jsr NextLevel
     ; RMTSong song_ingame
     jsr AudioInit   ; after I/O
-    jmp gameloop
+    jmp gameOver
 EndOfLife
     ;dec Lives   ; decrease Lives
     ;lda Lives
     ;cmp #"0"
     ;beq gameOver    ; if no lives - game over
     ;jsr NextLife
-    jmp gameloop
+    jmp gameOver
 gameOver
     ;game over
     ;RMTSong song_game_over 
     ;jsr HiScoreCheckWrite
     jsr GameOverScreen
-@   lda CONSOL
-    and #@consol(start) ; START
-    beq main
-    lda TRIG0   ; fire
-    jeq main
-    jmp @-
-
+    jmp GameStart
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
+    jsr HidePM
     mva #0 StateFlag
     mva #>font_titles CHBAS
     mwa #dl_title dlptrs
@@ -576,16 +571,16 @@ EndOfStartScreen
     mva #1 PowerTimer   ; reset timer ( 1, not 0! )
     jsr draw_PowerBar
     mva #1 LumberjackDir    ; right side
-    
+    mwa #gamescreen_r_ph1p1 animation_addr
+    mwa #last_line_r lastline_addr
+
     jsr PrepareLevelPM
     jsr PrepareBirdsPM
     jsr PrepareCloudsPM
-    ldx #2
     mwa #dl_level dlptrs
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
-    mva #>font_game_upper CHBAS
     jsr SetPMr1
     mva #1 StateFlag
     pause 5
@@ -594,14 +589,24 @@ EndOfStartScreen
 ;--------------------------------------------------
 .proc GameOverScreen
 ;--------------------------------------------------
-/*     jsr MakeDarkScreen
-    ldx #5
-    mwa #dl_over dlptrs
-    lda #%00110010  ; normal screen width, DL on, P/M off
+    jsr MakeDarkScreen
+    jsr HidePM
+    mva #3 StateFlag
+    mva #>font_titles CHBAS
+    mwa #dl_title dlptrs
+    mva GameColors+c_sky COLBAKS
+    mva GameColors+c_black COLOR0
+    mva GameColors+c_font1 COLOR1
+    mva GameColors+c_font2 COLOR2
+    mva GameColors+c_font3 COLOR3
+    lda #@dmactl(standard|dma) ; normal screen width, DL on, P/M off
     sta dmactls
-    pause 20 */
-    mva #2 StateFlag
-    
+    pause 1
+OverLoop
+    jsr GetKey
+    cmp #@kbcode._space
+    bne OverLoop
+EndOfOverScreen
     rts
 .endp
 ;--------------------------------------------------
@@ -615,6 +620,7 @@ EndOfStartScreen
 ;--------------------------------------------------
 .proc PlayLevel
 ;--------------------------------------------------
+    jsr PrepareLevelPM
 loop
     ; PUT GAME HERE
     lda branches_list+5
@@ -754,34 +760,14 @@ no_2branch_l
     jmp go_loop
 LevelDeath
     jsr SetRIPscreen
-    mva #2 StateFlag
 @   
-    ;mva RANDOM COLBAK
     jsr GetKey
     cmp #@kbcode._space
     bne @-
     ; restart game
-    jsr ScoreClear
-    ;jsr InitBranches
-    ;jsr draw_branches
-    lda branches_list+5
-    cmp LumberjackDir
-    bne branch_ok
-    mva #0 branches_list+5  ; branches at Lumberjack level and position - remove it
-branch_ok
-    jsr PrepareLevelPM
-    jsr SetLumberjackPosition
-    jsr LevelReset
-    mva #24 PowerValue  ; half power
-    jsr draw_PowerBar
-    mva #1 StateFlag
-go_loop
-    ;jsr WaitForKeyRelease
-    jmp loop
-LevelOver
-    ; level over
-    jsr WaitForKeyRelease
     rts
+go_loop
+    jmp loop
 .endp   
 
 ;--------------------------------------------------
@@ -790,6 +776,7 @@ LevelOver
 ;--------------------------------------------------
 .proc SetRIPscreen
 ;--------------------------------------------------
+    mva #2 StateFlag
     :5 WaitForSync
     mva #>font_game_rip LowCharsetBase
     jsr HidePM
