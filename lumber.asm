@@ -225,109 +225,16 @@ game_VBI
     ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
     ; over horizon
     ; PMG horizontal coordinates and sizes
-    txa
-    pha
     ldx #$0c
 @   lda HPOSP0_u,x
     sta HPOSP0,x
     dex
     bpl @-
-    pla
-    tax
     ; fly birds
-    lda birdsHpos
-    bne fly_birds
-    ; if no birds then randomize new birds start
-    lda RANDOM
-    and #%11111100  ;   1:64
-    bne no_birds
-    ; new birds
-    mva RANDOM birds_order  ; randomize birds order
-    jsr PrepareBirdsPM  ; new birds position
-    jmp no_birds
-fly_birds
-    lda RTCLOK+2
-    and #%00000011
-    bne no_wings_change
-    inc birdsHpos
-    lda birdsHpos
-    bit birds_order
-    bmi reverse_b_order
-    sta HPOSP0_u
-    clc
-    adc #6
-    sta HPOSP1_u
-    bne new_b_h_pos ; always
-reverse_b_order
-    sta HPOSP1_u
-    clc
-    adc #6
-    sta HPOSP0_u
-new_b_h_pos
-    ; wings
-    lda birdsHpos
-    and #%00000011
-    bne no_wings_change
-    lda birdsHpos
-    and #%00000100
-    bne wings_phase_a
-    jsr PrepareBirdsPM.bird_b
-    jmp no_wings_change
-wings_phase_a
-    jsr PrepareBirdsPM.bird_a
-no_wings_change    
-no_birds
-    lda RTCLOK+2
-    and #%00000111
-    bne no_clouds_change
+    jsr FlyBirds
     ; fly clouds
-    lda clouds1Hpos
-    bne cloud1_fly
-    ; if no cloud 1 then randomize new cloud 2 start
-    lda RANDOM
-    and #%11111000  ;   1:32
-    bne no_new_cloud1
-    ; then create new cloud 1 shape
-    jsr PrepareCloudsPM.make_cloud1
-    mva #$de clouds1Hpos
-cloud1_fly
-    dec clouds1Hpos
-    lda clouds1Hpos
-    clc
-    sta HPOSM2_u
-    adc #4
-    sta HPOSP2_u
-    adc #8
-    sta HPOSP3_u
-    adc #8
-    sta HPOSM3_u
-    
-no_new_cloud1
-    lda clouds2Hpos
-    bne cloud2_fly
-    ; if no cloud 2 randomize new cloud 2 start
-    lda RANDOM
-    and #%11111000  ;   1:32
-    bne no_new_cloud2
-    ; then create new cloud 2 shape
-    jsr PrepareCloudsPM.make_cloud2
-    mva #$de clouds2Hpos
-cloud2_fly
-    dec clouds2Hpos
-no_new_cloud2
-    lda clouds3Hpos
-    bne cloud3_fly
-    ; if no cloud 3 then randomize new cloud 3 start
-    lda RANDOM
-    and #%11111000  ;   1:32
-    bne no_new_cloud3
-    ; then create new cloud 3 shape
-    jsr PrepareCloudsPM.make_cloud3
-    mva #$de clouds3Hpos
-cloud3_fly
-    dec clouds3Hpos
-no_new_cloud3
-no_clouds_change
+    jsr FlyClouds
+    ;
     jmp common_VBI
 
 titles_VBI
@@ -409,6 +316,112 @@ VBI_end
 last_key_still_press
 key_released
     jmp XITVBV
+.endp
+
+;--------------------------------------------------
+.proc FlyBirds
+;--------------------------------------------------
+    ; Birds fly and animation VBI procedure
+    lda birdsHpos
+    bne fly_birds
+    ; if no birds then randomize new birds start
+    lda RANDOM
+    and #%11111100  ;   1:64
+    bne no_birds
+    ; new birds
+    mva RANDOM birds_order  ; randomize birds order
+    jsr PrepareBirdsPM  ; new birds position
+    jmp no_birds
+fly_birds
+    lda RTCLOK+2
+    and #%00000011
+    bne no_wings_change
+    inc birdsHpos
+    lda birdsHpos
+    bit birds_order
+    bmi reverse_b_order
+    sta HPOSP0_u
+    clc
+    adc #6
+    sta HPOSP1_u
+    bne new_b_h_pos ; always
+reverse_b_order
+    sta HPOSP1_u
+    clc
+    adc #6
+    sta HPOSP0_u
+new_b_h_pos
+    ; wings
+    lda birdsHpos
+    and #%00000011
+    bne no_wings_change
+    lda birdsHpos
+    and #%00000100
+    bne wings_phase_a
+    jsr PrepareBirdsPM.bird_b
+    jmp no_wings_change
+wings_phase_a
+    jsr PrepareBirdsPM.bird_a
+no_wings_change    
+no_birds
+    rts
+.endp
+;--------------------------------------------------
+.proc FlyClouds
+;--------------------------------------------------
+    ; Clouds fly and animation VBI procedure
+    lda RTCLOK+2
+    and #%00000111
+    bne no_clouds_change
+    ; fly clouds
+    lda clouds1Hpos
+    bne cloud1_fly
+    ; if no cloud 1 then randomize new cloud 2 start
+    lda RANDOM
+    and #%11111000  ;   1:32
+    bne no_new_cloud1
+    ; then create new cloud 1 shape
+    jsr PrepareCloudsPM.make_cloud1
+    mva #$de clouds1Hpos
+cloud1_fly
+    dec clouds1Hpos
+    lda clouds1Hpos
+    clc
+    sta HPOSM2_u
+    adc #4
+    sta HPOSP2_u
+    adc #8
+    sta HPOSP3_u
+    adc #8
+    sta HPOSM3_u
+    
+no_new_cloud1
+    lda clouds2Hpos
+    bne cloud2_fly
+    ; if no cloud 2 randomize new cloud 2 start
+    lda RANDOM
+    and #%11111000  ;   1:32
+    bne no_new_cloud2
+    ; then create new cloud 2 shape
+    jsr PrepareCloudsPM.make_cloud2
+    mva #$de clouds2Hpos
+cloud2_fly
+    dec clouds2Hpos
+no_new_cloud2
+    lda clouds3Hpos
+    bne cloud3_fly
+    ; if no cloud 3 then randomize new cloud 3 start
+    lda RANDOM
+    and #%11111000  ;   1:32
+    bne no_new_cloud3
+    ; then create new cloud 3 shape
+    jsr PrepareCloudsPM.make_cloud3
+    mva #$de clouds3Hpos
+cloud3_fly
+    dec clouds3Hpos
+no_new_cloud3
+no_clouds_change
+    rts
 .endp
 ;--------------------------------------------------
 .proc NoDLI
