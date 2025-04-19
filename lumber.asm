@@ -103,11 +103,20 @@ font_game_rip
     ins 'art/t_rip.fnt'  ;
 font_titles
     ins 'art/title_fonts.fnt'   ;
+;---------------------------------------------------
 dl_title
     .by $10,$70
     .by $45
     .wo title_screen    ; title screen (menu?)
     :12 .by $05 
+    .by $41
+    .wo dl_title
+;---------------------------------------------------
+dl_over
+    .by $10,$70
+    .by $45
+    .wo over_screen    ; title screen (menu?)
+    :11 .by $05 
     .by $41
     .wo dl_title
 ;---------------------------------------------------
@@ -182,6 +191,8 @@ c_font3 = 21
 ;--------------------------------------------------
 title_screen
     icl 'art/title_screen.asm'
+over_screen
+    icl 'art/over_screen.asm'
 
 ;--------------------------------------------------
 .proc vint
@@ -593,7 +604,7 @@ EndOfStartScreen
     jsr HidePM
     mva #3 StateFlag
     mva #>font_titles CHBAS
-    mwa #dl_title dlptrs
+    mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
     mva GameColors+c_black COLOR0
     mva GameColors+c_font1 COLOR1
@@ -2143,7 +2154,7 @@ NTSC_colors
 ;--------------------------------------------------
 
 initial_branches_list
-    .by 1,0,2,0,1,0 ; 
+    .by 1,0,2,0,0,0 ; 
 
 branch_addr_tableL
     .by <branch0
