@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.38" ; number of this build (4 bytes)
+    dta d"0.40" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -108,7 +108,12 @@ dl_title
     .by $10,$70
     .by $45
     .wo title_screen    ; title screen (menu?)
-    :12 .by $05 
+    .by $85 ; DLI1 - second clouds
+    .by $05
+    .by $85 ; DLI2 - last clouds
+    :4 .by $05
+    .by $85 ; DLI - horizon
+    :4 .by $05 
     .by $41
     .wo dl_title
 ;---------------------------------------------------
@@ -116,7 +121,12 @@ dl_over
     .by $10,$70
     .by $45
     .wo over_screen    ; title screen (menu?)
-    :11 .by $05 
+    .by $85 ; DLI1 - second clouds
+    .by $05
+    .by $85 ; DLI2 - last clouds
+    :4 .by $05
+    .by $85 ; DLI - horizon
+    :3 .by $05 
     .by $41
     .wo dl_title
 ;---------------------------------------------------
@@ -200,7 +210,7 @@ over_screen
     lda StateFlag
     bne no_titles
     ; titles (StateFlag=0) - set DLI
-    vdli NoDLI
+    vdli TitlesDLI1
     jmp DLI_OK
 no_titles
     cmp #3
@@ -210,7 +220,7 @@ no_titles
     jmp DLI_OK
 no_geme_and_RIP    
     ; game over screen (StateFlag=3) - set DLI
-    vdli NoDLI
+    vdli TitlesDLI1
 
 DLI_OK
     lda StateFlag
@@ -238,7 +248,35 @@ game_VBI
     jmp common_VBI
 
 titles_VBI
+    ; title screen (StateFlag=0) - set DLI
+    ; over horizon
+    ; PMG horizontal coordinates and sizes
+    ldx #$0c
+@   lda HPOSP0_u,x
+    sta HPOSP0,x
+    dex
+    bpl @-
+    ; fly birds
+    jsr FlyBirds
+    ; fly clouds
+    jsr FlyClouds
+    ;
+    jmp common_VBI
 gameover_VBI
+    ; game over screen (StateFlag=3) - set DLI
+    ; over horizon
+    ; PMG horizontal coordinates and sizes
+    ldx #$0c
+@   lda HPOSP0_u,x
+    sta HPOSP0,x
+    dex
+    bpl @-
+    ; fly birds
+    jsr FlyBirds
+    ; fly clouds
+    jsr FlyClouds
+    ;
+    ;jmp common_VBI
 
 common_VBI
     ; NTSC speed correction
@@ -429,7 +467,58 @@ no_clouds_change
     rti
 .endp
 ;--------------------------------------------------
+.proc TitlesDLI1
+; Clouds, birds, color changes
+;--------------------------------------------------
+    pha
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #TitlesDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
+    ; set cloud 3 horizontal position
+    lda clouds3Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #TitlesDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
+    pha
+    ; under horizon
+    ; PMG colors, horizontal coordinates and sizes
+    txa
+    pha
+    lda #0  ; hide PMG
+    ldx #$15
+@   sta HPOSP0,x
+    dex
+    bpl @-
+    pla
+    tax
+    inc SyncByte
+    pla
+    rti
+.endp
+;--------------------------------------------------
 .proc IngameDLI1
+; Clouds, birds, color changes
 ;--------------------------------------------------
     pha
     mva GameColors+c_white COLPF2 ; white (numbers and letters)
@@ -565,8 +654,9 @@ gameOver
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
     mva GameColors+c_font3 COLOR3
-    lda #@dmactl(standard|dma) ; normal screen width, DL on, P/M off
+    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
     sta dmactls
+    mva #%00000011 GRACTL
     pause 1
 StartLoop
     jsr GetKey
@@ -623,8 +713,9 @@ EndOfStartScreen
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
     mva GameColors+c_font3 COLOR3
-    lda #@dmactl(standard|dma) ; normal screen width, DL on, P/M off
+    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
     sta dmactls
+    mva #%00000011 GRACTL
     pause 1
 OverLoop
     jsr GetKey
