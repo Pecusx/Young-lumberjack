@@ -186,6 +186,7 @@ c_greyRIP = 18
 c_font1 = 19    ; title fonts colors
 c_font2 = 20
 c_font3 = 21
+c_font4 = 22
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -650,7 +651,7 @@ gameOver
     mva #>font_titles CHBAS
     mwa #dl_title dlptrs
     mva GameColors+c_grass COLBAKS
-    mva GameColors+c_black COLOR0
+    mva GameColors+c_font4 COLOR0
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
     mva GameColors+c_font3 COLOR3
@@ -709,7 +710,7 @@ EndOfStartScreen
     mva #>font_titles CHBAS
     mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
-    mva GameColors+c_black COLOR0
+    mva GameColors+c_font4 COLOR0
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
     mva GameColors+c_font3 COLOR3
@@ -2212,6 +2213,7 @@ PAL_colors
     .by $fc
     .by $ee
     .by $de
+    .by $12
 NTSC_colors
     ; black
     .by $00
@@ -2255,6 +2257,7 @@ NTSC_colors
     .by $2c
     .by $fe
     .by $ee
+    .by $22
 ;--------------------------------------------------
 
 initial_branches_list
