@@ -477,6 +477,7 @@ no_clouds_change
     :3 sta WSYNC
     mva #$70 HPOSP0
     mva #$7a HPOSP1
+    mva #$ec COLPF2
     lda #0
     sta SIZEP0
     mwa #TitlesDLI1.DLI2 VDSLST
@@ -485,12 +486,13 @@ no_clouds_change
 DLI2
     pha
     mva #$9a HPOSP1
-    lda #0
+    mva #$04 COLPM0
     mwa #TitlesDLI1.DLI3 VDSLST
     pla
     rti
 DLI3
     pha
+    ;mva #$ea COLPF2
     ; set cloud 2 horizontal position
     lda clouds2Hpos
     clc
@@ -516,7 +518,13 @@ DLI4
     sta HPOSP3
     adc #8
     sta HPOSM3
+    ; font for titles
     mva #>font_titles CHBASE
+    ; titles font colors
+    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    mva GameColors+c_font3 COLPF3
     mwa #TitlesDLI1.DLI5 VDSLST
     pla
     rti
@@ -680,10 +688,10 @@ gameOver
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
     mva GameColors+c_sky COLBAKS
-    mva GameColors+c_font4 COLOR0
-    mva GameColors+c_font1 COLOR1
-    mva GameColors+c_font2 COLOR2
-    mva GameColors+c_font3 COLOR3
+    mva #$0e COLOR0
+    mva #$14 COLOR1
+    mva #$ee COLOR2
+    mva #$46 COLOR3
     lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
@@ -1572,7 +1580,7 @@ datalines_clouds=12
     jsr logoPM
     mva #1 SIZEP0_u
     sta SIZEP1_u
-    mva GameColors+c_white PCOLR0
+    mva #$ec PCOLR0
     sta PCOLR1
     lda #$58
     sta HPOSP0_u
