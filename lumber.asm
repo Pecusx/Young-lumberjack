@@ -103,19 +103,8 @@ font_game_rip
     ins 'art/t_rip.fnt'  ;
 font_titles
     ins 'art/title_fonts.fnt'   ;
-;---------------------------------------------------
-dl_title
-    .by $10,$70
-    .by $45
-    .wo title_screen    ; title screen (menu?)
-    .by $85 ; DLI1 - second clouds
-    .by $05
-    .by $85 ; DLI2 - last clouds
-    :4 .by $05
-    .by $85 ; DLI - horizon
-    :4 .by $05 
-    .by $41
-    .wo dl_title
+font_logo
+    ins 'art/title_logo.fnt'   ;
 ;---------------------------------------------------
 dl_over
     .by $10,$70
@@ -124,6 +113,20 @@ dl_over
     .by $85 ; DLI1 - second clouds
     .by $05
     .by $85 ; DLI2 - last clouds
+    :4 .by $05
+    .by $85 ; DLI - horizon
+    :4 .by $05 
+    .by $41
+    .wo dl_over
+;---------------------------------------------------
+dl_title
+    .by $10,$70
+    .by $44
+    .wo title_logo    ; title logo (menu?)
+    :2 .by $04
+    .by $84 ; DLI1 - second clouds
+    :3 .by $04
+    .by $84 ; DLI2 - last clouds
     :4 .by $05
     .by $85 ; DLI - horizon
     :3 .by $05 
@@ -200,10 +203,12 @@ c_font4 = 22
 ; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side
 ; v9 - if the branch opposite the lumberjack and branch above on the other side
 ;--------------------------------------------------
+title_logo
+    icl 'art/title_logo.asm'    ;   8 lines, mode 4
 title_screen
-    icl 'art/title_screen.asm'
+    icl 'art/title_screen.asm'  ;   13 lines, mode 5
 over_screen
-    icl 'art/over_screen.asm'
+    icl 'art/over_screen.asm'   ;   12 lines, mode 5
 
 ;--------------------------------------------------
 .proc vint
@@ -257,8 +262,6 @@ titles_VBI
     sta HPOSP0,x
     dex
     bpl @-
-    ; fly birds
-    jsr FlyBirds
     ; fly clouds
     jsr FlyClouds
     ;
@@ -272,8 +275,6 @@ gameover_VBI
     sta HPOSP0,x
     dex
     bpl @-
-    ; fly birds
-    jsr FlyBirds
     ; fly clouds
     jsr FlyClouds
     ;
@@ -497,11 +498,20 @@ DLI2
     sta HPOSP3
     adc #8
     sta HPOSM3
+    mva #>font_titles CHBASE
     mwa #TitlesDLI1.DLI3 VDSLST
     pla
     rti
 DLI3
     pha
+    :7 sta WSYNC
+    ; mva LowCharsetBase CHBASE
+    mva GameColors+c_horizonA COLBAK ; thin line
+    sta WSYNC
+    mva GameColors+c_horizonB COLBAK ; additional lines
+    sta WSYNC
+    sta WSYNC
+    mva GameColors+c_grass COLBAK ; green
     ; under horizon
     ; PMG colors, horizontal coordinates and sizes
     txa
@@ -648,9 +658,9 @@ gameOver
     jsr MakeDarkScreen
     jsr HidePM
     mva #0 StateFlag
-    mva #>font_titles CHBAS
+    mva #>font_logo CHBAS
     mwa #dl_title dlptrs
-    mva GameColors+c_grass COLBAKS
+    mva GameColors+c_sky COLBAKS
     mva GameColors+c_font4 COLOR0
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
