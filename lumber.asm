@@ -115,20 +115,21 @@ dl_over
     .by $85 ; DLI2 - last clouds
     :4 .by $05
     .by $85 ; DLI - horizon
-    :4 .by $05 
+    :3 .by $05 
     .by $41
     .wo dl_over
 ;---------------------------------------------------
 dl_title
     .by $10,$70
-    .by $44
+    .by $44+$80 ; DLI1 - Logo PM and colors
     .wo title_logo    ; title logo (menu?)
-    :2 .by $04
-    .by $84 ; DLI1 - second clouds
+    .by $04
+    .by $84 ; DLI2 - Logo PM and colors
+    .by $84 ; DLI3 - second clouds
     :3 .by $04
-    .by $84 ; DLI2 - last clouds
+    .by $84 ; DLI4 - last clouds
     :4 .by $05
-    .by $85 ; DLI - horizon
+    .by $85 ; DLI5 - horizon
     :3 .by $05 
     .by $41
     .wo dl_title
@@ -470,8 +471,25 @@ no_clouds_change
 .endp
 ;--------------------------------------------------
 .proc TitlesDLI1
-; Clouds, birds, color changes
+; Clouds, color changes
 ;--------------------------------------------------
+    pha
+    :3 sta WSYNC
+    mva #$70 HPOSP0
+    mva #$7a HPOSP1
+    lda #0
+    sta SIZEP0
+    mwa #TitlesDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
+    mva #$9a HPOSP1
+    lda #0
+    mwa #TitlesDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
     pha
     ; set cloud 2 horizontal position
     lda clouds2Hpos
@@ -483,10 +501,10 @@ no_clouds_change
     sta HPOSP3
     adc #8
     sta HPOSM3
-    mwa #TitlesDLI1.DLI2 VDSLST
+    mwa #TitlesDLI1.DLI4 VDSLST
     pla
     rti
-DLI2
+DLI4
     pha
     ; set cloud 3 horizontal position
     lda clouds3Hpos
@@ -499,10 +517,10 @@ DLI2
     adc #8
     sta HPOSM3
     mva #>font_titles CHBASE
-    mwa #TitlesDLI1.DLI3 VDSLST
+    mwa #TitlesDLI1.DLI5 VDSLST
     pla
     rti
-DLI3
+DLI5
     pha
     :7 sta WSYNC
     ; mva LowCharsetBase CHBASE
@@ -657,6 +675,7 @@ gameOver
 ;--------------------------------------------------
     jsr MakeDarkScreen
     jsr HidePM
+    jsr PrepareTitlePM
     mva #0 StateFlag
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
@@ -715,6 +734,7 @@ EndOfStartScreen
 .proc GameOverScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
+    jsr PrepareTitlePM.clearP0_1
     jsr HidePM
     mva #3 StateFlag
     mva #>font_titles CHBAS
@@ -1246,7 +1266,7 @@ datalinesP0=17
     ; hoffset (16 - 40) - (all) birds hsize - 28
     randomize 16 40
     sta birdsOffset
-    jsr clearbirds
+    jsr PrepareTitlePM.clearP0_1
     jsr bird_a
     mva #0 SIZEP0_u
     sta SIZEP1_u
@@ -1257,14 +1277,6 @@ datalinesP0=17
     sta HPOSP0_u
     sta HPOSP1_u
 
-    rts
-clearbirds
-    ldx #(40+28-16)
-    lda #0
-@   sta PMmemory+$200+16,x
-    sta PMmemory+$280+16,x
-    dex
-    bpl @-
     rts
 bird_a
     ldx #datalines_bird-1
@@ -1551,6 +1563,65 @@ cloud8_M
 
 
 datalines_clouds=12
+.endp
+;--------------------------------------------------
+.proc PrepareTitlePM
+;--------------------------------------------------
+    ; logo PM and other title screen PN (without clouds)
+    jsr clearP0_1
+    jsr logoPM
+    mva #1 SIZEP0_u
+    sta SIZEP1_u
+    mva GameColors+c_white PCOLR0
+    sta PCOLR1
+    lda #$58
+    sta HPOSP0_u
+    lda #$98
+    sta HPOSP1_u
+
+    rts
+clearP0_1
+    ldx #$7f
+    lda #0
+@   sta PMmemory+$200,x
+    sta PMmemory+$280,x
+    dex
+    bpl @-
+    rts
+logoPM
+    ldx #datalines_logo-1
+@   lda logo_data_a,x
+    sta PMmemory+$200+Hoffset_logo,x
+    lda logo_data_b,x
+    sta PMmemory+$280+Hoffset_logo,x
+    dey
+    dex
+    bpl @-
+    rts
+; logo data
+logo_data_a
+    dta %11111111
+    dta %11111111
+    ; DLI
+    dta %11111111
+    dta %11111111
+    dta %11111111
+    dta 0,0,0,0,0
+    dta %00011100
+    dta %00001000
+    dta 0
+logo_data_b
+    dta %11111111
+    dta %11111111
+    ; DLI
+    dta %11111111
+    dta %11111111
+    dta %11111111
+    dta 0,0,0,0,0
+    dta 0,0
+    dta %11111100
+Hoffset_logo=12
+datalines_logo=13
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
