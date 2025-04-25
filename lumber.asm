@@ -504,7 +504,6 @@ DLI3
     mva #$04 COLPM0
     :7 sta WSYNC
     mva #$ea COLPF2
-    sta COLPM1
     mwa #TitlesDLI1.DLI4 VDSLST
     pla
     rti
