@@ -123,13 +123,15 @@ dl_title
     .by $10,$70
     .by $44+$80 ; DLI1 - Logo PM and colors
     .wo title_logo    ; title logo (menu?)
+    .by $84 ; DLI2 - Logo colors
+    .by $84 ; DLI3 - Logo PM and colors
+    .by $84 ; DLI4 - second clouds
+    .by $84 ; DLI5 - Logo colors
+    .by $84 ; DLI6 - Logo colors
     .by $04
-    .by $84 ; DLI2 - Logo PM and colors
-    .by $84 ; DLI3 - second clouds
-    :3 .by $04
-    .by $84 ; DLI4 - last clouds
+    .by $84 ; DLI7 - last clouds
     :4 .by $05
-    .by $85 ; DLI5 - horizon
+    .by $85 ; DLI8 - horizon
     :3 .by $05 
     .by $41
     .wo dl_title
@@ -265,6 +267,12 @@ titles_VBI
     bpl @-
     ; fly clouds
     jsr FlyClouds
+    ; different clouds color
+    sec
+    lda GameColors+c_clouds
+    sbc #2  ; one tone darker
+    sta PCOLR2
+    sta PCOLR3
     ;
     jmp common_VBI
 gameover_VBI
@@ -485,14 +493,23 @@ no_clouds_change
     rti
 DLI2
     pha
-    mva #$9a HPOSP1
-    mva #$04 COLPM0
+    :5 sta WSYNC
+    mva #$12 COLPF1
     mwa #TitlesDLI1.DLI3 VDSLST
     pla
     rti
 DLI3
     pha
-    ;mva #$ea COLPF2
+    mva #$9a HPOSP1
+    mva #$04 COLPM0
+    :7 sta WSYNC
+    mva #$ea COLPF2
+    sta COLPM1
+    mwa #TitlesDLI1.DLI4 VDSLST
+    pla
+    rti
+DLI4
+    pha
     ; set cloud 2 horizontal position
     lda clouds2Hpos
     clc
@@ -503,10 +520,37 @@ DLI3
     sta HPOSP3
     adc #8
     sta HPOSM3
-    mwa #TitlesDLI1.DLI4 VDSLST
+    mva #$04 COLPF2
+    mva #$14 COLPF1
+    mva #$70 HPOSP0
+    sta HPOSP1
+    mva #$03 SIZEP0
+    sta SIZEP1
+    mva #$ee COLPM0
+    :5 sta WSYNC
+    mva #$ee COLPF2    
+    mwa #TitlesDLI1.DLI5 VDSLST
     pla
     rti
-DLI4
+DLI5
+    pha
+    sta WSYNC
+    mva #$ec COLPF2
+    mwa #TitlesDLI1.DLI6 VDSLST
+    pla
+    rti
+DLI6
+    pha
+    :3 sta WSYNC
+    mva #$12 COLPF1
+    :2 sta WSYNC
+    mva #$ea COLPF2    
+    :2 sta WSYNC
+    mva #$04 COLPF2    
+    mwa #TitlesDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
     pha
     ; set cloud 3 horizontal position
     lda clouds3Hpos
@@ -525,10 +569,10 @@ DLI4
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     mva GameColors+c_font3 COLPF3
-    mwa #TitlesDLI1.DLI5 VDSLST
+    mwa #TitlesDLI1.DLI8 VDSLST
     pla
     rti
-DLI5
+DLI8
     pha
     :7 sta WSYNC
     ; mva LowCharsetBase CHBASE
@@ -1614,10 +1658,24 @@ logo_data_a
     dta %11111111
     dta %11111111
     dta %11111111
-    dta 0,0,0,0,0
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
     dta %00011100
     dta %00001000
-    dta 0
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %11111111
+    dta %11111111
+    dta %11111111
+    dta %00000000
+    dta %00000000
+    dta %00000000
 logo_data_b
     dta %11111111
     dta %11111111
@@ -1625,11 +1683,26 @@ logo_data_b
     dta %11111111
     dta %11111111
     dta %11111111
-    dta 0,0,0,0,0
-    dta 0,0
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
     dta %11111100
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %11111111
+    dta %11111111
+    dta %11111111
 Hoffset_logo=12
-datalines_logo=13
+datalines_logo=23
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
