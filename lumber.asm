@@ -1321,7 +1321,7 @@ datalinesP0=17
     ; hoffset (16 - 40) - (all) birds hsize - 28
     randomize 16 40
     sta birdsOffset
-    jsr PrepareTitlePM.clearP0_1
+    jsr PrepareTitlePM.clearP0_1_sky
     jsr bird_a
     mva #0 SIZEP0_u
     sta SIZEP1_u
@@ -1637,7 +1637,11 @@ datalines_clouds=12
     rts
 clearP0_1
     ldx #$7f
-    lda #0
+    bne go_clear
+clearP0_1_sky
+    ldx #$53
+go_clear
+    lda #$00
 @   sta PMmemory+$200,x
     sta PMmemory+$280,x
     dex
