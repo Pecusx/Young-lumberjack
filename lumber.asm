@@ -486,6 +486,8 @@ no_clouds_change
     mva #$70 HPOSP0
     mva #$7a HPOSP1
     mva #$ec COLPF2
+    mva #$ee COLPM0
+    sta COLPM1
     lda #0
     sta SIZEP0
     mwa #TitlesDLI1.DLI2 VDSLST
@@ -495,6 +497,7 @@ DLI2
     pha
     :5 sta WSYNC
     mva #$12 COLPF1
+    mva #$ec COLPM1
     mwa #TitlesDLI1.DLI3 VDSLST
     pla
     rti
@@ -535,6 +538,7 @@ DLI5
     pha
     sta WSYNC
     mva #$ec COLPF2
+    mva #$ea COLPM1
     mwa #TitlesDLI1.DLI6 VDSLST
     pla
     rti
