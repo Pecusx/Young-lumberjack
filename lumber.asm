@@ -186,13 +186,17 @@ c_horizonA = 12    ; thin horizon line A
 c_horizonB = 13    ; thin horizon line B
 c_grass = 14    ; green grass
 c_hat = 15
-c_buckle = 16    ; button and buckle
+c_buckle = 16    ; button and buckle .. and logo
 c_pants = 17    ; blue pants
 c_greyRIP = 18
 c_font1 = 19    ; title fonts colors
-c_font2 = 20
+c_font2 = 20    ; .. and logo
 c_font3 = 21
 c_font4 = 22
+c_logo1 = 23    ; rest of logo colors
+c_logo2 = 24
+c_logo3 = 25
+c_logo4 = 26
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -485,8 +489,8 @@ no_clouds_change
     :3 sta WSYNC
     mva #$70 HPOSP0
     mva #$7a HPOSP1
-    mva #$ec COLPF2
-    mva #$ee COLPM0
+    mva GameColors+c_logo4 COLPF2
+    mva GameColors+c_font2 COLPM0
     sta COLPM1
     lda #0
     sta SIZEP0
@@ -496,17 +500,17 @@ no_clouds_change
 DLI2
     pha
     :5 sta WSYNC
-    mva #$12 COLPF1
-    mva #$ec COLPM1
+    mva GameColors+c_logo2 COLPF1
+    mva GameColors+c_logo4 COLPM1
     mwa #TitlesDLI1.DLI3 VDSLST
     pla
     rti
 DLI3
     pha
     mva #$9a HPOSP1
-    mva #$04 COLPM0
+    mva GameColors+c_logo1 COLPM0
     :7 sta WSYNC
-    mva #$ea COLPF2
+    mva GameColors+c_buckle COLPF2
     mwa #TitlesDLI1.DLI4 VDSLST
     pla
     rti
@@ -522,34 +526,34 @@ DLI4
     sta HPOSP3
     adc #8
     sta HPOSM3
-    mva #$04 COLPF2
-    mva #$14 COLPF1
+    mva GameColors+c_logo1 COLPF2
+    mva GameColors+c_logo3 COLPF1
     mva #$70 HPOSP0
     sta HPOSP1
     mva #$03 SIZEP0
     sta SIZEP1
-    mva #$ee COLPM0
+    mva GameColors+c_font2 COLPM0
     :5 sta WSYNC
-    mva #$ee COLPF2    
+    sta COLPF2    
     mwa #TitlesDLI1.DLI5 VDSLST
     pla
     rti
 DLI5
     pha
     sta WSYNC
-    mva #$ec COLPF2
-    mva #$ea COLPM1
+    mva GameColors+c_logo4 COLPF2
+    mva GameColors+c_buckle COLPM1
     mwa #TitlesDLI1.DLI6 VDSLST
     pla
     rti
 DLI6
     pha
     :3 sta WSYNC
-    mva #$12 COLPF1
+    mva GameColors+c_logo2 COLPF1
     :2 sta WSYNC
-    mva #$ea COLPF2    
+    mva GameColors+c_buckle COLPF2    
     :2 sta WSYNC
-    mva #$04 COLPF2    
+    mva GameColors+c_logo1 COLPF2    
     mwa #TitlesDLI1.DLI7 VDSLST
     pla
     rti
@@ -735,10 +739,9 @@ gameOver
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
     mva GameColors+c_sky COLBAKS
-    mva #$0e COLOR0
-    mva #$14 COLOR1
-    mva #$ee COLOR2
-    mva #$46 COLOR3
+    mva GameColors+c_clouds COLOR0
+    mva GameColors+c_logo3 COLOR1
+    mva GameColors+c_font2 COLOR2
     lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
@@ -1627,7 +1630,7 @@ datalines_clouds=12
     jsr logoPM
     mva #1 SIZEP0_u
     sta SIZEP1_u
-    mva #$ec PCOLR0
+    mva GameColors+c_logo4 PCOLR0
     sta PCOLR1
     lda #$58
     sta HPOSP0_u
@@ -2360,7 +2363,7 @@ PAL_colors
     .by $2a
     ; birds
     .by $04
-    ; clouds
+    ; clouds and logo
     .by $0e
     ; light red (power bar up)
     .by $3f
@@ -2383,6 +2386,11 @@ PAL_colors
     .by $ee
     .by $de
     .by $12
+    ; rest of logo colors
+    .by $04
+    .by $12
+    .by $14
+    .by $ec
 NTSC_colors
     ; black
     .by $00
@@ -2427,6 +2435,11 @@ NTSC_colors
     .by $fe
     .by $ee
     .by $22
+    ; rest of logo colors
+    .by $04
+    .by $22
+    .by $24
+    .by $fc
 ;--------------------------------------------------
 
 initial_branches_list
