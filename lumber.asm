@@ -529,9 +529,7 @@ DLI4
     mva GameColors+c_logo1 COLPF2
     mva GameColors+c_logo3 COLPF1
     mva #$70 HPOSP0
-    sta HPOSP1
     mva #$03 SIZEP0
-    sta SIZEP1
     mva GameColors+c_font2 COLPM0
     :5 sta WSYNC
     sta COLPF2    
@@ -543,6 +541,8 @@ DLI5
     sta WSYNC
     mva GameColors+c_logo4 COLPF2
     mva GameColors+c_buckle COLPM1
+    mva #$70 HPOSP1
+    mva #$03 SIZEP1
     mwa #TitlesDLI1.DLI6 VDSLST
     pla
     rti
