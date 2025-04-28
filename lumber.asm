@@ -32,6 +32,7 @@ display = $a000
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
     .zpvar PowerSpeedIndex .byte
+    .zpvar SpeedTableAdr .word
     .zpvar LevelValue .byte
     .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
@@ -1200,6 +1201,7 @@ no_branch_l
     mva #0 NTSCCounter
     vmain vint,7
     
+    mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level
     rts
 .endp
 ;--------------------------------------------------
@@ -1953,10 +1955,10 @@ ScoreReady
 .proc LevelReset
 ;--------------------------------------------------
 ; set level to 1 and PowerDownSpeed to ??
-    mvx #1 LevelValue
-    dex
-    stx PowerSpeedIndex
-    lda PowerSpeedTable,x
+    mvy #1 LevelValue
+    dey
+    sty PowerSpeedIndex
+    lda (SpeedTableAdr),y
     sta PowerDownSpeed
     jsr LevelToScreen
     rts
@@ -1977,8 +1979,8 @@ not_max_lev
 .proc PowerSpeedUP
 ;--------------------------------------------------
     inc PowerSpeedIndex
-    ldx PowerSpeedIndex
-    lda PowerSpeedTable,x
+    ldy PowerSpeedIndex
+    lda (SpeedTableAdr),y
     sta PowerDownSpeed
     rts
 .endp
@@ -2504,10 +2506,11 @@ branch_addr_tableH
     .by >branch1
     .by >branch2
 ; power speed table - every 50pts.
-PowerSpeedTable
+PowerSpeedTableA
     ; in original game double speed after 400pts.
     ;   000,050,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950
     .by 011,010,010,009,008,007,007,006,005,005,004,004,004,003,003,003,002,002,001,001
+PowerSpeedTableB
     ; level for old men 
     .by 022,020,018,017,015,013,012,011,010,010,009,009,008,007,006,005,004,003,002,001,001,001,001
 
