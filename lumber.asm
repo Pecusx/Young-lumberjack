@@ -233,7 +233,7 @@ no_titles
     jmp DLI_OK
 no_geme_and_RIP    
     ; game over screen (StateFlag=3) - set DLI
-    vdli TitlesDLI1
+    vdli GameOverDLI1
 
 DLI_OK
     lda StateFlag
@@ -589,6 +589,56 @@ DLI8
     sta WSYNC
     sta WSYNC
     mva GameColors+c_grass COLBAK ; green
+    ; under horizon
+    ; PMG colors, horizontal coordinates and sizes
+    txa
+    pha
+    lda #0  ; hide PMG
+    ldx #$15
+@   sta HPOSP0,x
+    dex
+    bpl @-
+    pla
+    tax
+    inc SyncByte
+    pla
+    rti
+.endp
+;--------------------------------------------------
+.proc GameOverDLI1
+; Clouds, color changes
+;--------------------------------------------------
+    pha
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #GameOverDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
+    ; set cloud 3 horizontal position
+    lda clouds3Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #GameOverDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
+    pha
     ; under horizon
     ; PMG colors, horizontal coordinates and sizes
     txa
