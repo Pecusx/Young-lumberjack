@@ -34,6 +34,7 @@ display = $a000
     .zpvar PowerSpeedIndex .byte
     .zpvar SpeedTableAdr .word
     .zpvar LevelValue .byte
+    .zpvar Difficulty .byte ; 0 - normal, 1 - easy
     .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
     .zpvar LowCharsetBase .byte
@@ -133,7 +134,10 @@ dl_title
     .by $84 ; DLI7 - last clouds
     :4 .by $05
     .by $85 ; DLI8 - horizon
-    :3 .by $05 
+    :3 .by $05
+    .by $45
+difficulty_text_DL
+    .wo difficulty_normal_text
     .by $41
     .wo dl_title
 ;---------------------------------------------------
@@ -217,7 +221,9 @@ title_screen
     icl 'art/title_screen.asm'  ;   13 lines, mode 5
 over_screen
     icl 'art/over_screen.asm'   ;   12 lines, mode 5
-
+difficulty_normal_text
+    icl 'art/difficulty_texts.asm'   ;   2 lines, mode 5
+difficulty_easy_text = difficulty_normal_text + 40
 ;--------------------------------------------------
 .proc vint
 ;--------------------------------------------------
@@ -796,9 +802,29 @@ gameOver
     lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
+difficulty_display
+    lda Difficulty
+    bne level_easy
+    mwa #difficulty_normal_text difficulty_text_DL
+    mwa #PowerSpeedTableA SpeedTableAdr     ; difficulty level normal
+    jmp wait_for_key
+level_easy
+    mwa #difficulty_easy_text difficulty_text_DL
+    mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level easy
+wait_for_key
     pause 1
 StartLoop
     jsr GetKey
+    cmp #@kbcode._left
+    beq leftkey
+    cmp #@kbcode._right
+    bne notdirectionskeys
+leftkey
+    lda Difficulty
+    eor #$01
+    sta Difficulty
+    jmp difficulty_display
+notdirectionskeys
 EndOfStartScreen
     rts
 .endp
@@ -1178,6 +1204,7 @@ no_branch_l
     mva #1 PowerTimer   ; reset timer ( 1, not 0! )
     jsr draw_PowerBar
     mva #1 LumberjackDir    ; right side
+    mva #0 Difficulty       ; level normal
     
 /*     ;RMT INIT
     ldx #<MODUL                 ;low byte of RMT module to X reg
