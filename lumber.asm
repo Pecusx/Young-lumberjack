@@ -206,19 +206,20 @@ c_logo4 = 26
     icl 'art/anim_exported.asm'
 ; Animations:
 ; v1 - if no branches
-; v2 - if the branch under (due to change of sides) the lumberjack and none above 
-; v3 - if the branch opposite the lumberjack and no branch and none above
+; v2 - if the branch under (due to change of sides) the lumberjack and none above - (now v1)
+; v3 - if the branch opposite the lumberjack and no branch and none above - (now v1)
 ; v4 - if no branch at the level of the lumberjack and branch above (kill)
-; v5 - if the branch under (due to change of sides) the lumberjack and branch above (kill)
-; v6 - if the branch opposite the lumberjack and branch above (kill)
+; v5 - if the branch under (due to change of sides) the lumberjack and branch above (kill) - (now v4)
+; v6 - if the branch opposite the lumberjack and branch above (kill) - (now v4)
 ; v7 - if no branch at the level of the lumberjack and branch above on the other side
-; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side
-; v9 - if the branch opposite the lumberjack and branch above on the other side
+; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side - (now v7)
+; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;--------------------------------------------------
 title_logo
     icl 'art/title_logo.asm'    ;   8 lines, mode 4
 title_screen
     icl 'art/title_screen.asm'  ;   13 lines, mode 5
+    .align $400
 over_screen
     icl 'art/over_screen.asm'   ;   12 lines, mode 5
 difficulty_normal_text
@@ -952,35 +953,14 @@ no_r_branch
     ; branch over lumberjack
     cmp #1  ; right branch (kill)
     bne no_kill_r
-    ;
-    lda branches_list+5 ; check branch on lumberjack level
-    beq kill_2branch_r
-    cmp #2  ; left branch - animation v4
-    bne kill_2branch_r    ; animation v5 (=v4)
-    jsr AnimationR6
-    jmp go_loop
-kill_2branch_r
     jsr AnimationR4
     jmp go_loop    
 no_kill_r
-    lda branches_list+5 ; check branch on lumberjack level
-    beq no_kill_2branch_r
-    cmp #2  ; left branch - animation v7
-    bne no_kill_2branch_r    ; animation v8 (=v7)
-    jsr AnimationR9
-    jmp go_loop
-no_kill_2branch_r
+     ; left branch
     jsr AnimationR7
     jmp go_loop    
 no_brancho_r
-    ;no branch over lumberjack
-    lda branches_list+5 ; check branch on lumberjack level
-    beq no_2branch_r
-    cmp #2  ; left branch - animation v3
-    bne no_2branch_r    ; animation v2 (=v1)
-    jsr AnimationR3
-    jmp go_loop
-no_2branch_r
+    ; no branch over lumberjack
     jsr AnimationR1
     jmp go_loop
 left_pressed
@@ -1007,36 +987,14 @@ no_l_branch
     ; branch over lumberjack
     cmp #2  ; left branch (kill)
     bne no_kill_l
-    ;
-    lda branches_list+5 ; check branch on lumberjack level
-    beq kill_2branch_l
-    cmp #1  ; right branch - animation v4
-    bne kill_2branch_l    ; animation v5 (=v4)
-    jsr AnimationL6
-    jmp go_loop
-kill_2branch_l
     jsr AnimationL4
     jmp go_loop 
 no_kill_l
-    lda branches_list+5 ; check branch on lumberjack level
-    beq no_kill_2branch_l
-    cmp #1  ; right branch - animation v7
-    bne no_kill_2branch_l    ; animation v8 (=v7)
-    jsr AnimationL9
-    jmp go_loop
-no_kill_2branch_l
+    ; right branch
     jsr AnimationL7
     jmp go_loop    
-
 no_brancho_l
     ; no branch over lumberjack
-    lda branches_list+5 ; check branch on lumberjack level
-    beq no_2branch_l
-    cmp #1 ; right branch - animation v3
-    bne no_2branch_l    ; animation v2 (=v1)
-    jsr AnimationL3
-    jmp go_loop
-no_2branch_l
     jsr AnimationL1
     jmp go_loop
 LevelDeath
@@ -1057,8 +1015,8 @@ go_loop
 ;--------------------------------------------------
 .proc SetRIPscreen
 ;--------------------------------------------------
-    mva #2 StateFlag
     :5 WaitForSync
+    mva #2 StateFlag
     mva #>font_game_rip LowCharsetBase
     jsr HidePM
     jsr PrepareRIPPM

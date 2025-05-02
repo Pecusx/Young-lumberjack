@@ -1,7 +1,7 @@
 ;---------------------------------------------------
 ; Animation sequence:
 ; v1 - if no branches
-; v2 - if the branch under (due to change of sides) the lumberjack and none above 
+; v2 - if the branch under (due to change of sides) the lumberjack and none above - (now v1)
 ;
 ; - (last position)
 ; - phase 2 page 1
@@ -12,7 +12,7 @@
 ; - phase 2 page 4
 ; - phase 1 page 1 (new position)
 ;
-; v3 - if the branch opposite the lumberjack and no branch above
+; v3 - if the branch opposite the lumberjack and no branch above - (now v1)
 ;
 ; - (last position)
 ; - phase 2 page 5
@@ -24,7 +24,7 @@
 ; - phase 1 page 1 (new position)
 ;
 ; v4 - if no branch at the level of the lumberjack and branch above (kill)
-; v5 - if the branch under (due to change of sides) the lumberjack and branch above (kill)
+; v5 - if the branch under (due to change of sides) the lumberjack and branch above (kill) - (now v4)
 ;
 ; - (last position)
 ; - phase 2 page 1
@@ -35,7 +35,7 @@
 ; - phase 2 page 13
 ; - phase 1 page 1 (new position) - killed
 ;
-; v6 - if the branch opposite the lumberjack and branch above (kill)
+; v6 - if the branch opposite the lumberjack and branch above (kill) - (now v4)
 ;
 ; - (last position)
 ; - phase 2 page 5
@@ -47,7 +47,7 @@
 ; - phase 1 page 1 (new position) - killed
 ;
 ; v7 - if no branch at the level of the lumberjack and branch above on the other side
-; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side
+; v8 - if the branch under (due to change of sides) the lumberjack and branch above on the other side - (now v7)
 ;
 ; - (last position)
 ; - phase 2 page 1
@@ -58,7 +58,7 @@
 ; - phase 2 page 9
 ; - phase 1 page 2 (new position)
 ;
-; v9 - if the branch opposite the lumberjack and branch above on the other side
+; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;
 ; - (last position)
 ; - phase 2 page 5
@@ -101,7 +101,7 @@
     mva #1 LumberjackDir    ; right side
     rts
 .endp
-AnimationR2 = AnimationR1
+;AnimationR2 = AnimationR1
 ;--------------------------------------------------
 .proc AnimationL1
 ;--------------------------------------------------
@@ -134,7 +134,7 @@ AnimationR2 = AnimationR1
     mva #2 LumberjackDir    ; left side
     rts
 .endp
-AnimationL2 = AnimationL1
+/* AnimationL2 = AnimationL1
 ;--------------------------------------------------
 .proc AnimationR3
 ;--------------------------------------------------
@@ -198,7 +198,7 @@ AnimationL2 = AnimationL1
     WaitForSync
     mva #2 LumberjackDir    ; left side
     rts
-.endp
+.endp */
 ;--------------------------------------------------
 .proc AnimationR4
 ;--------------------------------------------------
@@ -225,13 +225,13 @@ AnimationL2 = AnimationL1
     jsr branches_go_down
     mwa #gamescreen_r_ph2p13 animation_addr
     WaitForSync
-    mwa #gamescreen_r_ph1p1 animation_addr
-    jsr SetPMr1
-    WaitForSync
+    ;mwa #gamescreen_r_ph1p1 animation_addr
+    ;jsr SetPMr1
+    ;WaitForSync
     mva #1 LumberjackDir    ; right side (kill)
     rts
 .endp
-AnimationR5 = AnimationR4
+;AnimationR5 = AnimationR4
 ;--------------------------------------------------
 .proc AnimationL4
 ;--------------------------------------------------
@@ -258,13 +258,13 @@ AnimationR5 = AnimationR4
     jsr branches_go_down
     mwa #gamescreen_l_ph2p13 animation_addr
     WaitForSync
-    mwa #gamescreen_l_ph1p1 animation_addr
-    jsr SetPMl1
-    WaitForSync
+    ;mwa #gamescreen_l_ph1p1 animation_addr
+    ;jsr SetPMl1
+    ;WaitForSync
     mva #2 LumberjackDir    ; left side (kill)
     rts
 .endp
-AnimationL5 = AnimationL4
+/* AnimationL5 = AnimationL4
 ;--------------------------------------------------
 .proc AnimationR6
 ;--------------------------------------------------
@@ -328,7 +328,7 @@ AnimationL5 = AnimationL4
     WaitForSync
     mva #2 LumberjackDir    ; left side (kill)
     rts
-.endp
+.endp */
 ;--------------------------------------------------
 .proc AnimationR7
 ;--------------------------------------------------
@@ -361,7 +361,7 @@ AnimationL5 = AnimationL4
     mva #1 LumberjackDir    ; right side
     rts
 .endp
-AnimationR8 = AnimationR7
+;AnimationR8 = AnimationR7
 ;--------------------------------------------------
 .proc AnimationL7
 ;--------------------------------------------------
@@ -394,7 +394,7 @@ AnimationR8 = AnimationR7
     mva #2 LumberjackDir    ; left side
     rts
 .endp
-AnimationL8 = AnimationL7
+/* AnimationL8 = AnimationL7
 ;--------------------------------------------------
 .proc AnimationR9
 ;--------------------------------------------------
@@ -458,5 +458,5 @@ AnimationL8 = AnimationL7
     WaitForSync
     mva #2 LumberjackDir    ; left side
     rts
-.endp
+.endp */
 ;--------------------------------------------------
