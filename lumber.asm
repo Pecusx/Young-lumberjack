@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.40" ; number of this build (4 bytes)
+    dta d"0.41" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -191,7 +191,7 @@ c_horizonA = 12    ; thin horizon line A
 c_horizonB = 13    ; thin horizon line B
 c_grass = 14    ; green grass
 c_hat = 15
-c_buckle = 16    ; button and buckle .. and logo
+c_buckle = 16    ; button and buckle
 c_pants = 17    ; blue pants
 c_greyRIP = 18
 c_font1 = 19    ; title fonts colors
@@ -202,6 +202,8 @@ c_logo1 = 23    ; rest of logo colors
 c_logo2 = 24
 c_logo3 = 25
 c_logo4 = 26
+c_logo5 = 27
+c_cloudst = 28  ; title screen clouds
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -281,8 +283,7 @@ titles_VBI
     jsr FlyClouds
     ; different clouds color
     sec
-    lda GameColors+c_clouds
-    sbc #2  ; one tone darker
+    lda GameColors+c_cloudst
     sta PCOLR2
     sta PCOLR3
     ;
@@ -518,7 +519,7 @@ DLI3
     mva #$9a HPOSP1
     mva GameColors+c_logo1 COLPM0
     :7 sta WSYNC
-    mva GameColors+c_buckle COLPF2
+    mva GameColors+c_logo5 COLPF2
     mwa #TitlesDLI1.DLI4 VDSLST
     pla
     rti
@@ -548,7 +549,7 @@ DLI5
     pha
     sta WSYNC
     mva GameColors+c_logo4 COLPF2
-    mva GameColors+c_buckle COLPM1
+    mva GameColors+c_logo5 COLPM1
     mva #$70 HPOSP1
     mva #$03 SIZEP1
     mwa #TitlesDLI1.DLI6 VDSLST
@@ -559,7 +560,7 @@ DLI6
     :3 sta WSYNC
     mva GameColors+c_logo2 COLPF1
     :2 sta WSYNC
-    mva GameColors+c_buckle COLPF2    
+    mva GameColors+c_logo5 COLPF2    
     :2 sta WSYNC
     mva GameColors+c_logo1 COLPF2    
     mwa #TitlesDLI1.DLI7 VDSLST
@@ -2428,6 +2429,9 @@ PAL_colors
     .by $12
     .by $14
     .by $ec
+    .by $e8
+    ; clouds on title screen
+    .by $7e
 NTSC_colors
     ; black
     .by $00
@@ -2477,6 +2481,9 @@ NTSC_colors
     .by $22
     .by $24
     .by $fc
+    .by $f8
+    ; clouds on title screen
+    .by $8e
 ;--------------------------------------------------
 
 initial_branches_list
