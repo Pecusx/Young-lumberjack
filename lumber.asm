@@ -134,8 +134,8 @@ dl_title
     .by $84 ; DLI7 - last clouds
     :4 .by $05
     .by $85 ; DLI8 - horizon
-    :3 .by $05
-    .by $45
+    :3 .by $85  ; DLI9 - fonts
+    .by $45+$80
 difficulty_text_DL
     .wo difficulty_normal_text
     .by $41
@@ -610,6 +610,14 @@ DLI8
     pla
     tax
     inc SyncByte
+    mwa #TitlesDLI1.DLI9 VDSLST
+    pla
+    rti
+DLI9
+    pha
+    mva GameColors+c_font2 COLPF2
+    :13 sta WSYNC
+    mva GameColors+c_buckle COLPF2
     pla
     rti
 .endp
