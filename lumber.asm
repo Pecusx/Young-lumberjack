@@ -185,7 +185,7 @@ c_shirtA = 6    ; Lumberjack shirt A
 c_shirtB = 7    ; Lumberjack shirt B
 c_hands = 8    ; Lumberjack hand/face
 c_birds = 9
-c_clouds = 10
+c_white2 = 10
 c_light_red = 11    ; (power bar up)
 c_horizonA = 12    ; thin horizon line A
 c_horizonB = 13    ; thin horizon line B
@@ -204,7 +204,7 @@ c_logo2 = 25
 c_logo3 = 26
 c_logo4 = 27
 c_logo5 = 28
-c_cloudst = 29  ; title screen clouds
+c_clouds = 29  ; clouds
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -288,7 +288,7 @@ titles_VBI
     jsr FlyClouds
     ; different clouds color
     sec
-    lda GameColors+c_cloudst
+    lda GameColors+c_clouds
     sta PCOLR2
     sta PCOLR3
     ;
