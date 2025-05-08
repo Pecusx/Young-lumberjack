@@ -198,12 +198,13 @@ c_font1 = 19    ; title fonts colors
 c_font2 = 20    ; .. and logo
 c_font3 = 21
 c_font4 = 22
-c_logo1 = 23    ; rest of logo colors
-c_logo2 = 24
-c_logo3 = 25
-c_logo4 = 26
-c_logo5 = 27
-c_cloudst = 28  ; title screen clouds
+c_font5 = 23
+c_logo1 = 24    ; rest of logo colors
+c_logo2 = 25
+c_logo3 = 26
+c_logo4 = 27
+c_logo5 = 28
+c_cloudst = 29  ; title screen clouds
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -617,7 +618,7 @@ DLI9
     pha
     mva GameColors+c_font2 COLPF2
     :13 sta WSYNC
-    mva GameColors+c_buckle COLPF2
+    mva GameColors+c_font5 COLPF2
     pla
     rti
 .endp
@@ -2432,6 +2433,7 @@ PAL_colors
     .by $ee
     .by $de
     .by $12
+    .by $1a
     ; rest of logo colors
     .by $04
     .by $12
@@ -2484,6 +2486,7 @@ NTSC_colors
     .by $fe
     .by $ee
     .by $22
+    .by $2a
     ; rest of logo colors
     .by $04
     .by $22
