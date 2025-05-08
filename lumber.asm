@@ -228,6 +228,10 @@ over_screen
 difficulty_normal_text
     icl 'art/difficulty_texts.asm'   ;   2 lines, mode 5
 difficulty_easy_text = difficulty_normal_text + 40
+credits_texts
+    icl 'art/credits.asm'   ;   8 lines, mode 5
+credits_lines   ; 2 lines for credits animations
+    :80 .by 0
 ;--------------------------------------------------
 .proc vint
 ;--------------------------------------------------
