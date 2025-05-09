@@ -195,7 +195,7 @@ c_horizonA = 12    ; thin horizon line A
 c_horizonB = 13    ; thin horizon line B
 c_grass = 14    ; green grass
 c_hat = 15
-c_buckle = 16    ; button and buckle
+c_buckle = 16    ; button and buckle... and logo
 c_pants = 17    ; blue pants
 c_greyRIP = 18
 c_font1 = 19    ; title fonts colors
@@ -619,7 +619,7 @@ DLI3
     mva #$9a HPOSP1
     mva GameColors+c_logo1 COLPM0
     :7 sta WSYNC
-    mva GameColors+c_logo5 COLPF2
+    mva GameColors+c_buckle COLPF2
     mwa #TitlesDLI1.DLI4 VDSLST
     pla
     rti
@@ -636,12 +636,13 @@ DLI4
     adc #8
     sta HPOSM3
     mva GameColors+c_logo1 COLPF2
-    mva GameColors+c_logo3 COLPF1
     mva #$70 HPOSP0
     mva #$03 SIZEP0
     mva GameColors+c_font2 COLPM0
-    :5 sta WSYNC
-    sta COLPF2    
+    :2 sta WSYNC
+    mva GameColors+c_logo3 COLPF1
+    :3 sta WSYNC
+    mva GameColors+c_font2 COLPF2
     mwa #TitlesDLI1.DLI5 VDSLST
     pla
     rti
