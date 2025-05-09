@@ -907,7 +907,7 @@ gameOver
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
     mva GameColors+c_sky COLBAKS
-    mva GameColors+c_clouds COLOR0
+    mva GameColors+c_white2 COLOR0
     mva GameColors+c_logo3 COLOR1
     mva GameColors+c_font2 COLOR2
     lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
