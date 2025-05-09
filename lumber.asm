@@ -24,6 +24,7 @@
 display = $a000
     .zpvar temp .word = $80
     .zpvar temp2 .word
+    .zpvar VBItemp .word
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
@@ -134,10 +135,13 @@ dl_title
     .by $84 ; DLI7 - last clouds
     :4 .by $05
     .by $85 ; DLI8 - horizon
-    :3 .by $85  ; DLI9 - fonts
+    .by $85  ; DLI9 - fonts
     .by $45+$80
 difficulty_text_DL
     .wo difficulty_normal_text
+    .by $45+$80
+    .wo credits_lines
+    .by $85
     .by $41
     .wo dl_title
 ;---------------------------------------------------
@@ -230,8 +234,14 @@ difficulty_normal_text
 difficulty_easy_text = difficulty_normal_text + 40
 credits_texts
     icl 'art/credits.asm'   ;   8 lines, mode 5
+number_of_credits = 4
 credits_lines   ; 2 lines for credits animations
     :80 .by 0
+    .by 0   ; for second line animation
+credit_nr   ; number of credit to display (displayed)
+    .ds 1
+credits_anim_counter    ; counter for credits animation/display
+    .ds 1
 ;--------------------------------------------------
 .proc vint
 ;--------------------------------------------------
@@ -291,6 +301,8 @@ titles_VBI
     lda GameColors+c_clouds
     sta PCOLR2
     sta PCOLR3
+    ;
+    jsr CreditsAnimate
     ;
     jmp common_VBI
 gameover_VBI
@@ -1914,6 +1926,68 @@ no_speed_power
     sta score+1
     inc score
 ScoreReady
+    rts
+.endp
+;--------------------------------------------------
+.proc CreditsClear
+;--------------------------------------------------
+    ldx #80
+    lda #0
+@   sta credits_lines,x
+    dex
+    bpl @-
+    sta credit_nr
+    sta credits_anim_counter
+    rts
+.endp
+;--------------------------------------------------
+.proc CreditsAnimate
+;--------------------------------------------------
+    lda credits_anim_counter
+    cmp #40
+    bcs static_display
+    ; lets animate
+    ; first move existing characters
+    ldx #38
+@   lda credits_lines,x
+    sta credits_lines+1,x
+    lda credits_lines+40,x
+    sta credits_lines+41,x
+    dex
+    bpl @-
+    ; and now write new characters to screen
+    ; credit text addres calculate
+    mwa #credits_texts VBItemp
+    ldx credit_nr
+    beq write_chars
+@   adw VBItemp #80
+    dex
+    bne @-
+write_chars
+    lda #39
+    sec
+    sbc credits_anim_counter
+    tay
+    lda (VBItemp),y
+    sta credits_lines
+    adw VBItemp #40
+    lda (VBItemp),y
+    sta credits_lines+40
+    
+static_display
+    inc credits_anim_counter
+    lda credits_anim_counter
+    cmp #200
+    bne no_next_credit
+next_credit
+    inc credit_nr
+    lda credit_nr
+    cmp #number_of_credits
+    bne no_credits_loop
+    mva #0 credit_nr
+no_credits_loop
+    mva #0 credits_anim_counter
+no_next_credit
     rts
 .endp
 ;--------------------------------------------------
