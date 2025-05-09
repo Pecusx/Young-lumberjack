@@ -556,12 +556,12 @@ write_chars
     beq static_display
 no_spaces
     ; second half of second credits line
-    lda #19 ;   ??
+    lda #39
     sec
     sbc credits_anim_counter
     asl
     clc
-    adc #80 ;   ??  - I don't know why, but it works!!! :)
+    adc #40
     tay
     lda (VBItemp),y
     sta credits_lines+40
