@@ -503,6 +503,68 @@ no_clouds_change
     rts
 .endp
 ;--------------------------------------------------
+.proc CreditsClear
+;--------------------------------------------------
+    ldx #80
+    lda #0
+@   sta credits_lines,x
+    dex
+    bpl @-
+    sta credit_nr
+    sta credits_anim_counter
+    rts
+.endp
+;--------------------------------------------------
+.proc CreditsAnimate
+;--------------------------------------------------
+    lda credits_anim_counter
+    cmp #40
+    bcs static_display
+    ; lets animate
+    ; first move existing characters
+    ldx #38
+@   lda credits_lines,x
+    sta credits_lines+1,x
+    lda credits_lines+40,x
+    sta credits_lines+41,x
+    dex
+    bpl @-
+    ; and now write new characters to screen
+    ; credit text addres calculate
+    mwa #credits_texts VBItemp
+    ldx credit_nr
+    beq write_chars
+@   adw VBItemp #80
+    dex
+    bne @-
+write_chars
+    lda #39
+    sec
+    sbc credits_anim_counter
+    tay
+    lda (VBItemp),y
+    sta credits_lines
+    adw VBItemp #40
+    lda (VBItemp),y
+    sta credits_lines+40
+    
+static_display
+    inc credits_anim_counter
+    lda credits_anim_counter
+    cmp #200
+    bne no_next_credit
+next_credit
+    inc credit_nr
+    lda credit_nr
+    cmp #number_of_credits
+    bne no_credits_loop
+    mva #0 credit_nr
+no_credits_loop
+    mva #0 credits_anim_counter
+no_next_credit
+    rts
+.endp
+;--------------------------------------------------
 .proc NoDLI
 ;--------------------------------------------------
     rti
@@ -819,6 +881,7 @@ gameOver
     jsr MakeDarkScreen
     jsr HidePM
     jsr PrepareTitlePM
+    jsr CreditsClear
     mva #0 StateFlag
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
@@ -1179,7 +1242,8 @@ no_branch_l
     sta sfx_effect
 
     JSR AudioInit
-    
+
+    jsr CreditsClear
     mva #$00 birds_order    ; standard birds order
     jsr LevelReset
     jsr InitBranches
@@ -1926,68 +1990,6 @@ no_speed_power
     sta score+1
     inc score
 ScoreReady
-    rts
-.endp
-;--------------------------------------------------
-.proc CreditsClear
-;--------------------------------------------------
-    ldx #80
-    lda #0
-@   sta credits_lines,x
-    dex
-    bpl @-
-    sta credit_nr
-    sta credits_anim_counter
-    rts
-.endp
-;--------------------------------------------------
-.proc CreditsAnimate
-;--------------------------------------------------
-    lda credits_anim_counter
-    cmp #40
-    bcs static_display
-    ; lets animate
-    ; first move existing characters
-    ldx #38
-@   lda credits_lines,x
-    sta credits_lines+1,x
-    lda credits_lines+40,x
-    sta credits_lines+41,x
-    dex
-    bpl @-
-    ; and now write new characters to screen
-    ; credit text addres calculate
-    mwa #credits_texts VBItemp
-    ldx credit_nr
-    beq write_chars
-@   adw VBItemp #80
-    dex
-    bne @-
-write_chars
-    lda #39
-    sec
-    sbc credits_anim_counter
-    tay
-    lda (VBItemp),y
-    sta credits_lines
-    adw VBItemp #40
-    lda (VBItemp),y
-    sta credits_lines+40
-    
-static_display
-    inc credits_anim_counter
-    lda credits_anim_counter
-    cmp #200
-    bne no_next_credit
-next_credit
-    inc credit_nr
-    lda credit_nr
-    cmp #number_of_credits
-    bne no_credits_loop
-    mva #0 credit_nr
-no_credits_loop
-    mva #0 credits_anim_counter
-no_next_credit
     rts
 .endp
 ;--------------------------------------------------
