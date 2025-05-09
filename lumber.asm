@@ -526,7 +526,7 @@ no_clouds_change
 @   lda credits_lines,x
     sta credits_lines+1,x
     lda credits_lines+40,x
-    sta credits_lines+41,x
+    sta credits_lines+42,x
     dex
     bpl @-
     ; and now write new characters to screen
@@ -538,15 +538,36 @@ no_clouds_change
     dex
     bne @-
 write_chars
+    ; first line
     lda #39
     sec
     sbc credits_anim_counter
     tay
     lda (VBItemp),y
     sta credits_lines
-    adw VBItemp #40
+    ; second line
+    lda credits_anim_counter
+    cmp #20
+    bcs no_spaces
+    ; first half of second credits line - spaces
+    lda #0
+    sta credits_lines+40
+    sta credits_lines+41
+    beq static_display
+no_spaces
+    ; second half of second credits line
+    lda #19 ;   ??
+    sec
+    sbc credits_anim_counter
+    asl
+    clc
+    adc #80 ;   ??  - I don't know why, but it works!!! :)
+    tay
     lda (VBItemp),y
     sta credits_lines+40
+    iny
+    lda (VBItemp),y
+    sta credits_lines+41
     
 static_display
     inc credits_anim_counter
