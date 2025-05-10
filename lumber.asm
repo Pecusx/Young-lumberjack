@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.41" ; number of this build (4 bytes)
+    dta d"0.42" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -616,7 +616,6 @@ DLI2
     rti
 DLI3
     pha
-    mva #$9a HPOSP1
     mva GameColors+c_logo1 COLPM0
     :7 sta WSYNC
     mva GameColors+c_buckle COLPF2
@@ -1849,7 +1848,7 @@ logo_data_b
     dta %00000000
     dta %00000000
     dta %00000000
-    dta %11111100
+    dta %00000000
     dta %00000000
     dta %00000000
     dta %00000000
