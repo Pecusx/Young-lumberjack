@@ -88,11 +88,6 @@ display = $a000
 RMT_zpvars = AutoPlay+1  ; POZOR!!! RMT vars go here
 ;---------------------------------------------------
     org $2000
-MODUL
-    ;ins 'art/muzyka_stripped.rmt',+5  ; my RMT 1.28 on WINE is apparently broken. I lost some hair here (5, not 6)
-    ;.align $100
-    ;icl 'art/rmtplayr.a65'
-    ;---------------------------------------------------
     .align $400
 PMmemory
     .ds $400
@@ -344,9 +339,6 @@ is_PAL
     jsr PowerDown
 wait_for_timer
 
-    
-
-/*
     bit RMT_blocked
     bmi SkipRMTVBL
     ; ------- RMT -------
@@ -354,34 +346,15 @@ wait_for_timer
     bmi lab2
     asl @                       ; * 2
     tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
-    ldx #0                      ;X = 0          channel (0..3 or 0..7 for stereo module)
-    lda #0                      ;A = 0          note (0..60)
-    bit noSfx
-    smi:jsr RASTERMUSICTRACKER+15   ;RMT_SFX start tone (It works only if FEAT_SFX is enabled !!!)
-
+    ldx #1                      ;X = 0          channel (0..3 or 0..7 for stereo module)
+    lda #10                      ;A = 0          note (0..60)
+    jsr RASTERMUSICTRACKER+15   ;RMT_SFX start tone (It works only if FEAT_SFX is enabled !!!)
     lda #$ff
     sta sfx_effect              ;reinit value
 lab2
     jsr RASTERMUSICTRACKER+3    ;1 play
     ; ------- RMT -------
 SkipRMTVBL
-
-*/
-/*     ;sfx
-    lda sfx_effect
-    bmi lab2
-    asl                         ; * 2
-    tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
-    ldx #3                      ;X = 3          channel (0..3 or 0..7 for stereo module)
-    lda #12                     ;A = 12         note (0..60)
-    jsr RASTERMUSICTRACKER+15   ;RMT_SFX start tone (It works only if FEAT_SFX is enabled !!!)
-;
-    lda #$ff
-    sta sfx_effect              ;reinit value
-;
-lab2
-    jsr RASTERMUSICTRACKER+3
-skipSoundFrame */
 
 VBI_end
     ; key release flag
@@ -1041,6 +1014,7 @@ No_keys
     jmp loop
 right_pressed
     sta LastKey
+    mva #sfx_ciach sfx_effect
 /*  
     ; test for right lower branch
     lda branches_list+5
@@ -1075,6 +1049,7 @@ no_brancho_r
     jmp go_loop
 left_pressed
     sta LastKey
+    mva #sfx_ciach sfx_effect
 /* 
     ; test for left lower branch
     lda branches_list+5
@@ -1291,7 +1266,7 @@ no_branch_l
     mva #%00000011 GRACTL
     mwa #dl_level dlptrs
     ;vdli IngameDLI1
-
+    mva #$ff RMT_blocked
                     
     ;VBI
     mva #0 NTSCCounter
@@ -1952,24 +1927,6 @@ datalines_logo=23
     mva #$9f HPOSP0_d
     rts
 .endp
-;--------------------------------------------------
-.proc RmtSongSelect
-;  starting song line 0-255 to A reg
-;--------------------------------------------------
-/*
-    cmp #song_main_menu
-    beq noingame               ; noMusic blocks only ingame songs
-    bit noMusic
-    spl:lda #song_silencio
-noingame
-*/
-/*     mvx #$ff RMT_blocked
-    ldx #<MODUL                ; low byte of RMT module to X reg
-    ldy #>MODUL                ; hi byte of RMT module to Y reg
-    jsr RASTERMUSICTRACKER     ; Init
-    mva #0 RMT_blocked
- */    rts
-.endp
 ;--------------------------------
 ; non ZP variables
 ;--------------------------------
@@ -2468,6 +2425,17 @@ KeyReleased
     rts
 .endp
 ;--------------------------------------------------
+.proc RmtSongSelect
+;  starting song line 0-255 to A reg
+;--------------------------------------------------
+    mvx #$ff RMT_blocked
+    ldx #<MODUL                ; low byte of RMT module to X reg
+    ldy #>MODUL                ; hi byte of RMT module to Y reg
+    jsr RASTERMUSICTRACKER     ; Init
+    mva #0 RMT_blocked
+    rts
+.endp
+;--------------------------------------------------
 .proc PAL_NTSC
 ;--------------------------------------------------
     lda PAL
@@ -2640,17 +2608,66 @@ joyToKeyTable
     .by @kbcode._down   ;0d
     .by @kbcode._up     ;0e
     .by $ff             ;0f
+
+;-------------------------------------------------
+;RMT PLAYER variables
+track_variables
+trackn_db   .ds TRACKS
+trackn_hb   .ds TRACKS
+trackn_idx  .ds TRACKS
+trackn_pause    .ds TRACKS
+trackn_note .ds TRACKS
+trackn_volume   .ds TRACKS
+trackn_distor   .ds TRACKS
+trackn_shiftfrq .ds TRACKS
+trackn_instrx2  .ds TRACKS
+trackn_instrdb  .ds TRACKS
+trackn_instrhb  .ds TRACKS
+trackn_instridx .ds TRACKS
+trackn_instrlen .ds TRACKS
+trackn_instrlop .ds TRACKS
+trackn_instrreachend    .ds TRACKS
+trackn_volumeslidedepth .ds TRACKS
+trackn_volumeslidevalue .ds TRACKS
+trackn_effdelay         .ds TRACKS
+trackn_effvibratoa      .ds TRACKS
+trackn_effshift     .ds TRACKS
+trackn_tabletypespeed .ds TRACKS
+trackn_tablenote    .ds TRACKS
+trackn_tablea       .ds TRACKS
+trackn_tableend     .ds TRACKS
+trackn_tablelop     .ds TRACKS
+trackn_tablespeeda  .ds TRACKS
+trackn_command      .ds TRACKS
+trackn_filter       .ds TRACKS
+trackn_audf .ds TRACKS
+trackn_audc .ds TRACKS
+trackn_audctl   .ds TRACKS
+v_aspeed        .ds 1
+track_endvariables
+;-------------------------------------------------
+;RMT PLAYER loading shenaningans
+    icl 'msx/rmtplayr_modified.asm'
+;-------------------------------------------------
+;-------------------------------------------------
+; music and sfx
+    org $b000  ; address of RMT module
+MODUL
+               ; RMT module is standard Atari binary file already
+               ; include music RMT module:
+      ins "msx/tbm1_str.rmt",+6
+MODULEND
+
 ;-----------------------------------
 ; names of RMT instruments (sfx)
 ;--------------------------------
-sfx_ping = $07
-sfx_pong = $08
+sfx_ciach = $03
 ;--------------------------------
 ; RMT songs (lines)
 ;--------------------------------
 song_main_menu  = $00
 song_ingame     = $07
-song_game_over  = $12
+song_game_over  = $05
 
 
     RUN main
