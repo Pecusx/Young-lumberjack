@@ -1084,6 +1084,7 @@ no_brancho_l
     jmp go_loop
 LevelDeath
     jsr SetRIPscreen
+    RMTsong song_game_over
 @   
     jsr GetKey
     cmp #@kbcode._space
@@ -1250,12 +1251,6 @@ no_branch_l
     mva #1 LumberjackDir    ; right side
     mva #0 Difficulty       ; level normal
     
-/*     ;RMT INIT
-    ldx #<MODUL                 ;low byte of RMT module to X reg
-    ldy #>MODUL                 ;hi byte of RMT module to Y reg
-    lda #0                      ;starting song line 0-255 to A reg
-    jsr RASTERMUSICTRACKER      ;Init
- */    
     jsr PrepareLevelPM
     jsr PrepareBirdsPM
     jsr PrepareCloudsPM
