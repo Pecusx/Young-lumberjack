@@ -200,14 +200,13 @@ c_font4 = 22
 c_font5 = 23
 c_font1b = 24
 c_font2b = 25
-c_font3b = 26
-c_font5b = 27
-c_logo1 = 28    ; rest of logo colors
-c_logo2 = 29
-c_logo3 = 30
-c_logo4 = 31
-c_logo5 = 32
-c_clouds = 33  ; clouds
+c_font5b = 26
+c_logo1 = 27    ; rest of logo colors
+c_logo2 = 28
+c_logo3 = 29
+c_logo4 = 30
+c_logo5 = 31
+c_clouds = 32  ; clouds
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -695,7 +694,6 @@ DLI9
     mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
-    mva GameColors+c_font3 COLPF3
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #TitlesDLI1.DLI10 VDSLST
@@ -706,7 +704,6 @@ DLI10
     mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
-    mva GameColors+c_font3b COLPF3
     :12 sta WSYNC
     mva GameColors+c_font5b COLPF2
     mwa #TitlesDLI1.DLI9 VDSLST ; tricky
@@ -2518,10 +2515,9 @@ PAL_colors
     .by $12
     .by $2a
     ; second set
-    .by $16
     .by $18
     .by $1a
-    .by $24
+    .by $16
     ; rest of logo colors
     .by $04
     .by $12
@@ -2576,10 +2572,9 @@ NTSC_colors
     .by $22
     .by $3a
     ; second set
-    .by $26
     .by $28
     .by $2a
-    .by $34
+    .by $26
     ; rest of logo colors
     .by $04
     .by $22
