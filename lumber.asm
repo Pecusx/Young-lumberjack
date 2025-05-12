@@ -173,7 +173,7 @@ screen_score = gamescreen_middle+6*32+14
 screen_level = gamescreen_middle+9*32+13  
 ;---------------------------------------------------
 GameColors
-    .ds 32
+    .ds 64
 c_black = 0
 c_white = 1 ; (numbers and letters)
 c_sky = 2
@@ -198,12 +198,16 @@ c_font2 = 20    ; .. and logo
 c_font3 = 21
 c_font4 = 22
 c_font5 = 23
-c_logo1 = 24    ; rest of logo colors
-c_logo2 = 25
-c_logo3 = 26
-c_logo4 = 27
-c_logo5 = 28
-c_clouds = 29  ; clouds
+c_font1b = 24
+c_font2b = 25
+c_font3b = 26
+c_font5b = 27
+c_logo1 = 28    ; rest of logo colors
+c_logo2 = 29
+c_logo3 = 30
+c_logo4 = 31
+c_logo5 = 32
+c_clouds = 33  ; clouds
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -228,8 +232,8 @@ difficulty_normal_text
     icl 'art/difficulty_texts.asm'   ;   2 lines, mode 5
 difficulty_easy_text = difficulty_normal_text + 40
 credits_texts
-    icl 'art/credits.asm'   ;   8 lines, mode 5
-number_of_credits = 4
+    icl 'art/credits.asm'   ;   10 lines, mode 5
+number_of_credits = 5
 credits_lines   ; 2 lines for credits animations
     :80 .by 0
     .by 0   ; for second line animation
@@ -688,9 +692,24 @@ DLI8
     rti
 DLI9
     pha
+    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
-    :13 sta WSYNC
+    mva GameColors+c_font3 COLPF3
+    :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
+    mwa #TitlesDLI1.DLI10 VDSLST
+    pla
+    rti
+DLI10
+    pha
+    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    mva GameColors+c_font3b COLPF3
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #TitlesDLI1.DLI9 VDSLST ; tricky
     pla
     rti
 .endp
@@ -2437,14 +2456,14 @@ KeyReleased
     and #%00001110
     beq is_PAL
 is_NTSC
-    ldx #31
+    ldx #63
 @   lda NTSC_colors,x
     sta GameColors,x
     dex
     bpl @-
     rts
 is_PAL
-    ldx #31
+    ldx #63
 @   lda PAL_colors,x
     sta GameColors,x
     dex
@@ -2497,7 +2516,12 @@ PAL_colors
     .by $ee
     .by $de
     .by $12
+    .by $2a
+    ; second set
+    .by $16
+    .by $18
     .by $1a
+    .by $24
     ; rest of logo colors
     .by $04
     .by $12
@@ -2550,7 +2574,12 @@ NTSC_colors
     .by $fe
     .by $ee
     .by $22
+    .by $3a
+    ; second set
+    .by $26
+    .by $28
     .by $2a
+    .by $34
     ; rest of logo colors
     .by $04
     .by $22
