@@ -654,11 +654,11 @@ DLI7
     sta HPOSP3
     adc #8
     sta HPOSM3
-    ; titles font colors
-    mva GameColors+c_font4 COLPF0
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    mva GameColors+c_font3 COLPF3
+    ; timberman colors
+    mva GameColors+c_black COLPF0
+    mva GameColors+c_light_brown COLPF1
+    mva GameColors+c_shirtB COLPF2
+    mva GameColors+c_white2 COLPF3
     mwa #TitlesDLI1.DLI8 VDSLST
     pla
     rti
@@ -674,6 +674,11 @@ DLI8
     sta WSYNC
     mva GameColors+c_grass COLBAK ; green
     ; under horizon
+    ; titles font colors
+    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    mva GameColors+c_font3 COLPF3
     ; PMG colors, horizontal coordinates and sizes
     txa
     pha
