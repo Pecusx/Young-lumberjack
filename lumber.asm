@@ -645,7 +645,7 @@ DLI6
 DLI7
     pha
     ; set cloud 3 horizontal position
-    lda clouds3Hpos
+/*     lda clouds3Hpos
     clc
     sta HPOSM2
     adc #4
@@ -653,7 +653,13 @@ DLI7
     adc #8
     sta HPOSP3
     adc #8
-    sta HPOSM3
+    sta HPOSM3 */
+    ; no cloud 3 !
+    lda #0
+    sta HPOSM2
+    sta HPOSP2
+    sta HPOSP3
+    sta HPOSM3    
     ; timberman colors
     mva GameColors+c_black COLPF0
     mva GameColors+c_light_brown COLPF1
