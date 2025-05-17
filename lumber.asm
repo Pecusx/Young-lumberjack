@@ -128,10 +128,10 @@ dl_title
     .by $84 ; DLI6 - Logo colors
     .by $04
     .by $84 ; DLI7 - last clouds
-    :3 .by $04
+    :4 .by $04
     .by $84 ; DLI8 - timbermaner
     :4 .by $04    
-    .by $85 ; DLI9 - horizon
+    .by $84 ; DLI9 - horizon
     .by $85  ; DLI10 - fonts
     .by $45+$80
 difficulty_text_DL
@@ -223,7 +223,7 @@ c_clouds = 32  ; clouds
 ; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;--------------------------------------------------
 title_logo
-    icl 'art/title_logo.asm'    ;   16 lines, mode 4
+    icl 'art/title_logo.asm'    ;   17 lines, mode 4
 title_screen
     icl 'art/title_screen.asm'  ;   13 lines, mode 5
     .align $400
@@ -647,7 +647,7 @@ DLI6
 DLI7
     pha
     ; set cloud 3 horizontal position
-/*     lda clouds3Hpos
+    lda clouds3Hpos
     clc
     sta HPOSM2
     adc #4
@@ -655,13 +655,13 @@ DLI7
     adc #8
     sta HPOSP3
     adc #8
-    sta HPOSM3 */
+    sta HPOSM3
     ; no cloud 3 !
-    lda #0
+/*     lda #0
     sta HPOSM2
     sta HPOSP2
     sta HPOSP3
-    sta HPOSM3    
+    sta HPOSM3     */
     ; timberman colors
     mva GameColors+c_black COLPF0
     mva GameColors+c_light_brown COLPF1
