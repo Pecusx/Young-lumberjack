@@ -128,7 +128,7 @@ dl_title
     .by $84 ; DLI6 - Logo colors
     .by $04
     .by $84 ; DLI7 - last clouds
-    :4 .by $05
+    :8 .by $04
     .by $85 ; DLI8 - horizon
     .by $85  ; DLI9 - fonts
     .by $45+$80
@@ -221,7 +221,7 @@ c_clouds = 32  ; clouds
 ; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;--------------------------------------------------
 title_logo
-    icl 'art/title_logo.asm'    ;   8 lines, mode 4
+    icl 'art/title_logo.asm'    ;   12 lines, mode 4
 title_screen
     icl 'art/title_screen.asm'  ;   13 lines, mode 5
     .align $400
@@ -654,8 +654,6 @@ DLI7
     sta HPOSP3
     adc #8
     sta HPOSM3
-    ; font for titles
-    mva #>font_titles CHBASE
     ; titles font colors
     mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
@@ -666,8 +664,9 @@ DLI7
     rti
 DLI8
     pha
+    ; font for titles
+    mva #>font_titles CHBASE
     :7 sta WSYNC
-    ; mva LowCharsetBase CHBASE
     mva GameColors+c_horizonA COLBAK ; thin line
     sta WSYNC
     mva GameColors+c_horizonB COLBAK ; additional lines
