@@ -1941,7 +1941,7 @@ datalines_logo=23
     sta HPOSM3_d
     mva #$e0 HPOSP0_d ; hide
     mva #$a4 HPOSM0_d
-    mva #$a4 HPOSM1_d
+    mva #$a2 HPOSM1_d
     mva #$97 HPOSP1_d
     rts
 .endp
