@@ -696,6 +696,7 @@ DLI8
     rti
 DLI9
     pha
+    mva GameColors+c_buckle COLPM2 ; buckle
     ; color bars
     :3 sta WSYNC
     mva GameColors+c_shirtA COLPF2
@@ -715,6 +716,7 @@ DLI10
     mva #>font_titles CHBASE
     mva #$75 HPOSP1 ; axe
     sta WSYNC
+    mva #$7e HPOSP2 ; buttons and buckle
     mva #$6a HPOSM1 ; axe
     sta WSYNC
     mva #$03 SIZEP3
@@ -1672,7 +1674,7 @@ make_cloud2
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
-    ldx #(63-36) ; ldx #(84-36)
+    ldx #(60-36) ; ldx #(84-36)
     lda #0
 @   sta PMmemory+$300+36,x
     sta PMmemory+$380+36,x
@@ -1898,6 +1900,8 @@ timlogoPM
     sta PMmemory+$180+Hoffset_tlogo,x
     lda tlogo_data_p3,x
     sta PMmemory+$380+Hoffset_tlogo,x
+    lda tlogo_data_p2,x
+    sta PMmemory+$300+Hoffset_tlogo,x
     dey
     dex
     bpl @-
@@ -1993,7 +1997,10 @@ logo_data_b
     dta %00000111
 Hoffset_logo=12
 datalines_logo=58
-tlogo_data_m
+tlogo_data_m    ; axe
+    dta %00000000
+    dta %00000000
+    dta %00000000
     dta %00000011
     dta %00000111
     dta %00000111
@@ -2002,7 +2009,11 @@ tlogo_data_m
     dta %00000000
     dta %00000000
     dta %00000000
-tlogo_data_p3
+    dta %00000000
+tlogo_data_p3   ; axe
+    dta %00000000
+    dta %00000000
+    dta %00000000
     dta %00000000
     dta %10111000
     dta %10111000
@@ -2011,8 +2022,22 @@ tlogo_data_p3
     dta %00011000
     dta %00011000
     dta %00011000
-Hoffset_tlogo=64
-datalines_tlogo=8
+    dta %00000000
+tlogo_data_p2   ; buttons and buckle
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+Hoffset_tlogo=61
+datalines_tlogo=11
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
