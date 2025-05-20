@@ -696,7 +696,7 @@ DLI8
     rti
 DLI9
     pha
-    mva GameColors+c_buckle COLPM2 ; buckle
+    mva GameColors+c_buckle COLPM2 ; buckle and buttons color
     ; color bars
     :3 sta WSYNC
     mva GameColors+c_shirtA COLPF2
