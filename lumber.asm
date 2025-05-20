@@ -5,7 +5,7 @@
 .ENDIF
 ;---------------------------------------------------
 
-         OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
+         ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
 
 ;---------------------------------------------------
 .macro build
@@ -674,6 +674,13 @@ DLI7
     mva GameColors+c_shirtB COLPF1
     mva GameColors+c_hat COLPF2
     mva GameColors+c_white COLPF3
+    mva GameColors+c_hands COLPM0 ; face
+    mva GameColors+c_dark_brown COLPM1 ; beard
+    lda #0
+    sta SIZEP0
+    sta SIZEP1
+    mva #$7c HPOSP0 ; face
+    sta HPOSP1 ; beard
     mwa #TitlesDLI1.DLI8 VDSLST
     pla
     rti
@@ -1890,6 +1897,15 @@ logo_data_a
     dta %00000000
     dta %00000000
     dta %00000000
+    :17 .by 0   ; 40 lines
+    dta %00011000
+    dta %11111111
+    dta %11111111
+    dta %00011000
+    dta %00111100
+    dta %00000000
+    dta %00000000
+    dta %00000000
 logo_data_b
     dta %11111111
     dta %11111111
@@ -1915,8 +1931,17 @@ logo_data_b
     dta %11111111
     dta %11111111
     dta %11111111
+    :17 .by 0   ; 40 lines
+    dta %11100111
+    dta %00000000
+    dta %00000000
+    dta %11100111
+    dta %11000011
+    dta %11111111
+    dta %11111111
+    dta %11111111
 Hoffset_logo=12
-datalines_logo=23
+datalines_logo=48
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
