@@ -705,6 +705,7 @@ DLI9
     mva #$8a HPOSM0 ; right side hand
     :4 sta WSYNC
     mva GameColors+c_shirtC COLPF2
+    mva GameColors+c_light_brown COLPM1 ; axe color
     mwa #TitlesDLI1.DLI10 VDSLST
     pla
     rti
@@ -712,8 +713,15 @@ DLI10
     pha
     ; font for titles and timberman
     mva #>font_titles CHBASE
+    mva #$75 HPOSP1 ; axe
+    sta WSYNC
+    mva #$6a HPOSM1 ; axe
+    sta WSYNC
+    mva #$03 SIZEP3
+    mva #$6a HPOSP3
+    mva GameColors+c_dark_brown COLPM3 ; axe color 2
     ; color bars
-    :3 sta WSYNC
+    sta WSYNC
     mva GameColors+c_shirtA COLPF2
     :4 sta WSYNC
     mva GameColors+c_shirtC COLPF2
@@ -1013,7 +1021,7 @@ EndOfStartScreen
 .proc LevelScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
-
+    jsr ClearPM
     mva #>font_game_upper CHBAS
     mva #>font_game_lower_right LowCharsetBase
     mva GameColors+c_black PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
@@ -1318,15 +1326,7 @@ no_branch_l
     mva GameColors+c_light_brown COLOR3 ; light brown
     ;mva #$ff COLOR4
 
-    ;clear P/M memory
-    lda #0
-    tax
-@   sta PMmemory,x
-    sta PMmemory+$100,x
-    sta PMmemory+$200,x
-    sta PMmemory+$300,x
-    inx
-    bne @-
+    jsr ClearPM
     mva #>PMmemory PMBASE
     jsr HidePM
     mva #%00100100 GPRIOR
@@ -1365,6 +1365,22 @@ no_branch_l
     vmain vint,7
     
     mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level
+    rts
+.endp
+
+;--------------------------------------------------
+.proc ClearPM
+; clear P/M memory
+;--------------------------------------------------
+    ;clear P/M memory
+    lda #0
+    tax
+@   sta PMmemory,x
+    sta PMmemory+$100,x
+    sta PMmemory+$200,x
+    sta PMmemory+$300,x
+    inx
+    bne @-
     rts
 .endp
 ;--------------------------------------------------
@@ -1880,8 +1896,8 @@ timlogoPM
     ldx #datalines_tlogo-1
 @   lda tlogo_data_m,x
     sta PMmemory+$180+Hoffset_tlogo,x
-    ;lda tlogo_data_b,x
-    ;sta PMmemory+$280+Hoffset_tlogo,x
+    lda tlogo_data_p3,x
+    sta PMmemory+$380+Hoffset_tlogo,x
     dey
     dex
     bpl @-
@@ -1930,6 +1946,7 @@ logo_data_a
     dta %11111000
     dta %11111000
     dta %11111000
+    dta %00000000
 logo_data_b
     dta %11111111
     dta %11111111
@@ -1969,20 +1986,33 @@ logo_data_b
     dta %00000000
     dta %00000000
     dta %00000000
-    dta %00000000
-    dta %00000000
-    dta %00000000
-    dta %00000000
+    dta %10100111
+    dta %10100111
+    dta %00000111
+    dta %00000111
+    dta %00000111
 Hoffset_logo=12
-datalines_logo=57
+datalines_logo=58
 tlogo_data_m
     dta %00000011
-    dta %00000011
-    dta %00000011
-    dta %00000011
-    dta %00000011
+    dta %00000111
+    dta %00000111
+    dta %00001011
+    dta %00001011
+    dta %00000000
+    dta %00000000
+    dta %00000000
+tlogo_data_p3
+    dta %00000000
+    dta %10111000
+    dta %10111000
+    dta %10111000
+    dta %00011000
+    dta %00011000
+    dta %00011000
+    dta %00011000
 Hoffset_tlogo=64
-datalines_tlogo=5
+datalines_tlogo=8
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
