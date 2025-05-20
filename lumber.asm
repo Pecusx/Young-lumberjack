@@ -699,6 +699,10 @@ DLI9
     ; color bars
     :3 sta WSYNC
     mva GameColors+c_shirtA COLPF2
+    mva #$6f HPOSP0 ; left side hand
+    lda #%00000011
+    sta SIZEM
+    mva #$8a HPOSM0 ; right side hand
     :4 sta WSYNC
     mva GameColors+c_shirtC COLPF2
     mwa #TitlesDLI1.DLI10 VDSLST
@@ -1652,7 +1656,7 @@ make_cloud2
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
-    ldx #(84-36)
+    ldx #(63-36) ; ldx #(84-36)
     lda #0
 @   sta PMmemory+$300+36,x
     sta PMmemory+$380+36,x
@@ -1839,6 +1843,7 @@ datalines_clouds=12
     ; logo PM and other title screen PN (without clouds)
     jsr clearP0_1
     jsr logoPM
+    jsr timlogoPM
     mva #1 SIZEP0_u
     sta SIZEP1_u
     mva GameColors+c_logo4 PCOLR0
@@ -1867,6 +1872,16 @@ logoPM
     sta PMmemory+$200+Hoffset_logo,x
     lda logo_data_b,x
     sta PMmemory+$280+Hoffset_logo,x
+    dey
+    dex
+    bpl @-
+    rts
+timlogoPM
+    ldx #datalines_tlogo-1
+@   lda tlogo_data_m,x
+    sta PMmemory+$180+Hoffset_tlogo,x
+    ;lda tlogo_data_b,x
+    ;sta PMmemory+$280+Hoffset_tlogo,x
     dey
     dex
     bpl @-
@@ -1906,6 +1921,15 @@ logo_data_a
     dta %00000000
     dta %00000000
     dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %11111000
+    dta %11111000
+    dta %11111000
+    dta %11111000
+    dta %11111000
 logo_data_b
     dta %11111111
     dta %11111111
@@ -1940,8 +1964,25 @@ logo_data_b
     dta %11111111
     dta %11111111
     dta %11111111
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
 Hoffset_logo=12
-datalines_logo=48
+datalines_logo=57
+tlogo_data_m
+    dta %00000011
+    dta %00000011
+    dta %00000011
+    dta %00000011
+    dta %00000011
+Hoffset_tlogo=64
+datalines_tlogo=5
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
