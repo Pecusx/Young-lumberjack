@@ -726,7 +726,7 @@ DLI11
 DLI12
     pha
     ; color bars
-    :2 sta WSYNC
+    :6 sta WSYNC
     mva GameColors+c_white COLPF1 ; axe end color
     mva GameColors+c_pants COLPF2 ; pants color
     mwa #TitlesDLI1.DLI13 VDSLST
