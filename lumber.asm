@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.42" ; number of this build (4 bytes)
+    dta d"0.44" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -128,11 +128,13 @@ dl_title
     .by $84 ; DLI6 - Logo colors
     .by $04
     .by $84 ; DLI7 - last clouds
-    :4 .by $04
-    .by $84 ; DLI8 - timbermaner
+    :2 .by $04
+    .by $84 ; DLI8 - hat color change
+    .by $04
+    .by $84 ; DLI9 - timbermaner charset change
     :4 .by $04    
-    .by $84 ; DLI9 - horizon
-    .by $85  ; DLI10 - fonts
+    .by $84 ; DLI10 - horizon
+    .by $85  ; DLI_L2 - fonts
     .by $45+$80
 difficulty_text_DL
     .wo difficulty_normal_text
@@ -662,22 +664,30 @@ DLI7
     sta HPOSP2
     sta HPOSP3
     sta HPOSM3     */
-    ; timberman colors
+    ; timberman initial colors
     mva GameColors+c_black COLPF0
     mva GameColors+c_light_brown COLPF1
-    mva GameColors+c_shirtB COLPF2
+    mva GameColors+c_hat COLPF2
     mva GameColors+c_white2 COLPF3
     mwa #TitlesDLI1.DLI8 VDSLST
     pla
     rti
 DLI8
     pha
-    ; font for titles and timberman
-    mva #>font_titles CHBASE
+    ; timberman DLI1
+    mva GameColors+c_shirtB COLPF2
+    ; mva #0 COLBAK - for test
     mwa #TitlesDLI1.DLI9 VDSLST
     pla
     rti
 DLI9
+    pha
+    ; font for titles and timberman
+    mva #>font_titles CHBASE
+    mwa #TitlesDLI1.DLI10 VDSLST
+    pla
+    rti
+DLI10
     pha
     ; font for titles
     ;mva #>font_titles CHBASE
@@ -705,27 +715,27 @@ DLI9
     pla
     tax
     inc SyncByte
-    mwa #TitlesDLI1.DLI10 VDSLST
+    mwa #TitlesDLI1.DLI_L1 VDSLST
     pla
     rti
-DLI10
+DLI_L1
     pha
     mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
-    mwa #TitlesDLI1.DLI11 VDSLST
+    mwa #TitlesDLI1.DLI_L2 VDSLST
     pla
     rti
-DLI11
+DLI_L2
     pha
     mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5b COLPF2
-    mwa #TitlesDLI1.DLI10 VDSLST ; tricky
+    mwa #TitlesDLI1.DLI_L1 VDSLST ; tricky
     pla
     rti
 .endp
