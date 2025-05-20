@@ -5,7 +5,7 @@
 .ENDIF
 ;---------------------------------------------------
 
-         OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
+         ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
 
 ;---------------------------------------------------
 .macro build
@@ -130,10 +130,12 @@ dl_title
     .by $84 ; DLI7 - last clouds
     :2 .by $04
     .by $84 ; DLI8 - hat color change
-    .by $04
-    .by $84 ; DLI9 - timbermaner charset change
-    :4 .by $04    
-    .by $84 ; DLI10 - horizon
+    .by $84 ; DLI9 - color bars
+    .by $84 ; DLI10 - timbermaner charset change and horizon and color bars
+    .by $84 ; DLI11 - color bars
+    .by $84 ; DLI12 - pants color
+    :2 .by $04    
+    .by $84 ; DLI13
     .by $85  ; DLI_L2 - fonts
     .by $45+$80
 difficulty_text_DL
@@ -675,30 +677,62 @@ DLI7
 DLI8
     pha
     ; timberman DLI1
-    mva GameColors+c_shirtB COLPF2
-    ; mva #0 COLBAK - for test
+    ; end of hat color
+    mva GameColors+c_shirtA COLPF2
+    :7 sta WSYNC
+    mva GameColors+c_dark_brown COLPF2 ; test only
     mwa #TitlesDLI1.DLI9 VDSLST
     pla
     rti
 DLI9
     pha
-    ; font for titles and timberman
-    mva #>font_titles CHBASE
+    ; color bars
+    :3 sta WSYNC
+    mva GameColors+c_shirtA COLPF2 ; test only
+    :4 sta WSYNC
+    mva GameColors+c_dark_brown COLPF2 ; test only
     mwa #TitlesDLI1.DLI10 VDSLST
     pla
     rti
 DLI10
     pha
-    ; font for titles
-    ;mva #>font_titles CHBASE
-    :7 sta WSYNC
+    ; font for titles and timberman
+    mva #>font_titles CHBASE
+    sta WSYNC
     mva GameColors+c_horizonA COLBAK ; thin line
     sta WSYNC
     mva GameColors+c_horizonB COLBAK ; additional lines
     sta WSYNC
+    ; color bars
+    mva GameColors+c_shirtA COLPF2 ; test only
     sta WSYNC
     mva GameColors+c_grass COLBAK ; green
-    ; under horizon
+    ; color bars
+    :3 sta WSYNC
+    mva GameColors+c_dark_brown COLPF2 ; test only
+    mwa #TitlesDLI1.DLI11 VDSLST
+    pla
+    rti
+DLI11
+    pha
+    ; color bars
+    :3 sta WSYNC
+    mva GameColors+c_shirtA COLPF2 ; test only
+    :4 sta WSYNC
+    mva GameColors+c_dark_brown COLPF2 ; test only
+    mwa #TitlesDLI1.DLI12 VDSLST
+    pla
+    rti
+DLI12
+    pha
+    ; color bars
+    :2 sta WSYNC
+    mva GameColors+c_pants COLPF2 ; pants color
+    mwa #TitlesDLI1.DLI13 VDSLST
+    pla
+    rti
+DLI13
+    pha
     ; titles font colors
     mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
