@@ -134,12 +134,14 @@ dl_title
     .by $84 ; DLI10 - timbermaner charset change and horizon and color bars
     .by $84 ; DLI11 - color bars
     .by $84 ; DLI12 - pants color
-    :2 .by $04    
+    .by $04    
     .by $84 ; DLI13
-    .by $85  ; DLI_L2 - fonts
-    .by $45+$80
+    .by $84 ; DLI_L2 - fonts
+    .by $45 
 difficulty_text_DL
     .wo difficulty_normal_text
+    .by $45+$80
+    .wo empty_line
     .by $45+$80
     .wo credits_lines
     .by $85
@@ -228,8 +230,8 @@ c_clouds = 32  ; clouds
 ;--------------------------------------------------
 title_logo
     icl 'art/title_logo.asm'    ;   17 lines, mode 4
-title_screen
-    icl 'art/title_screen.asm'  ;   13 lines, mode 5
+empty_line
+    :40 .by 0
     .align $400
 over_screen
     icl 'art/over_screen.asm'   ;   12 lines, mode 5
@@ -698,6 +700,16 @@ DLI10
     pha
     ; font for titles and timberman
     mva #>font_titles CHBASE
+    ; color bars
+    :3 sta WSYNC
+    mva GameColors+c_light_brown COLPF2 ; test only
+    :4 sta WSYNC
+    mva GameColors+c_shirtA COLPF2 ; test only
+    mwa #TitlesDLI1.DLI11 VDSLST
+    pla
+    rti
+DLI11
+    pha
     sta WSYNC
     mva GameColors+c_horizonA COLBAK ; thin line
     sta WSYNC
@@ -709,16 +721,6 @@ DLI10
     mva GameColors+c_grass COLBAK ; green
     ; color bars
     :3 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
-    mwa #TitlesDLI1.DLI11 VDSLST
-    pla
-    rti
-DLI11
-    pha
-    ; color bars
-    :3 sta WSYNC
-    mva GameColors+c_light_brown COLPF2 ; test only
-    :4 sta WSYNC
     mva GameColors+c_shirtA COLPF2 ; test only
     mwa #TitlesDLI1.DLI12 VDSLST
     pla
