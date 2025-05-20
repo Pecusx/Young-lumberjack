@@ -668,7 +668,7 @@ DLI7
     sta HPOSM3     */
     ; timberman initial colors
     mva GameColors+c_black COLPF0
-    mva GameColors+c_light_brown COLPF1
+    mva GameColors+c_shirtA COLPF1
     mva GameColors+c_hat COLPF2
     mva GameColors+c_white COLPF3
     mwa #TitlesDLI1.DLI8 VDSLST
@@ -678,7 +678,7 @@ DLI8
     pha
     ; timberman DLI1
     ; end of hat color
-    mva GameColors+c_shirtA COLPF2
+    mva GameColors+c_light_brown COLPF2
     :7 sta WSYNC
     mva GameColors+c_dark_brown COLPF2 ; test only
     mwa #TitlesDLI1.DLI9 VDSLST
@@ -688,7 +688,7 @@ DLI9
     pha
     ; color bars
     :3 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_light_brown COLPF2 ; test only
     :4 sta WSYNC
     mva GameColors+c_dark_brown COLPF2 ; test only
     mwa #TitlesDLI1.DLI10 VDSLST
@@ -704,7 +704,7 @@ DLI10
     mva GameColors+c_horizonB COLBAK ; additional lines
     sta WSYNC
     ; color bars
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_light_brown COLPF2 ; test only
     sta WSYNC
     mva GameColors+c_grass COLBAK ; green
     ; color bars
@@ -717,7 +717,7 @@ DLI11
     pha
     ; color bars
     :3 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_light_brown COLPF2 ; test only
     :4 sta WSYNC
     mva GameColors+c_dark_brown COLPF2 ; test only
     mwa #TitlesDLI1.DLI12 VDSLST
