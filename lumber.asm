@@ -215,6 +215,7 @@ c_logo3 = 29
 c_logo4 = 30
 c_logo5 = 31
 c_clouds = 32  ; clouds
+c_shirtC = 33  ; timberman shirt on title screen
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -670,7 +671,7 @@ DLI7
     sta HPOSM3     */
     ; timberman initial colors
     mva GameColors+c_black COLPF0
-    mva GameColors+c_dark_brown COLPF1
+    mva GameColors+c_shirtB COLPF1
     mva GameColors+c_hat COLPF2
     mva GameColors+c_white COLPF3
     mwa #TitlesDLI1.DLI8 VDSLST
@@ -680,9 +681,9 @@ DLI8
     pha
     ; timberman DLI1
     ; end of hat color
-    mva GameColors+c_light_brown COLPF2
+    mva GameColors+c_shirtA COLPF2
     :7 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_shirtC COLPF2
     mwa #TitlesDLI1.DLI9 VDSLST
     pla
     rti
@@ -690,9 +691,9 @@ DLI9
     pha
     ; color bars
     :3 sta WSYNC
-    mva GameColors+c_light_brown COLPF2 ; test only
+    mva GameColors+c_shirtA COLPF2
     :4 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_shirtC COLPF2
     mwa #TitlesDLI1.DLI10 VDSLST
     pla
     rti
@@ -702,9 +703,9 @@ DLI10
     mva #>font_titles CHBASE
     ; color bars
     :3 sta WSYNC
-    mva GameColors+c_light_brown COLPF2 ; test only
+    mva GameColors+c_shirtA COLPF2
     :4 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_shirtC COLPF2
     mwa #TitlesDLI1.DLI11 VDSLST
     pla
     rti
@@ -716,20 +717,23 @@ DLI11
     mva GameColors+c_horizonB COLBAK ; additional lines
     sta WSYNC
     ; color bars
-    mva GameColors+c_light_brown COLPF2 ; test only
+    mva GameColors+c_shirtA COLPF2
     sta WSYNC
     mva GameColors+c_grass COLBAK ; green
     ; color bars
     :3 sta WSYNC
-    mva GameColors+c_shirtA COLPF2 ; test only
+    mva GameColors+c_shirtC COLPF2
     mwa #TitlesDLI1.DLI12 VDSLST
     pla
     rti
 DLI12
     pha
     ; color bars
-    :6 sta WSYNC
+    :2 sta WSYNC
+    mva GameColors+c_shirtA COLPF2 ; belt color
+    :3 sta WSYNC
     mva GameColors+c_white COLPF1 ; axe end color
+    sta WSYNC
     mva GameColors+c_pants COLPF2 ; pants color
     mwa #TitlesDLI1.DLI13 VDSLST
     pla
@@ -2592,6 +2596,8 @@ PAL_colors
     .by $e8
     ; clouds on title screen
     .by $7e
+    ; timber shirt color on title screen
+    .by $26
 NTSC_colors
     ; black
     .by $00
@@ -2649,6 +2655,8 @@ NTSC_colors
     .by $f8
     ; clouds on title screen
     .by $8e
+    ; timber shirt color on title screen
+    .by $36
 ;--------------------------------------------------
 
 initial_branches_list
