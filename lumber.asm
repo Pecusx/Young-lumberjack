@@ -5,7 +5,7 @@
 .ENDIF
 ;---------------------------------------------------
 
-         ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
+         OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
 
 ;---------------------------------------------------
 .macro build
@@ -670,7 +670,7 @@ DLI7
     mva GameColors+c_black COLPF0
     mva GameColors+c_light_brown COLPF1
     mva GameColors+c_hat COLPF2
-    mva GameColors+c_white2 COLPF3
+    mva GameColors+c_white COLPF3
     mwa #TitlesDLI1.DLI8 VDSLST
     pla
     rti
@@ -727,6 +727,7 @@ DLI12
     pha
     ; color bars
     :2 sta WSYNC
+    mva GameColors+c_white COLPF1 ; axe end color
     mva GameColors+c_pants COLPF2 ; pants color
     mwa #TitlesDLI1.DLI13 VDSLST
     pla
