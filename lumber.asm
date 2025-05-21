@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.44" ; number of this build (4 bytes)
+    dta d"0.45" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -128,17 +128,27 @@ dl_title
     .by $84 ; DLI6 - Logo colors
     .by $04
     .by $84 ; DLI7 - last clouds
-    :2 .by $04
-    .by $84 ; DLI8 - hat color change
-    .by $84 ; DLI9 - color bars
-    .by $84 ; DLI10 - timbermaner charset change and horizon and color bars
+    .by $44
+    .wo empty_line
+    .by $44
+    .wo empty_line
+    .by $44+$80 ; DLI8 - hat color change
+    .wo title_timber    ; timberman logo
+    .by $44+$80 ; DLI9 - color bars
+timber_eyes_addr
+    .wo eyes_0
+    .by $44+$80 ; DLI10 - timbermaner charset change and horizon and color bars
+    .wo title_timber+80
     .by $84 ; DLI11 - color bars
     .by $84 ; DLI12 - pants color
     .by $04    
-    .by $84 ; DLI13
-    .by $84 ; DLI_L2 - fonts
+    .by $44+$80 ; DLI13
+timber_foot_addr
+    .wo foot_0
+    .by $44+$80 ; DLI_L2 - fonts
+    .wo empty_line
     .by $45 
-difficulty_text_DL
+difficulty_text_addr
     .wo difficulty_normal_text
     .by $45+$80
     .wo empty_line
@@ -230,15 +240,24 @@ c_shirtC = 33  ; timberman shirt on title screen
 ; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;--------------------------------------------------
 title_logo
-    icl 'art/title_logo.asm'    ;   17 lines, mode 4
+    icl 'art/title_logo.asm'    ;   8 lines, mode 4
+title_timber
+    icl 'art/title_timber.asm'    ;   7 lines, mode 4 (+ 4 lines - eyes animation, + 1 line - foot animation)
+eyes_0 = title_timber+40
+eyes_1 = title_timber+(40*7)
+eyes_2 = title_timber+(40*8)
+eyes_3 = title_timber+(40*9)
+eyes_4 = title_timber+(40*10)
+foot_0 = title_timber+(40*6)
+foot_1 = title_timber+(40*11)
 empty_line
     :40 .by 0
-    .align $400
-over_screen
-    icl 'art/over_screen.asm'   ;   12 lines, mode 5
 difficulty_normal_text
     icl 'art/difficulty_texts.asm'   ;   2 lines, mode 5
 difficulty_easy_text = difficulty_normal_text + 40
+    .align $400
+over_screen
+    icl 'art/over_screen.asm'   ;   12 lines, mode 5
 credits_texts
     icl 'art/credits.asm'   ;   10 lines, mode 5
 number_of_credits = 5
@@ -996,11 +1015,11 @@ gameOver
 difficulty_display
     lda Difficulty
     bne level_easy
-    mwa #difficulty_normal_text difficulty_text_DL
+    mwa #difficulty_normal_text difficulty_text_addr
     mwa #PowerSpeedTableA SpeedTableAdr     ; difficulty level normal
     jmp wait_for_key
 level_easy
-    mwa #difficulty_easy_text difficulty_text_DL
+    mwa #difficulty_easy_text difficulty_text_addr
     mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level easy
 wait_for_key
     pause 1
