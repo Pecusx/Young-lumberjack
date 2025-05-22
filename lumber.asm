@@ -138,7 +138,7 @@ dl_title
 timber_eyes_addr
     .wo eyes_0
     .by $44+$80 ; DLI10 - timbermaner charset change and horizon and color bars
-    .wo title_timber+80
+    .wo title_timber+(32*2)
     .by $84 ; DLI11 - color bars
     .by $84 ; DLI12 - pants color
     .by $04    
@@ -240,16 +240,16 @@ c_shirtC = 33  ; timberman shirt on title screen
 ; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;--------------------------------------------------
 title_logo
-    icl 'art/title_logo.asm'    ;   8 lines, mode 4
+    icl 'art/title_logo.asm'    ;   8 lines, mode 4 narrow
 title_timber
-    icl 'art/title_timber.asm'    ;   7 lines, mode 4 (+ 4 lines - eyes animation, + 1 line - foot animation)
-eyes_0 = title_timber+40
-eyes_1 = title_timber+(40*7)
-eyes_2 = title_timber+(40*8)
-eyes_3 = title_timber+(40*9)
-eyes_4 = title_timber+(40*10)
-foot_0 = title_timber+(40*6)
-foot_1 = title_timber+(40*11)
+    icl 'art/title_timber.asm'    ;   7 lines, mode 4 narrow (+ 4 lines - eyes animation, + 1 line - foot animation)
+eyes_0 = title_timber+32
+eyes_1 = title_timber+(32*7)
+eyes_2 = title_timber+(32*8)
+eyes_3 = title_timber+(32*9)
+eyes_4 = title_timber+(32*10)
+foot_0 = title_timber+(32*6)
+foot_1 = title_timber+(32*11)
 empty_line
     :40 .by 0
 difficulty_normal_text
@@ -257,7 +257,7 @@ difficulty_normal_text
 difficulty_easy_text = difficulty_normal_text + 40
     .align $400
 over_screen
-    icl 'art/over_screen.asm'   ;   12 lines, mode 5
+    icl 'art/over_screen.asm'   ;   12 lines, mode 5 narrow
 credits_texts
     icl 'art/credits.asm'   ;   10 lines, mode 5
 number_of_credits = 5
@@ -641,6 +641,7 @@ DLI4
     mva GameColors+c_logo1 COLPF2
     mva #$70 HPOSP0
     mva #$03 SIZEP0
+    sta WSYNC
     mva GameColors+c_font2 COLPM0
     :2 sta WSYNC
     mva GameColors+c_logo3 COLPF1
@@ -732,8 +733,8 @@ DLI9
 DLI10
     pha
     ; font for titles and timberman
-    mva #>font_titles CHBASE
     mva #$75 HPOSP1 ; axe
+    mva #>font_titles CHBASE
     sta WSYNC
     mva #$7e HPOSP2 ; buttons and buckle
     mva #$6a HPOSM1 ; axe
@@ -796,6 +797,8 @@ DLI13
     pla
     tax
     inc SyncByte
+    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
+    sta dmactl
     mwa #TitlesDLI1.DLI_L1 VDSLST
     pla
     rti
@@ -1009,7 +1012,7 @@ gameOver
     mva GameColors+c_white2 COLOR0
     mva GameColors+c_logo3 COLOR1
     mva GameColors+c_font2 COLOR2
-    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
+    lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
 difficulty_display
@@ -1089,7 +1092,7 @@ EndOfStartScreen
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
     mva GameColors+c_font3 COLOR3
-    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
+    lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
     pause 1
