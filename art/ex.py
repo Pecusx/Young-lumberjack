@@ -24,34 +24,34 @@ def write_asm(atrview, out, page, line_from, line_to, skip_left, skip_right):
 
 write_asm(
     atrview='title_fonts.atrview',
-    out='over_screen.asmx',
+    out='over_screen.asm',
     page=5,
     line_from=0,
     line_to=12,
-    skip_left=4,
-    skip_right=4)
+    skip_left=0,
+    skip_right=8)
 
 write_asm(
     atrview="title.atrview",
-    out='title_logo.asmx',
+    out='title_logo.asm',
     page=1,
     line_from=2,
     line_to=2+8,
-    skip_left=4,
-    skip_right=4)
+    skip_left=0,
+    skip_right=8)
 
 write_asm(
     atrview="title.atrview",
-    out='title_timber.asmx',
+    out='title_timber.asm',
     page=1,
     line_from=12,
     line_to=12+12,
-    skip_left=4,
-    skip_right=4)
+    skip_left=0,
+    skip_right=8)
 
 write_asm(
     atrview="title_fonts.atrview",
-    out='difficulty_texts.asmx',
+    out='difficulty_texts.asm',
     page=4,
     line_from=0,
     line_to=0+2,
@@ -60,7 +60,7 @@ write_asm(
 
 write_asm(
     atrview="title_fonts.atrview",
-    out='credits.asmx',
+    out='credits.asm',
     page='Credits',
     line_from=0,
     line_to=0+10,
