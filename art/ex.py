@@ -5,7 +5,7 @@ def print_lines(
         dta, line_from: int, line_to: int, skip_left: int = 0, skip_right: int = 0, f=sys.stdout,):
     for d in dta[line_from:line_to]:
         print(
-            f'  dta ' + ','.join([f'${d[i:i + 2]}' for i in range(0 + skip_right*2, len(d) - skip_left*2, 2)]),
+            f'  dta ' + ','.join([f'${d[i:i + 2]}' for i in range(0 + skip_left*2, len(d) - skip_right*2, 2)]),
             file=f)
 
 def write_asm(atrview, out, page, line_from, line_to, skip_left, skip_right):
@@ -16,7 +16,6 @@ def write_asm(atrview, out, page, line_from, line_to, skip_left, skip_right):
             dta = p['View']
             width = p['Width'] * 2  # 2 hex chars per byte
             dtas = [dta[i * width:(i + 1) * width] for i in range(len(dta) // width)]
-            print (out, dtas)
             break
 
     with open(out, 'wt') as f:
