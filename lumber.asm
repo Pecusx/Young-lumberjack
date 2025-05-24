@@ -5,7 +5,7 @@
 .ENDIF
 ;---------------------------------------------------
 
-         OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
+         ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
 
 ;---------------------------------------------------
 .macro build
@@ -27,6 +27,7 @@ display = $a000
     .zpvar VBItemp .word
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
+    .zpvar AnimTimer    .byte
     .zpvar NTSCCounter  .byte
     .zpvar StateFlag .byte    ; 0 - menu, 1 - game screen, 2 RIP screen, 5 - game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
@@ -330,6 +331,8 @@ titles_VBI
     ;
     jsr CreditsAnimate
     ;
+    jsr TimberLogoAnimate
+    ;
     jmp common_VBI
 gameover_VBI
     ; game over screen (StateFlag=3) - set DLI
@@ -587,6 +590,64 @@ next_credit
 no_credits_loop
     mva #0 credits_anim_counter
 no_next_credit
+    rts
+.endp
+;--------------------------------------------------
+.proc TimberLogoAnimate
+;--------------------------------------------------
+    lda SyncByte
+    and #%00000111  ; for slower animation
+    bne no_timber_animation
+    inc AnimTimer
+    ; animations
+    ; check if animation in progress
+    ; eyes....
+    ldx EyesPhase
+    beq no_eyes
+    cpx #5
+    beq no_eyes
+    ; eyes animation in progress
+    ; next phase
+    inx
+    cpx #5
+    bne not_end_v1
+    ldx #0
+    beq not_end_v2
+not_end_v1
+    cpx #10
+    bne not_end_v2
+    ldx #5
+not_end_v2
+    stx EyesPhase
+    jsr MenuEyesSet
+    jmp no_timber_animation
+no_eyes
+    ; no animation in progress let's make new
+    lda AnimTimer
+    cmp #20
+    bne no_timber_animation
+    mva #0 AnimTimer    ; reset timer
+    lda RANDOM
+    and #%00000011
+    beq no_timber_animation ; 00 - no animation
+    cmp #1
+    bne no_eyes_change ; up/down
+    ; eyes change (or not :) )
+    ldx #5  ; eyes up
+    lda RANDOM
+    and #%00000001
+    bne @+
+    tax   ; eyes down (0)
+@   stx EyesPhase
+    jsr MenuEyesSet
+    jmp no_timber_animation
+no_eyes_change
+    cmp #2
+    bne no_timber_animation ; %11 - no animation
+    inc EyesPhase
+    ldx EyesPhase
+    jsr MenuEyesSet
+no_timber_animation    
     rts
 .endp
 ;--------------------------------------------------
@@ -2164,6 +2225,10 @@ score
 level
     dta $1a, $1b, $1c, $1b, $1a, $A4
     dta d"1"
+EyesPhase
+    .ds 1
+FootPhase
+    .ds 1
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
@@ -2171,6 +2236,32 @@ level
     mwa #eyes_0 timber_eyes_addr
     mwa #foot_0 timber_foot_addr
     ; reset timers and counters
+    lda #0
+    sta AnimTimer
+    sta EyesPhase
+    sta FootPhase
+    rts
+.endp
+;--------------------------------------------------
+.proc MenuEyesSet
+;--------------------------------------------------
+; set eyes to phase in EyesPhase register
+;    ldx EyesPhase
+    lda title_anime_tableL,x
+    sta timber_eyes_addr
+    lda title_anime_tableH,x
+    sta timber_eyes_addr+1
+    rts
+.endp
+;--------------------------------------------------
+.proc MenuFootSet
+;--------------------------------------------------
+; set eyes to phase in FootPhase register
+;    ldx FootPhase
+    lda title_animf_tableL,x
+    sta timber_eyes_addr
+    lda title_animf_tableH,x
+    sta timber_eyes_addr+1
     rts
 .endp
 ;--------------------------------------------------
