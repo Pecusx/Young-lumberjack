@@ -5,11 +5,11 @@
 .ENDIF
 ;---------------------------------------------------
 
-         ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
+         OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.45" ; number of this build (4 bytes)
+    dta d"0.46" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -1002,6 +1002,7 @@ gameOver
 .proc StartScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
+    jsr MenuAnimationsReset
     jsr HidePM
     jsr PrepareTitlePM
     jsr CreditsClear
@@ -2164,6 +2165,15 @@ level
     dta $1a, $1b, $1c, $1b, $1a, $A4
     dta d"1"
 ;--------------------------------------------------
+.proc MenuAnimationsReset
+;--------------------------------------------------
+; set eyes and foot to phase 0
+    mwa #eyes_0 timber_eyes_addr
+    mwa #foot_0 timber_foot_addr
+    ; reset timers and counters
+    rts
+.endp
+;--------------------------------------------------
 .proc ScoreUp
 ;--------------------------------------------------
     inc score+3
@@ -2801,7 +2811,37 @@ NTSC_colors
     ; timber shirt color on title screen
     .by $36
 ;--------------------------------------------------
-
+title_anime_tableL
+    .by <eyes_0 ; first eyes animation
+    .by <eyes_1
+    .by <eyes_2
+    .by <eyes_1
+    .by <eyes_0
+    .by <eyes_3 ; second eyes animation
+    .by <eyes_4
+    .by <eyes_2
+    .by <eyes_4
+    .by <eyes_3
+title_anime_tableH
+    .by >eyes_0 ; first eyes animation
+    .by >eyes_1
+    .by >eyes_2
+    .by >eyes_1
+    .by >eyes_0
+    .by >eyes_3 ; second eyes animation
+    .by >eyes_4
+    .by >eyes_2
+    .by >eyes_4
+    .by >eyes_3
+title_animf_tableL
+    .by <foot_0 ; foot animation
+    .by <foot_1
+    .by <foot_0
+title_animf_tableH
+    .by >foot_0 ; foot animation
+    .by >foot_1
+    .by >foot_0
+;--------------------------------------------------
 initial_branches_list
     .by 1,0,2,0,0,0 ; 
 
