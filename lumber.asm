@@ -595,7 +595,7 @@ no_next_credit
 ;--------------------------------------------------
 .proc TimberLogoAnimate
 ;--------------------------------------------------
-    lda SyncByte
+    lda RTCLOK+2
     and #%00000011  ; for slower animation
     bne no_timber_animation
     inc AnimTimer
@@ -624,7 +624,7 @@ not_end_v2
 no_eyes
     ; no animation in progress let's make new
     lda AnimTimer
-    cmp #15
+    cmp #30
     bne no_timber_animation
     mva #0 AnimTimer    ; reset timer
     lda RANDOM
