@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.46" ; number of this build (4 bytes)
+    dta d"0.47" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -624,7 +624,7 @@ not_end_v2
 no_eyes
     ; no animation in progress let's make new
     lda AnimTimer
-    cmp #20
+    cmp #15
     bne no_timber_animation
     mva #0 AnimTimer    ; reset timer
     lda RANDOM
@@ -635,15 +635,14 @@ no_eyes
     ; eyes change (or not :) )
     ldx #5  ; eyes up
     lda RANDOM
-    and #%00000001
-    bne @+
-    tax   ; eyes down (0)
+    and #%00000111
+    beq @+   ; eyes up (0)
+    ldx #0   ; eyes down (1-7)
 @   stx EyesPhase
     jsr MenuEyesSet
     jmp no_timber_animation
 no_eyes_change
-    cmp #2
-    bne no_timber_animation ; %11 - no animation
+    ; %10 and %11 - eyes animation
     inc EyesPhase
     ldx EyesPhase
     jsr MenuEyesSet
