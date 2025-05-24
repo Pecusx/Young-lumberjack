@@ -596,27 +596,27 @@ no_next_credit
 .proc TimberLogoAnimate
 ;--------------------------------------------------
     lda SyncByte
-    and #%00000111  ; for slower animation
+    and #%00000011  ; for slower animation
     bne no_timber_animation
     inc AnimTimer
     ; animations
     ; check if animation in progress
     ; eyes....
     ldx EyesPhase
-    beq no_eyes
+    beq no_eyes ; eyes up (no animation)
     cpx #5
-    beq no_eyes
+    beq no_eyes ; eyes down (no animation)
     ; eyes animation in progress
     ; next phase
     inx
-    cpx #5
+    cpx #5  ; after last phase of eyes down animation
     bne not_end_v1
-    ldx #0
+    ldx #0  ; set to mo animation phase
     beq not_end_v2
 not_end_v1
-    cpx #10
+    cpx #10 ; after last phase of eyes up animation
     bne not_end_v2
-    ldx #5
+    ldx #5  ; set to mo animation phase
 not_end_v2
     stx EyesPhase
     jsr MenuEyesSet
