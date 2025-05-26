@@ -653,7 +653,7 @@ no_eyes_animation
     beq no_foot ; eyes up (no animation)
     ; continue foot animation
     inx
-    cpx #25   ; after last phase of foot animation
+    cpx #25   ; after last phase of foot animation (one frame = 4, one "step" = 2 frames = 8 .... +1 (ending frame) - 25 = 8(step)*3+1
     bne not_end_f
     ldx #0  ; set to mo animation phase
 not_end_f
