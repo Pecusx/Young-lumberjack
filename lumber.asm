@@ -654,7 +654,7 @@ no_eyes_animation
     beq no_foot ; eyes up (no animation)
     ; continue foot animation
     inx
-    cpx #7   ; after last phase of foot animation
+    cpx #9   ; after last phase of foot animation
     bne not_end_f
     ldx #0  ; set to mo animation phase
 not_end_f
@@ -2286,6 +2286,7 @@ FootPhase
 ; set eyes to phase in FootPhase register
 ;    ldx FootPhase
     txa
+    lsr ; two times lower animation speed
     and #%00000001
     tax
     lda title_animf_tableL,x
