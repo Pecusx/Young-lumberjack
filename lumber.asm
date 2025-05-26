@@ -27,7 +27,6 @@ display = $a000
     .zpvar VBItemp .word
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
-    .zpvar AnimTimer    .byte
     .zpvar NTSCCounter  .byte
     .zpvar StateFlag .byte    ; 0 - menu, 1 - game screen, 2 RIP screen, 5 - game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
@@ -597,7 +596,7 @@ no_next_credit
 ;--------------------------------------------------
     lda RTCLOK+2
     and #%00000011  ; for slower animation
-    bne no_timber_animation
+    jne no_timber_animation
     inc AnimTimer
     ; animations
     ; check if animation in progress
@@ -654,7 +653,7 @@ no_eyes_animation
     beq no_foot ; eyes up (no animation)
     ; continue foot animation
     inx
-    cpx #9   ; after last phase of foot animation
+    cpx #13   ; after last phase of foot animation
     bne not_end_f
     ldx #0  ; set to mo animation phase
 not_end_f
@@ -663,12 +662,17 @@ not_end_f
     jmp no_timber_animation
 no_foot
     ; no animation in progress let's make new
-    lda RANDOM
-    and #%00011111
-    bne no_timber_animation ; 0 - animation
-    ldx #1   ; start foot animation
+    lda RTCLOK+2
+    and #%00000111  ; for slower animation
+    bne no_timber_animation
+    dec FootTimer
+    bne no_timber_animation
+    ; start foot animation
+    ldx #1
     stx FootPhase
     jsr MenuFootSet
+    randomize 15 35
+    sta FootTimer
 no_timber_animation    
     rts
 .endp
@@ -1089,6 +1093,7 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
+    mva #200 FootTimer  ; set delay for first foot animation
     jsr MakeDarkScreen
     jsr MenuAnimationsReset
     jsr HidePM
@@ -2256,6 +2261,10 @@ EyesPhase
     .ds 1
 FootPhase
     .ds 1
+AnimTimer
+    .ds 1
+FootTimer
+    .ds 1
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
@@ -2272,8 +2281,7 @@ FootPhase
 ;--------------------------------------------------
 .proc MenuEyesSet
 ;--------------------------------------------------
-; set eyes to phase in EyesPhase register
-;    ldx EyesPhase
+; set eyes to phase in X register
     lda title_anime_tableL,x
     sta timber_eyes_addr
     lda title_anime_tableH,x
@@ -2283,8 +2291,7 @@ FootPhase
 ;--------------------------------------------------
 .proc MenuFootSet
 ;--------------------------------------------------
-; set eyes to phase in FootPhase register
-;    ldx FootPhase
+; set eyes to phase in X register
     txa
     lsr ; two times lower animation speed
     and #%00000001
