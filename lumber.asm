@@ -620,16 +620,16 @@ not_end_v1
 not_end_v2
     stx EyesPhase
     jsr MenuEyesSet
-    jmp no_timber_animation
+    jmp no_eyes_animation
 no_eyes
     ; no animation in progress let's make new
     lda AnimTimer
     cmp #30
-    bne no_timber_animation
+    bne no_eyes_animation
     mva #0 AnimTimer    ; reset timer
     lda RANDOM
     and #%00000011
-    beq no_timber_animation ; 00 - no animation
+    beq no_eyes_animation ; 00 - no animation
     cmp #1
     bne no_eyes_change ; up/down
     ; eyes change (or not :) )
@@ -640,12 +640,35 @@ no_eyes
     ldx #0   ; eyes down (1-7)
 @   stx EyesPhase
     jsr MenuEyesSet
-    jmp no_timber_animation
+    jmp no_eyes_animation
 no_eyes_change
     ; %10 and %11 - eyes animation
     inc EyesPhase
     ldx EyesPhase
     jsr MenuEyesSet
+no_eyes_animation
+    ; Foot animation (or not)
+    ; check if animation in progress
+    ; foot....
+    ldx FootPhase
+    beq no_foot ; eyes up (no animation)
+    ; continue foot animation
+    inx
+    cpx #7   ; after last phase of foot animation
+    bne not_end_f
+    ldx #0  ; set to mo animation phase
+not_end_f
+    stx FootPhase
+    jsr MenuFootSet
+    jmp no_timber_animation
+no_foot
+    ; no animation in progress let's make new
+    lda RANDOM
+    and #%00011111
+    bne no_timber_animation ; 0 - animation
+    ldx #1   ; start foot animation
+    stx FootPhase
+    jsr MenuFootSet
 no_timber_animation    
     rts
 .endp
@@ -2257,10 +2280,13 @@ FootPhase
 ;--------------------------------------------------
 ; set eyes to phase in FootPhase register
 ;    ldx FootPhase
+    txa
+    and #%00000001
+    tax
     lda title_animf_tableL,x
-    sta timber_eyes_addr
+    sta timber_foot_addr
     lda title_animf_tableH,x
-    sta timber_eyes_addr+1
+    sta timber_foot_addr+1
     rts
 .endp
 ;--------------------------------------------------
