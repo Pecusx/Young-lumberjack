@@ -819,16 +819,20 @@ DLI10
     mva #$75 HPOSP1 ; axe
     mva #>font_titles CHBASE
     sta WSYNC
+    mva GameColors+c_horizonA COLBAK ; thin line (horizon)
     mva #$7e HPOSP2 ; buttons and buckle
     mva #$6a HPOSM1 ; axe
     sta WSYNC
+    mva GameColors+c_horizonB COLBAK ; additional lines (horizon)
     mva #$03 SIZEP3
     mva #$6a HPOSP3
     mva GameColors+c_dark_brown COLPM3 ; axe color 2
     ; color bars
     sta WSYNC
     mva GameColors+c_shirtA COLPF2
-    :4 sta WSYNC
+    sta WSYNC
+    mva GameColors+c_grass COLBAK ; green (horizon)
+    :3 sta WSYNC
     mva GameColors+c_shirtC COLPF2
     mwa #TitlesDLI1.DLI11 VDSLST
     pla
@@ -836,14 +840,15 @@ DLI10
 DLI11
     pha
     sta WSYNC
-    mva GameColors+c_horizonA COLBAK ; thin line
+    ; horizon
+    ;mva GameColors+c_horizonA COLBAK ; thin line (horizon)
     sta WSYNC
-    mva GameColors+c_horizonB COLBAK ; additional lines
+    ;mva GameColors+c_horizonB COLBAK ; additional lines (horizon)
     sta WSYNC
     ; color bars
     mva GameColors+c_shirtA COLPF2
     sta WSYNC
-    mva GameColors+c_grass COLBAK ; green
+    ;mva GameColors+c_grass COLBAK ; green (horizon)
     ; color bars
     :3 sta WSYNC
     mva GameColors+c_shirtC COLPF2
