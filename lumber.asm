@@ -653,7 +653,7 @@ no_eyes_animation
     beq no_foot ; eyes up (no animation)
     ; continue foot animation
     inx
-    cpx #13   ; after last phase of foot animation
+    cpx #25   ; after last phase of foot animation
     bne not_end_f
     ldx #0  ; set to mo animation phase
 not_end_f
@@ -1093,7 +1093,7 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
-    mva #200 FootTimer  ; set delay for first foot animation
+    mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
     jsr MakeDarkScreen
     jsr MenuAnimationsReset
     jsr HidePM
@@ -2293,7 +2293,7 @@ FootTimer
 ;--------------------------------------------------
 ; set eyes to phase in X register
     txa
-    lsr ; two times lower animation speed
+    :2 lsr ; 4 times lower animation speed
     and #%00000001
     tax
     lda title_animf_tableL,x
