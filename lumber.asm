@@ -841,11 +841,6 @@ DLI12
     rti
 DLI13
     pha
-    ; titles font colors
-    mva GameColors+c_font4 COLPF0
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    mva GameColors+c_font3 COLPF3
     ; PMG colors, horizontal coordinates and sizes
     txa
     pha
@@ -856,6 +851,11 @@ DLI13
     bpl @-
     pla
     tax
+    ; titles font colors
+    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    mva GameColors+c_font3 COLPF3
     inc SyncByte
     lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
     sta dmactl
