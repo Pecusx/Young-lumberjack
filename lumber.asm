@@ -103,17 +103,17 @@ font_titles
     ins 'art/title_fonts.fnt'   ;
 font_logo
     ins 'art/title_logo.fnt'   ;
+font_over
+    ins 'art/game_over.fnt'   ;
 ;---------------------------------------------------
 dl_over
-    .by $10,$70
     .by $45
     .wo over_screen    ; title screen (menu?)
-    .by $85 ; DLI1 - second clouds
-    .by $05
-    .by $85 ; DLI2 - last clouds
+    :5 .by $05
+    .by $85 ; DLI1 - font change
     :4 .by $05
-    .by $85 ; DLI - horizon
-    :3 .by $05 
+    .by $85 ; DLI - font change
+    .by $05 
     .by $41
     .wo dl_over
 ;---------------------------------------------------
@@ -257,7 +257,7 @@ difficulty_normal_text
 difficulty_easy_text = difficulty_normal_text + 40
     .align $400
 over_screen
-    icl 'art/over_screen.asm'   ;   12 lines, mode 5 narrow
+    icl 'art/over_screen.asm'   ;   13 lines, mode 5 narrow
 credits_texts
     icl 'art/credits.asm'   ;   10 lines, mode 5
 number_of_credits = 5
@@ -342,8 +342,8 @@ gameover_VBI
     sta HPOSP0,x
     dex
     bpl @-
-    ; fly clouds
-    jsr FlyClouds
+    ; no clouds
+    ;jsr FlyClouds
     ;
     ;jmp common_VBI
 
@@ -920,47 +920,18 @@ DLI_L2
 ; Clouds, color changes
 ;--------------------------------------------------
     pha
-    ; set cloud 2 horizontal position
-    lda clouds2Hpos
-    clc
-    sta HPOSM2
-    adc #4
-    sta HPOSP2
-    adc #8
-    sta HPOSP3
-    adc #8
-    sta HPOSM3
+    ; character set change
+    sta WSYNC
+    mva #>font_titles CHBASE
     mwa #GameOverDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
     pha
+    ; character set change
+    sta WSYNC
+    mva #>font_over CHBASE
     ; set cloud 3 horizontal position
-    lda clouds3Hpos
-    clc
-    sta HPOSM2
-    adc #4
-    sta HPOSP2
-    adc #8
-    sta HPOSP3
-    adc #8
-    sta HPOSM3
-    mwa #GameOverDLI1.DLI3 VDSLST
-    pla
-    rti
-DLI3
-    pha
-    ; under horizon
-    ; PMG colors, horizontal coordinates and sizes
-    txa
-    pha
-    lda #0  ; hide PMG
-    ldx #$15
-@   sta HPOSP0,x
-    dex
-    bpl @-
-    pla
-    tax
     inc SyncByte
     pla
     rti
@@ -1097,6 +1068,7 @@ gameOver
     jsr MakeDarkScreen
     jsr MenuAnimationsReset
     jsr HidePM
+    jsr PrepareCloudsPM
     jsr PrepareTitlePM
     jsr CreditsClear
     mva #0 StateFlag
@@ -1176,10 +1148,10 @@ EndOfStartScreen
 .proc GameOverScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
-    jsr PrepareTitlePM.clearP0_1
+    jsr ClearPM
     jsr HidePM
     mva #3 StateFlag
-    mva #>font_titles CHBAS
+    mva #>font_over CHBAS
     mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
     mva GameColors+c_font4 COLOR0
@@ -1466,10 +1438,10 @@ no_branch_l
     mva #1 LumberjackDir    ; right side
     mva #0 Difficulty       ; level normal
     
-    jsr PrepareLevelPM
-    jsr PrepareBirdsPM
-    jsr PrepareCloudsPM
-    jsr SetPMr1
+    ;jsr PrepareLevelPM
+    ;jsr PrepareBirdsPM
+    ;jsr PrepareCloudsPM
+    ;jsr SetPMr1
     mwa #gamescreen_r_ph1p1 animation_addr
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
