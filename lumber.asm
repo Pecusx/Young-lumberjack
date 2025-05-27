@@ -111,7 +111,7 @@ dl_over
     .wo over_screen    ; title screen (menu?)
     :5 .by $05
     .by $85 ; DLI1 - font change
-    :4 .by $05
+    :4 .by $85 ; DLI2-5 - font colors
     .by $85 ; DLI - font change
     .by $05 
     .by $41
@@ -226,6 +226,7 @@ c_logo4 = 30
 c_logo5 = 31
 c_clouds = 32  ; clouds
 c_shirtC = 33  ; timberman shirt on title screen
+c_over1 = 34   ; additional Game Over color
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -923,10 +924,52 @@ DLI_L2
     ; character set change
     sta WSYNC
     mva #>font_titles CHBASE
+    ; and font colors
+    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
     mwa #GameOverDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI4 VDSLST
+    pla
+    rti
+DLI4
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI5 VDSLST
+    pla
+    rti
+DLI5
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI6 VDSLST
+    pla
+    rti
+DLI6
     pha
     ; character set change
     sta WSYNC
@@ -1154,9 +1197,9 @@ EndOfStartScreen
     mva #>font_over CHBAS
     mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
-    mva GameColors+c_font4 COLOR0
+    mva GameColors+c_over1 COLOR0
     mva GameColors+c_font1 COLOR1
-    mva GameColors+c_font2 COLOR2
+    mva GameColors+c_white2 COLOR2
     mva GameColors+c_font3 COLOR3
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
@@ -2852,6 +2895,8 @@ PAL_colors
     .by $7e
     ; timber shirt color on title screen
     .by $26
+    ; game over colors
+    .by $10
 NTSC_colors
     ; black
     .by $00
@@ -2911,6 +2956,8 @@ NTSC_colors
     .by $8e
     ; timber shirt color on title screen
     .by $36
+    ; game over colors
+    .by $20
 ;--------------------------------------------------
 title_anime_tableL
     .by <eyes_0 ; first eyes animation
