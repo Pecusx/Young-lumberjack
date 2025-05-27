@@ -1110,6 +1110,7 @@ gameOver
     mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
     jsr MakeDarkScreen
     jsr MenuAnimationsReset
+    jsr ClearPM
     jsr HidePM
     jsr PrepareCloudsPM
     jsr PrepareTitlePM
@@ -1193,6 +1194,7 @@ EndOfStartScreen
     jsr MakeDarkScreen
     jsr ClearPM
     jsr HidePM
+    jsr PrepareOverPM
     mva #3 StateFlag
     mva #>font_over CHBAS
     mwa #dl_over dlptrs
@@ -2169,6 +2171,34 @@ tlogo_data_p2   ; buttons and buckle
     dta %11110000
 Hoffset_tlogo=61
 datalines_tlogo=11
+.endp
+;--------------------------------------------------
+.proc PrepareOverPM
+;--------------------------------------------------
+    ; Players 1,2,3 filled fram ... to ...
+    jsr ClearPM
+    ldx #High_over-1
+    lda #$ff    ; fill
+@   sta PMmemory+$280+Hoffset_over,x
+    sta PMmemory+$300+Hoffset_over,x
+    sta PMmemory+$380+Hoffset_over,x
+    dex
+    bpl @-
+    mva #11 SIZEP1_u
+    sta SIZEP2_u
+    sta SIZEP3_u
+    mva GameColors+c_buckle PCOLR1    ; same color like buckle
+    sta PCOLR2
+    sta PCOLR3
+    lda #$50
+    sta HPOSP1_u
+    lda #$70
+    sta HPOSP2_u
+    lda #$90
+    sta HPOSP3_u
+Hoffset_over = 30
+High_over=77
+    rts
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
