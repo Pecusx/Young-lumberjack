@@ -186,7 +186,7 @@ lastline_addr
 Power = power_bar+32+10
 gamescreen_middle
     .ds 32*18   ; 18 lines
-screen_score = gamescreen_middle+6*32+14  
+screen_score = gamescreen_middle+9*32+14  
 screen_level = gamescreen_middle+1*32+12  
 ;---------------------------------------------------
 GameColors
@@ -2403,11 +2403,10 @@ ScoreReady
 ;--------------------------------------------------
 .proc ScoreToScreen
 ;--------------------------------------------------
-    ldx #3
-@   lda score,x
-    sta screen_score,x
-    dex
-    bpl @-
+    mva score screen_score
+    mva score+1 screen_score+1
+    mva score+2 screen_score+2
+    mva score+3 screen_score+3
     rts
 .endp
 ;--------------------------------------------------
@@ -2617,6 +2616,7 @@ draw_branch1
     iny
     cpy #(5*32) ;5 lines
     bne @-
+    jsr LevelToScreen
 draw_branch2
     lda branches_anim_phase
     ; now calculate start screen address
@@ -2639,7 +2639,6 @@ draw_branch2
     cpy #(5*32) ;5 lines
     bne @-
     jsr ScoreToScreen
-    ;jsr LevelToScreen
 draw_branch3
     lda branches_anim_phase
     ldx #(5*32)     ; how many lines draw
