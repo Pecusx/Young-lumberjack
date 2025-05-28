@@ -929,7 +929,7 @@ DLI_L2
     sta WSYNC
     mva #>font_titles CHBASE
     ; and font colors
-    mva GameColors+c_font4 COLPF0
+    ;mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
