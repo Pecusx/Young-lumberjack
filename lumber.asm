@@ -161,21 +161,21 @@ dl_level
     ;.by $10
     .by $44
     .wo power_bar    ; power indicator
-    .by $04 
+    .by $84  ; DLI1 - color change (power bar - letters)
     .by $44
     .wo gamescreen_middle   ; branches
-    .by $84  ; DLI1 - color change (power bar - letters) and second clouds
+    .by $84  ; DLI2 - second clouds
     :3 .by $04
-    .by $84     ; DLI2 - last clouds
+    .by $84     ; DLI3 - last clouds
     :11 .by $04
-    .by $84 ; DLI3
+    .by $84 ; DLI4
     .by $44
 animation_addr
     .wo gamescreen_r_ph1p1
-    .by $84 ; DLI4
-    :3 .by $04
     .by $84 ; DLI5
+    :3 .by $04
     .by $84 ; DLI6
+    .by $84 ; DLI7
     .by $04
     .by $44
 lastline_addr
@@ -187,7 +187,7 @@ Power = power_bar+32+10
 gamescreen_middle
     .ds 32*18   ; 18 lines
 screen_score = gamescreen_middle+6*32+14  
-screen_level = gamescreen_middle+9*32+12  
+screen_level = gamescreen_middle+1*32+12  
 ;---------------------------------------------------
 GameColors
     .ds 64
@@ -989,23 +989,13 @@ DLI6
 ;--------------------------------------------------
     pha
     mva GameColors+c_white COLPF2 ; white (numbers and letters)
-    ; set cloud 2 horizontal position
-    lda clouds2Hpos
-    clc
-    sta HPOSM2
-    adc #4
-    sta HPOSP2
-    adc #8
-    sta HPOSP3
-    adc #8
-    sta HPOSM3
     mwa #IngameDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
     pha
-    ; set cloud 3 horizontal position
-    lda clouds3Hpos
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
     clc
     sta HPOSM2
     adc #4
@@ -1018,6 +1008,21 @@ DLI2
     pla
     rti
 DLI3
+    pha
+    ; set cloud 3 horizontal position
+    lda clouds3Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #IngameDLI1.DLI4 VDSLST
+    pla
+    rti
+DLI4
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
@@ -1040,19 +1045,19 @@ DLI3
     pla
     tax
     inc SyncByte
-    mwa #IngameDLI1.DLI4 VDSLST
+    mwa #IngameDLI1.DLI5 VDSLST
     pla
     rti
-DLI4
+DLI5
     pha
     sta WSYNC
     mva GameColors+c_hat COLPF2 ; hat
     :4 STA WSYNC
     mva GameColors+c_white COLPF2 ; white
-    mwa #IngameDLI1.DLI5 VDSLST
+    mwa #IngameDLI1.DLI6 VDSLST
     pla
     rti
-DLI5
+DLI6
     pha
     lda StateFlag
     sta WSYNC
@@ -1060,10 +1065,10 @@ DLI5
     bne @+
     mva GameColors+c_buckle COLPF2 ; button and buckle
 @   mva #>font_game_upper CHBASE
-    mwa #IngameDLI1.DLI6 VDSLST
+    mwa #IngameDLI1.DLI7 VDSLST
     pla
     rti
-DLI6
+DLI7
     pha
     lda StateFlag
     cmp #1  ; game
@@ -2634,7 +2639,7 @@ draw_branch2
     cpy #(5*32) ;5 lines
     bne @-
     jsr ScoreToScreen
-    jsr LevelToScreen
+    ;jsr LevelToScreen
 draw_branch3
     lda branches_anim_phase
     ldx #(5*32)     ; how many lines draw
