@@ -34,7 +34,6 @@ display = $a000
     .zpvar PowerDownSpeed .byte
     .zpvar PowerSpeedIndex .byte
     .zpvar SpeedTableAdr .word
-    .zpvar LevelValue .byte
     .zpvar Difficulty .byte ; 0 - normal, 1 - easy
     .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
@@ -188,7 +187,7 @@ Power = power_bar+32+10
 gamescreen_middle
     .ds 32*18   ; 18 lines
 screen_score = gamescreen_middle+6*32+14  
-screen_level = gamescreen_middle+9*32+13  
+screen_level = gamescreen_middle+9*32+12  
 ;---------------------------------------------------
 GameColors
     .ds 64
@@ -365,6 +364,11 @@ is_PAL
     cmp #1
     bne wait_for_timer
     ; only during game
+    ; time up
+    bit TimeCount
+    bpl time_stopped
+    jsr LevelUp
+time_stopped
     ; power down
     dec PowerTimer
     bne wait_for_timer
@@ -1226,6 +1230,7 @@ EndOfOverScreen
 .proc PlayLevel
 ;--------------------------------------------------
     jsr PrepareLevelPM
+    mva #$ff TimeCount ; start time
 loop
     ; PUT GAME HERE
     lda branches_list+5
@@ -1246,7 +1251,7 @@ key_released_before
     bne NoNextLevel
     ; next level if joy UP
     sta LastKey
-    jsr LevelUp
+    ;jsr LevelUp
 NoNextLevel
 No_keys
     lda PowerValue
@@ -1323,6 +1328,7 @@ no_brancho_l
     jsr AnimationL1
     jmp go_loop
 LevelDeath
+    mva #0 TimeCount    ; stop time
     jsr SetRIPscreen
     RMTsong song_game_over
 @   
@@ -1482,6 +1488,7 @@ no_branch_l
     jsr draw_PowerBar
     mva #1 LumberjackDir    ; right side
     mva #0 Difficulty       ; level normal
+    mva #0 TimeCount    ; time stopped
     
     ;jsr PrepareLevelPM
     ;jsr PrepareBirdsPM
@@ -2300,8 +2307,7 @@ branches_anim_phase ; from 0 to 4
 score
     dta d"0000"
 level
-    dta $1a, $1b, $1c, $1b, $1a, $A4
-    dta d"1"
+    dta d"00", $1a, d"00", $1a, d"00"
 EyesPhase
     .ds 1
 FootPhase
@@ -2310,6 +2316,8 @@ AnimTimer
     .ds 1
 FootTimer
     .ds 1
+TimeCount
+    .ds 1   ; 00 - time stopped , $ff - time count
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
@@ -2367,7 +2375,6 @@ no_speed_power
     lda #"0"    ; 0 character code
     sta score+2
     jsr PowerSpeedUP     ; every 50pts.
-    jsr LevelUp ; every 100pts.
     inc score+1
     lda score+1
     cmp #"9"+1  ; 9+1 character code
@@ -2401,11 +2408,7 @@ ScoreReady
 ;--------------------------------------------------
 .proc LevelToScreen
 ;--------------------------------------------------
-    lda LevelValue
-    clc
-    adc #"0"
-    sta screen_level+6
-    ldx #5
+    ldx #7
 @   lda level,x
     sta screen_level,x
     dex
@@ -2416,9 +2419,15 @@ ScoreReady
 .proc LevelReset
 ;--------------------------------------------------
 ; set level to 1 and PowerDownSpeed to ??
-    mvy #1 LevelValue
-    dey
-    sty PowerSpeedIndex
+    lda #"0"
+    sta level
+    sta level+1
+    sta level+3
+    sta level+4
+    sta level+6
+    sta level+7
+
+    mvy #0 PowerSpeedIndex
     lda (SpeedTableAdr),y
     sta PowerDownSpeed
     jsr LevelToScreen
@@ -2427,12 +2436,55 @@ ScoreReady
 ;--------------------------------------------------
 .proc LevelUp
 ;--------------------------------------------------
-    inc LevelValue
-    lda LevelValue
-    cmp #10
-    bne not_max_lev
-    mva #9 LevelValue
-not_max_lev
+    lda #"0"    ; for speed
+    ldx level+7
+    inx
+    inx
+    cpx #"9"+1
+    bcs next_digit6
+    stx level+7
+    bne to_screen
+next_digit6
+    tax ; "0"
+    stx level+7
+    ldx level+6
+    inx
+    cpx #"9"+1
+    bcs next_digit4
+    stx level+6
+    bne to_screen
+next_digit4
+    tax ; "0"
+    stx level+6
+    ldx level+4
+    inx
+    cpx #"9"+1
+    bcs next_digit3
+    stx level+4
+    bne to_screen
+next_digit3
+    tax ; "0"
+    stx level+4
+    ldx level+3
+    inx
+    cpx #"6"
+    bcs next_digit1
+    stx level+3
+    bne to_screen
+next_digit1
+    tax ; "0"
+    stx level+3
+    ldx level+1
+    inx
+    cpx #"9"+1
+    bcs next_digit0
+    stx level+1
+    bne to_screen
+next_digit0
+    tax ; "0"
+    stx level+1
+    inc level
+to_screen    
     jsr LevelToScreen
     rts
 .endp
