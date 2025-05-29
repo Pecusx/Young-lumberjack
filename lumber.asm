@@ -175,7 +175,8 @@ dl_go
     .by $45
 go_addr
     .wo go_text-32 ; empty line before
-    .by $30+$80; DLI5 - and GO line
+    .by $10+$80; DLI5 - end GO line
+    .by $10
     .by $44
     .wo gamescreen_middle+32*13
     :2 .by $04
@@ -1082,10 +1083,12 @@ DLI4
     pha
     sta WSYNC
     mva #>font_titles CHBASE
-    mva GameColors+c_buckle COLBAK
+    mva GameColors+c_black COLBAK
     mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2    
-    :12 sta WSYNC
+    mva GameColors+c_font2 COLPF2 
+    :2 sta WSYNC
+    mva GameColors+c_buckle COLBAK
+    :10 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #GoDLI1.DLI5 VDSLST
     pla
@@ -1094,9 +1097,11 @@ DLI5
     pha
     sta WSYNC
     mva #>font_game_upper CHBASE
-    mva GameColors+c_sky COLBAK
+    mva GameColors+c_black COLBAK
     mva GameColors+c_dark_brown COLPF1
-    mva GameColors+c_white COLPF2    
+    mva GameColors+c_white COLPF2   
+    :2 sta WSYNC
+    mva GameColors+c_sky COLBAK
     mwa #GoDLI1.DLI6 VDSLST
     pla
     rti
