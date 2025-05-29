@@ -938,7 +938,7 @@ DLI13
     pla
     tax
     ; titles font colors
-    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_over1 COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     mva GameColors+c_font3 COLPF3
@@ -950,7 +950,7 @@ DLI13
     rti
 DLI_L1
     pha
-    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_over1 COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
@@ -960,7 +960,7 @@ DLI_L1
     rti
 DLI_L2
     pha
-    mva GameColors+c_font4 COLPF0
+    mva GameColors+c_over1 COLPF0
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
@@ -976,7 +976,7 @@ DLI_L2
     pha
     ; end of chain
     :3 sta WSYNC
-    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font1b COLPF1
     mwa #GameOverDLI1.DLI2 VDSLST
     pla
     rti
@@ -986,7 +986,6 @@ DLI2
     sta WSYNC
     mva #>font_titles CHBASE
     ; and font colors
-    ;mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
@@ -1083,7 +1082,8 @@ DLI4
     pha
     sta WSYNC
     mva #>font_titles CHBASE
-    mva GameColors+c_black COLBAK
+    mva GameColors+c_over1 COLBAK
+    sta COLPF0
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2 
     :2 sta WSYNC
@@ -1097,7 +1097,8 @@ DLI5
     pha
     sta WSYNC
     mva #>font_game_upper CHBASE
-    mva GameColors+c_black COLBAK
+    mva GameColors+c_over1 COLBAK
+    mva GameColors+c_black COLPF0
     mva GameColors+c_dark_brown COLPF1
     mva GameColors+c_white COLPF2   
     :2 sta WSYNC
