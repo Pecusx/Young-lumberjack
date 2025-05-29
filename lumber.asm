@@ -108,10 +108,12 @@ font_over
 dl_over
     .by $45
     .wo over_screen    ; title screen (menu?)
-    :5 .by $05
-    .by $85 ; DLI1 - font change
-    :4 .by $85 ; DLI2-5 - font colors
-    .by $85 ; DLI - font change
+    .by $05
+    .by $85 ; DLI1 - end of chain
+    :3 .by $05
+    .by $85 ; DLI2 - font change
+    :4 .by $85 ; DLI3-6 - font colors
+    .by $85 ; DLI7 - font change
     .by $05 
     .by $41
     .wo dl_over
@@ -925,21 +927,20 @@ DLI_L2
 ; Clouds, color changes
 ;--------------------------------------------------
     pha
+    ; end of chain
+    :3 sta WSYNC
+    mva GameColors+c_font1 COLPF1
+    mwa #GameOverDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
     ; character set change
     sta WSYNC
     mva #>font_titles CHBASE
     ; and font colors
     ;mva GameColors+c_font4 COLPF0
     mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI2 VDSLST
-    pla
-    rti
-DLI2
-    pha
-    sta WSYNC
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
@@ -974,6 +975,15 @@ DLI5
     pla
     rti
 DLI6
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
     pha
     ; character set change
     sta WSYNC
@@ -1209,7 +1219,7 @@ EndOfStartScreen
     mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
     mva GameColors+c_over1 COLOR0
-    mva GameColors+c_font1 COLOR1
+    mva GameColors+c_white2 COLOR1
     mva GameColors+c_white2 COLOR2
     mva GameColors+c_font3 COLOR3
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
