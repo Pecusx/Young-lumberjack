@@ -28,7 +28,7 @@ display = $a000
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
-    .zpvar StateFlag .byte    ; 0 - menu, 1 - game screen, 2 RIP screen, 5 - game over screen, etc.
+    .zpvar StateFlag .byte    ; 0 - menu, 1 = GO!, 2 - game screen, 3 RIP screen, 4 - game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
@@ -159,6 +159,39 @@ difficulty_text_addr
     .by $41
     .wo dl_title
 ;---------------------------------------------------
+dl_go
+    ;.by $10
+    .by $44
+    .wo power_bar    ; power indicator
+    .by $84  ; DLI1 - color change (power bar - letters)
+    .by $44
+    .wo gamescreen_middle   ; branches
+    .by $84  ; DLI2 - second clouds
+    :3 .by $04
+    .by $84     ; DLI3 - last clouds
+    :4 .by $04
+    .by $84     ; DLI4 - GO line
+    .by $45+$80    ; DLI5 - and GO line
+go_addr
+    .wo go_text-32 ; empty line before
+    .by $44
+    .wo gamescreen_middle+32*12
+    :3 .by $04
+    .by $84 ; DLI6
+    .by $44
+;animation_addr
+    .wo gamescreen_r_ph1p1
+    .by $84 ; DLI7
+    :3 .by $04
+    .by $84 ; DLI8
+    .by $84 ; DLI9
+    .by $04
+    .by $44
+;lastline_addr
+    .wo last_line_r
+    .by $41
+    .wo dl_go
+;---------------------------------------------------
 dl_level
     ;.by $10
     .by $44
@@ -254,6 +287,8 @@ foot_0 = title_timber+(32*6)
 foot_1 = title_timber+(32*11)
 empty_line
     :40 .by 0
+go_text
+    icl 'art/go.asm'   ;   4 lines, mode 5
 difficulty_normal_text
     icl 'art/difficulty_texts.asm'   ;   2 lines, mode 5
 difficulty_easy_text = difficulty_normal_text + 40
@@ -279,26 +314,35 @@ credits_anim_counter    ; counter for credits animation/display
     vdli TitlesDLI1
     jmp DLI_OK
 no_titles
-    cmp #3
+    cmp #1
+    bne no_go
+    ; go screen dli (StateFlag = 1)
+    vdli GoDLI1
+    jmp DLI_OK
+no_go    
+    cmp #4
     beq no_geme_and_RIP
-    ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
+    ; game screen and RIP screen (StateFlag=2 or 3) - set DLI
     vdli IngameDLI1
     jmp DLI_OK
 no_geme_and_RIP    
-    ; game over screen (StateFlag=3) - set DLI
+    ; game over screen (StateFlag=4) - set DLI
     vdli GameOverDLI1
 
 DLI_OK
     lda StateFlag
     jeq titles_VBI
     cmp #1
-    beq game_VBI
+    beq go_VBI
     cmp #2
     beq game_VBI
     cmp #3
+    beq game_VBI
+    cmp #4
     jeq gameover_VBI
 game_VBI
-    ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
+go_VBI
+    ; game screen and RIP screen (StateFlag=2 or 3) VBI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     ldx #$0c
@@ -314,7 +358,7 @@ game_VBI
     jmp common_VBI
 
 titles_VBI
-    ; title screen (StateFlag=0) - set DLI
+    ; title screen (StateFlag=0) VBI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     ldx #$0c
@@ -336,7 +380,7 @@ titles_VBI
     ;
     jmp common_VBI
 gameover_VBI
-    ; game over screen (StateFlag=3) - set DLI
+    ; game over screen (StateFlag=4) VBI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     ldx #$0c
@@ -363,7 +407,7 @@ common_VBI
 is_PAL
 
     lda StateFlag
-    cmp #1
+    cmp #2
     bne wait_for_timer
     ; only during game
     ; time up
@@ -994,6 +1038,131 @@ DLI7
     rti
 .endp
 ;--------------------------------------------------
+.proc GoDLI1
+; Clouds, birds, color changes
+;--------------------------------------------------
+    pha
+    mva GameColors+c_white COLPF2 ; white (numbers and letters)
+    mwa #GoDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #GoDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
+    pha
+    ; set cloud 3 horizontal position
+    lda clouds3Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #GoDLI1.DLI4 VDSLST
+    pla
+    rti
+DLI4
+    pha
+    sta WSYNC
+    mva #>font_titles CHBASE
+    mva GameColors+c_buckle COLBAK
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2    
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GoDLI1.DLI5 VDSLST
+    pla
+    rti
+DLI5
+    pha
+    sta WSYNC
+    mva #>font_game_upper CHBASE
+    mva GameColors+c_sky COLBAK
+    mva GameColors+c_dark_brown COLPF1
+    mva GameColors+c_white COLPF2    
+    mwa #GoDLI1.DLI6 VDSLST
+    pla
+    rti
+DLI6
+    pha
+    sta WSYNC
+    mva LowCharsetBase CHBASE
+    mva GameColors+c_horizonA COLBAK ; thin line
+    mva GameColors+c_light_brown COLPF3 ; light brown
+    sta WSYNC
+    mva GameColors+c_horizonB COLBAK ; additional lines
+    sta WSYNC
+    sta WSYNC
+    mva GameColors+c_grass COLBAK ; green
+    ; under horizon
+    ; PMG colors, horizontal coordinates and sizes
+    txa
+    pha
+    ldx #$15
+@   lda HPOSP0_d,x
+    sta HPOSP0,x
+    dex
+    bpl @-
+    pla
+    tax
+    inc SyncByte
+    mwa #GoDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
+    pha
+    sta WSYNC
+    mva GameColors+c_hat COLPF2 ; hat
+    :4 STA WSYNC
+    mva GameColors+c_white COLPF2 ; white
+    mwa #GoDLI1.DLI8 VDSLST
+    pla
+    rti
+DLI8
+    pha
+    lda StateFlag
+    sta WSYNC
+    cmp #2
+    beq go_dli6
+    cmp #1  ; go
+    bne @+
+go_dli6
+    mva GameColors+c_buckle COLPF2 ; button and buckle
+@   mva #>font_game_upper CHBASE
+    mwa #GoDLI1.DLI9 VDSLST
+    pla
+    rti
+DLI9
+    pha
+    lda StateFlag
+    cmp #2
+    beq go_dli7
+    cmp #1  ; go
+    bne @+
+go_dli7
+    sta WSYNC
+    sta WSYNC
+    sta WSYNC
+    mva GameColors+c_pants COLPF2 ; blue pants
+@   pla
+    rti
+.endp
+;--------------------------------------------------
 .proc IngameDLI1
 ; Clouds, birds, color changes
 ;--------------------------------------------------
@@ -1071,8 +1240,11 @@ DLI6
     pha
     lda StateFlag
     sta WSYNC
-    cmp #1  ; game
+    cmp #2
+    beq go_dli6
+    cmp #1  ; go
     bne @+
+go_dli6
     mva GameColors+c_buckle COLPF2 ; button and buckle
 @   mva #>font_game_upper CHBASE
     mwa #IngameDLI1.DLI7 VDSLST
@@ -1081,8 +1253,11 @@ DLI6
 DLI7
     pha
     lda StateFlag
-    cmp #1  ; game
+    cmp #2
+    beq go_dli7
+    cmp #1  ; go
     bne @+
+go_dli7
     sta WSYNC
     sta WSYNC
     sta WSYNC
@@ -1194,17 +1369,20 @@ EndOfStartScreen
     mva #1 LumberjackDir    ; right side
     mwa #gamescreen_r_ph1p1 animation_addr
     mwa #last_line_r lastline_addr
+    mwa #(go_text-32) go_addr   ; empty line before GO! texts
 
     jsr PrepareLevelPM
     jsr PrepareBirdsPM
     jsr PrepareCloudsPM
-    mwa #dl_level dlptrs
+    mwa #dl_go dlptrs
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
     jsr SetPMr1
-    mva #1 StateFlag
-    pause 5
+    mva #1 StateFlag    ; GO! screen
+    jsr AnimateGoLine
+    mwa #dl_level dlptrs
+    mva #2 StateFlag    ; Game
     rts
 .endp
 ;--------------------------------------------------
@@ -1214,7 +1392,7 @@ EndOfStartScreen
     jsr ClearPM
     jsr HidePM
     jsr PrepareOverPM
-    mva #3 StateFlag
+    mva #4 StateFlag
     mva #>font_over CHBAS
     mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
@@ -1363,7 +1541,7 @@ go_loop
 .proc SetRIPscreen
 ;--------------------------------------------------
     :5 WaitForSync
-    mva #2 StateFlag
+    mva #3 StateFlag
     mva #>font_game_rip LowCharsetBase
     jsr HidePM
     jsr PrepareRIPPM
@@ -1465,6 +1643,39 @@ no_branch_l
 .proc RestoreRedBar
 ;--------------------------------------------------
     mva GameColors+c_red COLOR2 ; red
+    rts
+.endp
+;--------------------------------------------------
+.proc AnimateGoLine
+;--------------------------------------------------
+    ; .... 3 ....
+    ldy #31
+@   inw go_addr
+    WaitForSync
+    dey
+    bpl @-
+    pause 25
+    ; .... 2 ....
+    ldy #31
+@   inw go_addr
+    WaitForSync
+    dey
+    bpl @-
+    pause 25
+    ; .... 1 ....
+    ldy #31
+@   inw go_addr
+    WaitForSync
+    dey
+    bpl @-
+    pause 25
+    ; .... go! ....
+    ldy #31
+@   inw go_addr
+    WaitForSync
+    dey
+    bpl @-
+    pause 25
     rts
 .endp
 ;--------------------------------------------------
