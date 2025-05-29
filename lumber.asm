@@ -1648,38 +1648,18 @@ no_branch_l
 ;--------------------------------------------------
 .proc AnimateGoLine
 ;--------------------------------------------------
-    ; .... 3 ....
-    ldy #15
-@   inw go_addr
+    ldy #4  ; 4 lines
+next_line
+    ; .... 3 , 2 , 1 , GO! ....
+    ldx #16     ; 32 characters
+@   inw go_addr 
     inw go_addr
     WaitForSync
-    dey
-    bpl @-
+    dex
+    bne @-
     pause 25
-    ; .... 2 ....
-    ldy #15
-@   inw go_addr
-    inw go_addr
-    WaitForSync
     dey
-    bpl @-
-    pause 25
-    ; .... 1 ....
-    ldy #15
-@   inw go_addr
-    inw go_addr
-    WaitForSync
-    dey
-    bpl @-
-    pause 25
-    ; .... go! ....
-    ldy #15
-@   inw go_addr
-    inw go_addr
-    WaitForSync
-    dey
-    bpl @-
-    pause 25
+    bne next_line
     rts
 .endp
 ;--------------------------------------------------
