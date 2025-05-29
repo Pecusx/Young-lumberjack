@@ -5,11 +5,11 @@
 .ENDIF
 ;---------------------------------------------------
 
-         OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
+         ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.42" ; number of this build (4 bytes)
+    dta d"0.47" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -28,13 +28,12 @@ display = $a000
     .zpvar tempbyte .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
-    .zpvar StateFlag .byte    ; 0 - menu, 1 - game screen, 2 RIP screen, 5 - game over screen, etc.
+    .zpvar StateFlag .byte    ; 0 - menu, 1 = GO!, 2 - game screen, 3 RIP screen, 4 - game over screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
     .zpvar PowerSpeedIndex .byte
     .zpvar SpeedTableAdr .word
-    .zpvar LevelValue .byte
     .zpvar Difficulty .byte ; 0 - normal, 1 - easy
     .zpvar LumberjackDir .byte ; 2 - on left , 1 - on right
     .zpvar PaddleState .byte
@@ -103,17 +102,19 @@ font_titles
     ins 'art/title_fonts.fnt'   ;
 font_logo
     ins 'art/title_logo.fnt'   ;
+font_over
+    ins 'art/game_over.fnt'   ;
 ;---------------------------------------------------
 dl_over
-    .by $10,$70
     .by $45
     .wo over_screen    ; title screen (menu?)
-    .by $85 ; DLI1 - second clouds
     .by $05
-    .by $85 ; DLI2 - last clouds
-    :4 .by $05
-    .by $85 ; DLI - horizon
-    :3 .by $05 
+    .by $85 ; DLI1 - end of chain
+    :3 .by $05
+    .by $85 ; DLI2 - font change
+    :4 .by $85 ; DLI3-6 - font colors
+    .by $85 ; DLI7 - font change
+    .by $05 
     .by $41
     .wo dl_over
 ;---------------------------------------------------
@@ -128,37 +129,91 @@ dl_title
     .by $84 ; DLI6 - Logo colors
     .by $04
     .by $84 ; DLI7 - last clouds
-    :4 .by $05
-    .by $85 ; DLI8 - horizon
-    .by $85  ; DLI9 - fonts
-    .by $45+$80
-difficulty_text_DL
+    .by $44
+    .wo empty_line
+    .by $44
+    .wo empty_line
+    .by $44+$80 ; DLI8 - hat color change
+    .wo title_timber    ; timberman logo
+    .by $44+$80 ; DLI9 - color bars
+timber_eyes_addr
+    .wo eyes_0
+    .by $44+$80 ; DLI10 - timbermaner charset change and horizon and color bars
+    .wo title_timber+(32*2)
+    .by $84 ; DLI11 - color bars
+    .by $84 ; DLI12 - pants color
+    .by $04    
+    .by $44+$80 ; DLI13
+timber_foot_addr
+    .wo foot_0
+    .by $44+$80 ; DLI_L2 - fonts
+    .wo empty_line
+    .by $45 
+difficulty_text_addr
     .wo difficulty_normal_text
+    .by $45+$80
+    .wo empty_line
     .by $45+$80
     .wo credits_lines
     .by $85
     .by $41
     .wo dl_title
 ;---------------------------------------------------
+dl_go
+    ;.by $10
+    .by $44
+    .wo power_bar    ; power indicator
+    .by $84  ; DLI1 - color change (power bar - letters)
+    .by $44
+    .wo gamescreen_middle   ; branches
+    .by $84  ; DLI2 - second clouds
+    :3 .by $04
+    .by $84     ; DLI3 - last clouds
+    :4 .by $04
+    .by $84     ; DLI4 - GO line
+    .by $30
+    .by $45
+go_addr
+    .wo go_text-32 ; empty line before
+    .by $10+$80; DLI5 - end GO line
+    .by $10
+    .by $44
+    .wo gamescreen_middle+32*13
+    :2 .by $04
+    .by $84 ; DLI6
+    .by $44
+;animation_addr
+    .wo gamescreen_r_ph1p1
+    .by $84 ; DLI7
+    :3 .by $04
+    .by $84 ; DLI8
+    .by $84 ; DLI9
+    .by $04
+    .by $44
+;lastline_addr
+    .wo last_line_r
+    .by $41
+    .wo dl_go
+;---------------------------------------------------
 dl_level
     ;.by $10
     .by $44
     .wo power_bar    ; power indicator
-    .by $04 
+    .by $84  ; DLI1 - color change (power bar - letters)
     .by $44
     .wo gamescreen_middle   ; branches
-    .by $84  ; DLI1 - color change (power bar - letters) and second clouds
+    .by $84  ; DLI2 - second clouds
     :3 .by $04
-    .by $84     ; DLI2 - last clouds
+    .by $84     ; DLI3 - last clouds
     :11 .by $04
-    .by $84 ; DLI3
+    .by $84 ; DLI4
     .by $44
 animation_addr
     .wo gamescreen_r_ph1p1
-    .by $84 ; DLI4
-    :3 .by $04
     .by $84 ; DLI5
+    :3 .by $04
     .by $84 ; DLI6
+    .by $84 ; DLI7
     .by $04
     .by $44
 lastline_addr
@@ -169,11 +224,11 @@ lastline_addr
 Power = power_bar+32+10
 gamescreen_middle
     .ds 32*18   ; 18 lines
-screen_score = gamescreen_middle+6*32+14  
-screen_level = gamescreen_middle+9*32+13  
+screen_score = gamescreen_middle+9*32+14  
+screen_level = gamescreen_middle+1*32+12  
 ;---------------------------------------------------
 GameColors
-    .ds 32
+    .ds 64
 c_black = 0
 c_white = 1 ; (numbers and letters)
 c_sky = 2
@@ -198,12 +253,17 @@ c_font2 = 20    ; .. and logo
 c_font3 = 21
 c_font4 = 22
 c_font5 = 23
-c_logo1 = 24    ; rest of logo colors
-c_logo2 = 25
-c_logo3 = 26
-c_logo4 = 27
-c_logo5 = 28
-c_clouds = 29  ; clouds
+c_font1b = 24
+c_font2b = 25
+c_font5b = 26
+c_logo1 = 27    ; rest of logo colors
+c_logo2 = 28
+c_logo3 = 29
+c_logo4 = 30
+c_logo5 = 31
+c_clouds = 32  ; clouds
+c_shirtC = 33  ; timberman shirt on title screen
+c_over1 = 34   ; additional Game Over color
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -218,18 +278,29 @@ c_clouds = 29  ; clouds
 ; v9 - if the branch opposite the lumberjack and branch above on the other side - (now v7)
 ;--------------------------------------------------
 title_logo
-    icl 'art/title_logo.asm'    ;   8 lines, mode 4
-title_screen
-    icl 'art/title_screen.asm'  ;   13 lines, mode 5
-    .align $400
-over_screen
-    icl 'art/over_screen.asm'   ;   12 lines, mode 5
+    icl 'art/title_logo.asm'    ;   8 lines, mode 4 narrow
+title_timber
+    icl 'art/title_timber.asm'    ;   7 lines, mode 4 narrow (+ 4 lines - eyes animation, + 1 line - foot animation)
+eyes_0 = title_timber+32
+eyes_1 = title_timber+(32*7)
+eyes_2 = title_timber+(32*8)
+eyes_3 = title_timber+(32*9)
+eyes_4 = title_timber+(32*10)
+foot_0 = title_timber+(32*6)
+foot_1 = title_timber+(32*11)
+empty_line
+    :40 .by 0
+go_text
+    icl 'art/go.asm'   ;   4 lines, mode 5
 difficulty_normal_text
     icl 'art/difficulty_texts.asm'   ;   2 lines, mode 5
 difficulty_easy_text = difficulty_normal_text + 40
+    .align $400
+over_screen
+    icl 'art/over_screen.asm'   ;   13 lines, mode 5 narrow
 credits_texts
-    icl 'art/credits.asm'   ;   8 lines, mode 5
-number_of_credits = 4
+    icl 'art/credits.asm'   ;   10 lines, mode 5
+number_of_credits = 5
 credits_lines   ; 2 lines for credits animations
     :80 .by 0
     .by 0   ; for second line animation
@@ -246,26 +317,35 @@ credits_anim_counter    ; counter for credits animation/display
     vdli TitlesDLI1
     jmp DLI_OK
 no_titles
-    cmp #3
+    cmp #1
+    bne no_go
+    ; go screen dli (StateFlag = 1)
+    vdli GoDLI1
+    jmp DLI_OK
+no_go    
+    cmp #4
     beq no_geme_and_RIP
-    ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
+    ; game screen and RIP screen (StateFlag=2 or 3) - set DLI
     vdli IngameDLI1
     jmp DLI_OK
 no_geme_and_RIP    
-    ; game over screen (StateFlag=3) - set DLI
+    ; game over screen (StateFlag=4) - set DLI
     vdli GameOverDLI1
 
 DLI_OK
     lda StateFlag
     jeq titles_VBI
     cmp #1
-    beq game_VBI
+    beq go_VBI
     cmp #2
     beq game_VBI
     cmp #3
+    beq game_VBI
+    cmp #4
     jeq gameover_VBI
 game_VBI
-    ; game screen and RIP screen (StateFlag=1 or 2) - set DLI
+go_VBI
+    ; game screen and RIP screen (StateFlag=2 or 3) VBI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     ldx #$0c
@@ -281,7 +361,7 @@ game_VBI
     jmp common_VBI
 
 titles_VBI
-    ; title screen (StateFlag=0) - set DLI
+    ; title screen (StateFlag=0) VBI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     ldx #$0c
@@ -299,9 +379,11 @@ titles_VBI
     ;
     jsr CreditsAnimate
     ;
+    jsr TimberLogoAnimate
+    ;
     jmp common_VBI
 gameover_VBI
-    ; game over screen (StateFlag=3) - set DLI
+    ; game over screen (StateFlag=4) VBI
     ; over horizon
     ; PMG horizontal coordinates and sizes
     ldx #$0c
@@ -309,8 +391,8 @@ gameover_VBI
     sta HPOSP0,x
     dex
     bpl @-
-    ; fly clouds
-    jsr FlyClouds
+    ; no clouds
+    ;jsr FlyClouds
     ;
     ;jmp common_VBI
 
@@ -328,9 +410,14 @@ common_VBI
 is_PAL
 
     lda StateFlag
-    cmp #1
+    cmp #2
     bne wait_for_timer
     ; only during game
+    ; time up
+    bit TimeCount
+    bpl time_stopped
+    jsr LevelUp
+time_stopped
     ; power down
     dec PowerTimer
     bne wait_for_timer
@@ -559,6 +646,91 @@ no_next_credit
     rts
 .endp
 ;--------------------------------------------------
+.proc TimberLogoAnimate
+;--------------------------------------------------
+    lda RTCLOK+2
+    and #%00000011  ; for slower animation
+    jne no_timber_animation
+    inc AnimTimer
+    ; animations
+    ; check if animation in progress
+    ; eyes....
+    ldx EyesPhase
+    beq no_eyes ; eyes up (no animation)
+    cpx #5
+    beq no_eyes ; eyes down (no animation)
+    ; eyes animation in progress
+    ; next phase
+    inx
+    cpx #5  ; after last phase of eyes down animation
+    bne not_end_v1
+    ldx #0  ; set to mo animation phase
+    beq not_end_v2
+not_end_v1
+    cpx #10 ; after last phase of eyes up animation
+    bne not_end_v2
+    ldx #5  ; set to mo animation phase
+not_end_v2
+    stx EyesPhase
+    jsr MenuEyesSet
+    jmp no_eyes_animation
+no_eyes
+    ; no animation in progress let's make new
+    lda AnimTimer
+    cmp #30
+    bne no_eyes_animation
+    mva #0 AnimTimer    ; reset timer
+    lda RANDOM
+    and #%00000011
+    beq no_eyes_animation ; 00 - no animation
+    cmp #1
+    bne no_eyes_change ; up/down
+    ; eyes change (or not :) )
+    ldx #5  ; eyes up
+    lda RANDOM
+    and #%00000111
+    beq @+   ; eyes up (0)
+    ldx #0   ; eyes down (1-7)
+@   stx EyesPhase
+    jsr MenuEyesSet
+    jmp no_eyes_animation
+no_eyes_change
+    ; %10 and %11 - eyes animation
+    inc EyesPhase
+    ldx EyesPhase
+    jsr MenuEyesSet
+no_eyes_animation
+    ; Foot animation (or not)
+    ; check if animation in progress
+    ; foot....
+    ldx FootPhase
+    beq no_foot ; eyes up (no animation)
+    ; continue foot animation
+    inx
+    cpx #25   ; after last phase of foot animation (one frame = 4, one "step" = 2 frames = 8 .... +1 (ending frame) - 25 = 8(step)*3+1
+    bne not_end_f
+    ldx #0  ; set to mo animation phase
+not_end_f
+    stx FootPhase
+    jsr MenuFootSet
+    jmp no_timber_animation
+no_foot
+    ; no animation in progress let's make new
+    lda RTCLOK+2
+    and #%00000111  ; for slower animation
+    bne no_timber_animation
+    dec FootTimer
+    bne no_timber_animation
+    ; start foot animation
+    ldx #1
+    stx FootPhase
+    jsr MenuFootSet
+    randomize 15 35
+    sta FootTimer
+no_timber_animation    
+    rts
+.endp
+;--------------------------------------------------
 .proc NoDLI
 ;--------------------------------------------------
     rti
@@ -610,6 +782,7 @@ DLI4
     mva GameColors+c_logo1 COLPF2
     mva #$70 HPOSP0
     mva #$03 SIZEP0
+    sta WSYNC
     mva GameColors+c_font2 COLPM0
     :2 sta WSYNC
     mva GameColors+c_logo3 COLPF1
@@ -651,27 +824,109 @@ DLI7
     sta HPOSP3
     adc #8
     sta HPOSM3
-    ; font for titles
-    mva #>font_titles CHBASE
-    ; titles font colors
-    mva GameColors+c_font4 COLPF0
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    mva GameColors+c_font3 COLPF3
+    ; no cloud 3 !
+/*     lda #0
+    sta HPOSM2
+    sta HPOSP2
+    sta HPOSP3
+    sta HPOSM3     */
+    ; timberman initial colors
+    mva GameColors+c_black COLPF0
+    mva GameColors+c_shirtB COLPF1
+    mva GameColors+c_hat COLPF2
+    mva GameColors+c_white COLPF3
+    mva GameColors+c_hands COLPM0 ; face
+    mva GameColors+c_dark_brown COLPM1 ; beard
+    lda #0
+    sta SIZEP0
+    sta SIZEP1
+    mva #$7c HPOSP0 ; face
+    sta HPOSP1 ; beard
     mwa #TitlesDLI1.DLI8 VDSLST
     pla
     rti
 DLI8
     pha
+    ; timberman DLI1
+    ; end of hat color
+    mva GameColors+c_shirtA COLPF2
     :7 sta WSYNC
-    ; mva LowCharsetBase CHBASE
-    mva GameColors+c_horizonA COLBAK ; thin line
+    mva GameColors+c_shirtC COLPF2
+    mwa #TitlesDLI1.DLI9 VDSLST
+    pla
+    rti
+DLI9
+    pha
+    mva GameColors+c_buckle COLPM2 ; buckle and buttons color
+    ; color bars
+    :3 sta WSYNC
+    mva GameColors+c_shirtA COLPF2
+    mva #$6f HPOSP0 ; left side hand
+    lda #%00000011
+    sta SIZEM
+    mva #$8a HPOSM0 ; right side hand
+    :4 sta WSYNC
+    mva GameColors+c_shirtC COLPF2
+    mva GameColors+c_light_brown COLPM1 ; axe color
+    mwa #TitlesDLI1.DLI10 VDSLST
+    pla
+    rti
+DLI10
+    pha
+    ; font for titles and timberman
+    mva #$75 HPOSP1 ; axe
+    mva #>font_titles CHBASE
     sta WSYNC
-    mva GameColors+c_horizonB COLBAK ; additional lines
+    mva GameColors+c_horizonA COLBAK ; thin line (horizon)
+    mva #$7e HPOSP2 ; buttons and buckle
+    mva #$6a HPOSM1 ; axe
     sta WSYNC
+    mva GameColors+c_horizonB COLBAK ; additional lines (horizon)
+    mva #$03 SIZEP3
+    mva #$6a HPOSP3
+    mva GameColors+c_dark_brown COLPM3 ; axe color 2
+    ; color bars
     sta WSYNC
-    mva GameColors+c_grass COLBAK ; green
-    ; under horizon
+    mva GameColors+c_shirtA COLPF2
+    sta WSYNC
+    mva GameColors+c_grass COLBAK ; green (horizon)
+    :3 sta WSYNC
+    mva GameColors+c_shirtC COLPF2
+    mwa #TitlesDLI1.DLI11 VDSLST
+    pla
+    rti
+DLI11
+    pha
+    sta WSYNC
+    ; horizon
+    ;mva GameColors+c_horizonA COLBAK ; thin line (horizon)
+    sta WSYNC
+    ;mva GameColors+c_horizonB COLBAK ; additional lines (horizon)
+    sta WSYNC
+    ; color bars
+    mva GameColors+c_shirtA COLPF2
+    sta WSYNC
+    ;mva GameColors+c_grass COLBAK ; green (horizon)
+    ; color bars
+    :3 sta WSYNC
+    mva GameColors+c_shirtC COLPF2
+    mwa #TitlesDLI1.DLI12 VDSLST
+    pla
+    rti
+DLI12
+    pha
+    ; color bars
+    :2 sta WSYNC
+    mva GameColors+c_shirtA COLPF2 ; belt color
+    :3 sta WSYNC
+    mva GameColors+c_white COLPF1 ; axe end color
+    sta WSYNC
+    mva GameColors+c_pants COLPF2 ; pants color
+    mwa #TitlesDLI1.DLI13 VDSLST
+    pla
+    rti
+DLI13
+    pha
     ; PMG colors, horizontal coordinates and sizes
     txa
     pha
@@ -682,15 +937,35 @@ DLI8
     bpl @-
     pla
     tax
+    ; titles font colors
+    mva GameColors+c_over1 COLPF0
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    mva GameColors+c_font3 COLPF3
     inc SyncByte
-    mwa #TitlesDLI1.DLI9 VDSLST
+    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
+    sta dmactl
+    mwa #TitlesDLI1.DLI_L1 VDSLST
     pla
     rti
-DLI9
+DLI_L1
     pha
+    mva GameColors+c_over1 COLPF0
+    mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
-    :13 sta WSYNC
+    :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
+    mwa #TitlesDLI1.DLI_L2 VDSLST
+    pla
+    rti
+DLI_L2
+    pha
+    mva GameColors+c_over1 COLPF0
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #TitlesDLI1.DLI_L1 VDSLST ; tricky
     pla
     rti
 .endp
@@ -699,57 +974,82 @@ DLI9
 ; Clouds, color changes
 ;--------------------------------------------------
     pha
-    ; set cloud 2 horizontal position
-    lda clouds2Hpos
-    clc
-    sta HPOSM2
-    adc #4
-    sta HPOSP2
-    adc #8
-    sta HPOSP3
-    adc #8
-    sta HPOSM3
+    ; end of chain
+    :3 sta WSYNC
+    mva GameColors+c_font1b COLPF1
     mwa #GameOverDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
     pha
-    ; set cloud 3 horizontal position
-    lda clouds3Hpos
-    clc
-    sta HPOSM2
-    adc #4
-    sta HPOSP2
-    adc #8
-    sta HPOSP3
-    adc #8
-    sta HPOSM3
+    ; character set change
+    sta WSYNC
+    mva #>font_titles CHBASE
+    ; and font colors
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
     mwa #GameOverDLI1.DLI3 VDSLST
     pla
     rti
 DLI3
     pha
-    ; under horizon
-    ; PMG colors, horizontal coordinates and sizes
-    txa
-    pha
-    lda #0  ; hide PMG
-    ldx #$15
-@   sta HPOSP0,x
-    dex
-    bpl @-
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI4 VDSLST
     pla
-    tax
+    rti
+DLI4
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI5 VDSLST
+    pla
+    rti
+DLI5
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI6 VDSLST
+    pla
+    rti
+DLI6
+    pha
+    sta WSYNC
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
+    pha
+    ; character set change
+    sta WSYNC
+    mva #>font_over CHBASE
+    ; set cloud 3 horizontal position
     inc SyncByte
     pla
     rti
 .endp
 ;--------------------------------------------------
-.proc IngameDLI1
+.proc GoDLI1
 ; Clouds, birds, color changes
 ;--------------------------------------------------
     pha
     mva GameColors+c_white COLPF2 ; white (numbers and letters)
+    mwa #GoDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
     ; set cloud 2 horizontal position
     lda clouds2Hpos
     clc
@@ -760,10 +1060,10 @@ DLI3
     sta HPOSP3
     adc #8
     sta HPOSM3
-    mwa #IngameDLI1.DLI2 VDSLST
+    mwa #GoDLI1.DLI3 VDSLST
     pla
     rti
-DLI2
+DLI3
     pha
     ; set cloud 3 horizontal position
     lda clouds3Hpos
@@ -775,10 +1075,38 @@ DLI2
     sta HPOSP3
     adc #8
     sta HPOSM3
-    mwa #IngameDLI1.DLI3 VDSLST
+    mwa #GoDLI1.DLI4 VDSLST
     pla
     rti
-DLI3
+DLI4
+    pha
+    sta WSYNC
+    mva #>font_titles CHBASE
+    mva GameColors+c_over1 COLBAK
+    sta COLPF0
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2 
+    :2 sta WSYNC
+    mva GameColors+c_buckle COLBAK
+    :10 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GoDLI1.DLI5 VDSLST
+    pla
+    rti
+DLI5
+    pha
+    sta WSYNC
+    mva #>font_game_upper CHBASE
+    mva GameColors+c_over1 COLBAK
+    mva GameColors+c_black COLPF0
+    mva GameColors+c_dark_brown COLPF1
+    mva GameColors+c_white COLPF2   
+    :2 sta WSYNC
+    mva GameColors+c_sky COLBAK
+    mwa #GoDLI1.DLI6 VDSLST
+    pla
+    rti
+DLI6
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
@@ -801,34 +1129,143 @@ DLI3
     pla
     tax
     inc SyncByte
+    mwa #GoDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
+    pha
+    sta WSYNC
+    mva GameColors+c_hat COLPF2 ; hat
+    :4 STA WSYNC
+    mva GameColors+c_white COLPF2 ; white
+    mwa #GoDLI1.DLI8 VDSLST
+    pla
+    rti
+DLI8
+    pha
+    lda StateFlag
+    sta WSYNC
+    cmp #2
+    beq go_dli6
+    cmp #1  ; go
+    bne @+
+go_dli6
+    mva GameColors+c_buckle COLPF2 ; button and buckle
+@   mva #>font_game_upper CHBASE
+    mwa #GoDLI1.DLI9 VDSLST
+    pla
+    rti
+DLI9
+    pha
+    lda StateFlag
+    cmp #2
+    beq go_dli7
+    cmp #1  ; go
+    bne @+
+go_dli7
+    sta WSYNC
+    sta WSYNC
+    sta WSYNC
+    mva GameColors+c_pants COLPF2 ; blue pants
+@   pla
+    rti
+.endp
+;--------------------------------------------------
+.proc IngameDLI1
+; Clouds, birds, color changes
+;--------------------------------------------------
+    pha
+    mva GameColors+c_white COLPF2 ; white (numbers and letters)
+    mwa #IngameDLI1.DLI2 VDSLST
+    pla
+    rti
+DLI2
+    pha
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #IngameDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
+    pha
+    ; set cloud 3 horizontal position
+    lda clouds3Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
     mwa #IngameDLI1.DLI4 VDSLST
     pla
     rti
 DLI4
     pha
     sta WSYNC
-    mva GameColors+c_hat COLPF2 ; hat
-    :4 STA WSYNC
-    mva GameColors+c_white COLPF2 ; white
+    mva LowCharsetBase CHBASE
+    mva GameColors+c_horizonA COLBAK ; thin line
+    mva GameColors+c_light_brown COLPF3 ; light brown
+    sta WSYNC
+    mva GameColors+c_horizonB COLBAK ; additional lines
+    sta WSYNC
+    sta WSYNC
+    mva GameColors+c_grass COLBAK ; green
+    ; under horizon
+    ; PMG colors, horizontal coordinates and sizes
+    txa
+    pha
+    ldx #$15
+@   lda HPOSP0_d,x
+    sta HPOSP0,x
+    dex
+    bpl @-
+    pla
+    tax
+    inc SyncByte
     mwa #IngameDLI1.DLI5 VDSLST
     pla
     rti
 DLI5
     pha
-    lda StateFlag
     sta WSYNC
-    cmp #1  ; game
-    bne @+
-    mva GameColors+c_buckle COLPF2 ; button and buckle
-@   mva #>font_game_upper CHBASE
+    mva GameColors+c_hat COLPF2 ; hat
+    :4 STA WSYNC
+    mva GameColors+c_white COLPF2 ; white
     mwa #IngameDLI1.DLI6 VDSLST
     pla
     rti
 DLI6
     pha
     lda StateFlag
-    cmp #1  ; game
+    sta WSYNC
+    cmp #2
+    beq go_dli6
+    cmp #1  ; go
     bne @+
+go_dli6
+    mva GameColors+c_buckle COLPF2 ; button and buckle
+@   mva #>font_game_upper CHBASE
+    mwa #IngameDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
+    pha
+    lda StateFlag
+    cmp #2
+    beq go_dli7
+    cmp #1  ; go
+    bne @+
+go_dli7
     sta WSYNC
     sta WSYNC
     sta WSYNC
@@ -872,8 +1309,12 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
+    mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
     jsr MakeDarkScreen
+    jsr MenuAnimationsReset
+    jsr ClearPM
     jsr HidePM
+    jsr PrepareCloudsPM
     jsr PrepareTitlePM
     jsr CreditsClear
     mva #0 StateFlag
@@ -883,17 +1324,17 @@ gameOver
     mva GameColors+c_white2 COLOR0
     mva GameColors+c_logo3 COLOR1
     mva GameColors+c_font2 COLOR2
-    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
+    lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
 difficulty_display
     lda Difficulty
     bne level_easy
-    mwa #difficulty_normal_text difficulty_text_DL
+    mwa #difficulty_normal_text difficulty_text_addr
     mwa #PowerSpeedTableA SpeedTableAdr     ; difficulty level normal
     jmp wait_for_key
 level_easy
-    mwa #difficulty_easy_text difficulty_text_DL
+    mwa #difficulty_easy_text difficulty_text_addr
     mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level easy
 wait_for_key
     pause 1
@@ -916,7 +1357,7 @@ EndOfStartScreen
 .proc LevelScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
-
+    jsr ClearPM
     mva #>font_game_upper CHBAS
     mva #>font_game_lower_right LowCharsetBase
     mva GameColors+c_black PCOLR0 ; = $02C0 ;- - rejestr-cień COLPM0
@@ -936,34 +1377,38 @@ EndOfStartScreen
     mva #1 LumberjackDir    ; right side
     mwa #gamescreen_r_ph1p1 animation_addr
     mwa #last_line_r lastline_addr
+    mwa #(go_text-32) go_addr   ; empty line before GO! texts
 
     jsr PrepareLevelPM
     jsr PrepareBirdsPM
     jsr PrepareCloudsPM
-    mwa #dl_level dlptrs
+    mwa #dl_go dlptrs
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
     jsr SetPMr1
-    mva #1 StateFlag
-    pause 5
+    mva #1 StateFlag    ; GO! screen
+    jsr AnimateGoLine
+    mwa #dl_level dlptrs
+    mva #2 StateFlag    ; Game
     rts
 .endp
 ;--------------------------------------------------
 .proc GameOverScreen
 ;--------------------------------------------------
     jsr MakeDarkScreen
-    jsr PrepareTitlePM.clearP0_1
+    jsr ClearPM
     jsr HidePM
-    mva #3 StateFlag
-    mva #>font_titles CHBAS
+    jsr PrepareOverPM
+    mva #4 StateFlag
+    mva #>font_over CHBAS
     mwa #dl_over dlptrs
     mva GameColors+c_sky COLBAKS
-    mva GameColors+c_font4 COLOR0
-    mva GameColors+c_font1 COLOR1
-    mva GameColors+c_font2 COLOR2
+    mva GameColors+c_over1 COLOR0
+    mva GameColors+c_white2 COLOR1
+    mva GameColors+c_white2 COLOR2
     mva GameColors+c_font3 COLOR3
-    lda #@dmactl(standard|dma|missiles|players|lineX2)  ; normal screen width, DL on, P/M on (2lines)
+    lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
     pause 1
@@ -986,6 +1431,7 @@ EndOfOverScreen
 .proc PlayLevel
 ;--------------------------------------------------
     jsr PrepareLevelPM
+    mva #$ff TimeCount ; start time
 loop
     ; PUT GAME HERE
     lda branches_list+5
@@ -1006,7 +1452,7 @@ key_released_before
     bne NoNextLevel
     ; next level if joy UP
     sta LastKey
-    jsr LevelUp
+    ;jsr LevelUp
 NoNextLevel
 No_keys
     lda PowerValue
@@ -1083,6 +1529,7 @@ no_brancho_l
     jsr AnimationL1
     jmp go_loop
 LevelDeath
+    mva #0 TimeCount    ; stop time
     jsr SetRIPscreen
     RMTsong song_game_over
 @   
@@ -1102,7 +1549,7 @@ go_loop
 .proc SetRIPscreen
 ;--------------------------------------------------
     :5 WaitForSync
-    mva #2 StateFlag
+    mva #3 StateFlag
     mva #>font_game_rip LowCharsetBase
     jsr HidePM
     jsr PrepareRIPPM
@@ -1207,6 +1654,23 @@ no_branch_l
     rts
 .endp
 ;--------------------------------------------------
+.proc AnimateGoLine
+;--------------------------------------------------
+    ldy #4  ; 4 lines
+next_line
+    ; .... 3 , 2 , 1 , GO! ....
+    ldx #16     ; 32 characters
+@   inw go_addr 
+    inw go_addr
+    WaitForSync
+    dex
+    bne @-
+    pause 25
+    dey
+    bne next_line
+    rts
+.endp
+;--------------------------------------------------
 .proc initialize
 ;--------------------------------------------------
      
@@ -1221,15 +1685,7 @@ no_branch_l
     mva GameColors+c_light_brown COLOR3 ; light brown
     ;mva #$ff COLOR4
 
-    ;clear P/M memory
-    lda #0
-    tax
-@   sta PMmemory,x
-    sta PMmemory+$100,x
-    sta PMmemory+$200,x
-    sta PMmemory+$300,x
-    inx
-    bne @-
+    jsr ClearPM
     mva #>PMmemory PMBASE
     jsr HidePM
     mva #%00100100 GPRIOR
@@ -1250,11 +1706,12 @@ no_branch_l
     jsr draw_PowerBar
     mva #1 LumberjackDir    ; right side
     mva #0 Difficulty       ; level normal
+    mva #0 TimeCount    ; time stopped
     
-    jsr PrepareLevelPM
-    jsr PrepareBirdsPM
-    jsr PrepareCloudsPM
-    jsr SetPMr1
+    ;jsr PrepareLevelPM
+    ;jsr PrepareBirdsPM
+    ;jsr PrepareCloudsPM
+    ;jsr SetPMr1
     mwa #gamescreen_r_ph1p1 animation_addr
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
@@ -1268,6 +1725,22 @@ no_branch_l
     vmain vint,7
     
     mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level
+    rts
+.endp
+
+;--------------------------------------------------
+.proc ClearPM
+; clear P/M memory
+;--------------------------------------------------
+    ;clear P/M memory
+    lda #0
+    tax
+@   sta PMmemory,x
+    sta PMmemory+$100,x
+    sta PMmemory+$200,x
+    sta PMmemory+$300,x
+    inx
+    bne @-
     rts
 .endp
 ;--------------------------------------------------
@@ -1559,7 +2032,7 @@ make_cloud2
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
-    ldx #(84-36)
+    ldx #(60-36) ; ldx #(84-36)
     lda #0
 @   sta PMmemory+$300+36,x
     sta PMmemory+$380+36,x
@@ -1746,6 +2219,7 @@ datalines_clouds=12
     ; logo PM and other title screen PN (without clouds)
     jsr clearP0_1
     jsr logoPM
+    jsr timlogoPM
     mva #1 SIZEP0_u
     sta SIZEP1_u
     mva GameColors+c_logo4 PCOLR0
@@ -1778,6 +2252,18 @@ logoPM
     dex
     bpl @-
     rts
+timlogoPM
+    ldx #datalines_tlogo-1
+@   lda tlogo_data_m,x
+    sta PMmemory+$180+Hoffset_tlogo,x
+    lda tlogo_data_p3,x
+    sta PMmemory+$380+Hoffset_tlogo,x
+    lda tlogo_data_p2,x
+    sta PMmemory+$300+Hoffset_tlogo,x
+    dey
+    dex
+    bpl @-
+    rts
 ; logo data
 logo_data_a
     dta %11111111
@@ -1804,6 +2290,25 @@ logo_data_a
     dta %00000000
     dta %00000000
     dta %00000000
+    :17 .by 0   ; 40 lines
+    dta %00011000
+    dta %11111111
+    dta %11111111
+    dta %00011000
+    dta %00111100
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %11111000
+    dta %11111000
+    dta %11111000
+    dta %11111000
+    dta %11111000
+    dta %00000000
 logo_data_b
     dta %11111111
     dta %11111111
@@ -1829,8 +2334,96 @@ logo_data_b
     dta %11111111
     dta %11111111
     dta %11111111
+    :17 .by 0   ; 40 lines
+    dta %11100111
+    dta %00000000
+    dta %00000000
+    dta %11100111
+    dta %11000011
+    dta %11111111
+    dta %11111111
+    dta %11111111
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %10100111
+    dta %10100111
+    dta %00000111
+    dta %00000111
+    dta %00000111
 Hoffset_logo=12
-datalines_logo=23
+datalines_logo=58
+tlogo_data_m    ; axe
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000011
+    dta %00000111
+    dta %00001111
+    dta %00001011
+    dta %00001011
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+tlogo_data_p3   ; axe
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %00000000
+    dta %10111000
+    dta %10111000
+    dta %10111000
+    dta %00011000
+    dta %00011000
+    dta %00011000
+    dta %00011000
+    dta %00000000
+tlogo_data_p2   ; buttons and buckle
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+    dta %11110000
+Hoffset_tlogo=61
+datalines_tlogo=11
+.endp
+;--------------------------------------------------
+.proc PrepareOverPM
+;--------------------------------------------------
+    ; Players 1,2,3 filled fram ... to ...
+    jsr ClearPM
+    ldx #High_over-1
+    lda #$ff    ; fill
+@   sta PMmemory+$280+Hoffset_over,x
+    sta PMmemory+$300+Hoffset_over,x
+    sta PMmemory+$380+Hoffset_over,x
+    dex
+    bpl @-
+    mva #11 SIZEP1_u
+    sta SIZEP2_u
+    sta SIZEP3_u
+    mva GameColors+c_buckle PCOLR1    ; same color like buckle
+    sta PCOLR2
+    sta PCOLR3
+    lda #$50
+    sta HPOSP1_u
+    lda #$70
+    sta HPOSP2_u
+    lda #$90
+    sta HPOSP3_u
+Hoffset_over = 30
+High_over=77
+    rts
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
@@ -1906,7 +2499,7 @@ datalines_logo=23
     sta HPOSM3_d
     mva #$e0 HPOSP0_d ; hide
     mva #$a4 HPOSM0_d
-    mva #$a4 HPOSM1_d
+    mva #$a2 HPOSM1_d
     mva #$97 HPOSP1_d
     rts
 .endp
@@ -1932,8 +2525,54 @@ branches_anim_phase ; from 0 to 4
 score
     dta d"0000"
 level
-    dta $1a, $1b, $1c, $1b, $1a, $A4
-    dta d"1"
+    dta d"00", $1a, d"00", $1a, d"00"
+EyesPhase
+    .ds 1
+FootPhase
+    .ds 1
+AnimTimer
+    .ds 1
+FootTimer
+    .ds 1
+TimeCount
+    .ds 1   ; 00 - time stopped , $ff - time count
+;--------------------------------------------------
+.proc MenuAnimationsReset
+;--------------------------------------------------
+; set eyes and foot to phase 0
+    mwa #eyes_0 timber_eyes_addr
+    mwa #foot_0 timber_foot_addr
+    ; reset timers and counters
+    lda #0
+    sta AnimTimer
+    sta EyesPhase
+    sta FootPhase
+    rts
+.endp
+;--------------------------------------------------
+.proc MenuEyesSet
+;--------------------------------------------------
+; set eyes to phase in X register
+    lda title_anime_tableL,x
+    sta timber_eyes_addr
+    lda title_anime_tableH,x
+    sta timber_eyes_addr+1
+    rts
+.endp
+;--------------------------------------------------
+.proc MenuFootSet
+;--------------------------------------------------
+; set eyes to phase in X register
+    txa
+    :2 lsr ; 4 times lower animation speed
+    and #%00000001
+    tax
+    lda title_animf_tableL,x
+    sta timber_foot_addr
+    lda title_animf_tableH,x
+    sta timber_foot_addr+1
+    rts
+.endp
 ;--------------------------------------------------
 .proc ScoreUp
 ;--------------------------------------------------
@@ -1954,7 +2593,6 @@ no_speed_power
     lda #"0"    ; 0 character code
     sta score+2
     jsr PowerSpeedUP     ; every 50pts.
-    jsr LevelUp ; every 100pts.
     inc score+1
     lda score+1
     cmp #"9"+1  ; 9+1 character code
@@ -1978,21 +2616,16 @@ ScoreReady
 ;--------------------------------------------------
 .proc ScoreToScreen
 ;--------------------------------------------------
-    ldx #3
-@   lda score,x
-    sta screen_score,x
-    dex
-    bpl @-
+    mva score screen_score
+    mva score+1 screen_score+1
+    mva score+2 screen_score+2
+    mva score+3 screen_score+3
     rts
 .endp
 ;--------------------------------------------------
 .proc LevelToScreen
 ;--------------------------------------------------
-    lda LevelValue
-    clc
-    adc #"0"
-    sta screen_level+6
-    ldx #5
+    ldx #7
 @   lda level,x
     sta screen_level,x
     dex
@@ -2003,9 +2636,15 @@ ScoreReady
 .proc LevelReset
 ;--------------------------------------------------
 ; set level to 1 and PowerDownSpeed to ??
-    mvy #1 LevelValue
-    dey
-    sty PowerSpeedIndex
+    lda #"0"
+    sta level
+    sta level+1
+    sta level+3
+    sta level+4
+    sta level+6
+    sta level+7
+
+    mvy #0 PowerSpeedIndex
     lda (SpeedTableAdr),y
     sta PowerDownSpeed
     jsr LevelToScreen
@@ -2014,12 +2653,55 @@ ScoreReady
 ;--------------------------------------------------
 .proc LevelUp
 ;--------------------------------------------------
-    inc LevelValue
-    lda LevelValue
-    cmp #10
-    bne not_max_lev
-    mva #9 LevelValue
-not_max_lev
+    lda #"0"    ; for speed
+    ldx level+7
+    inx
+    inx
+    cpx #"9"+1
+    bcs next_digit6
+    stx level+7
+    bne to_screen
+next_digit6
+    tax ; "0"
+    stx level+7
+    ldx level+6
+    inx
+    cpx #"9"+1
+    bcs next_digit4
+    stx level+6
+    bne to_screen
+next_digit4
+    tax ; "0"
+    stx level+6
+    ldx level+4
+    inx
+    cpx #"9"+1
+    bcs next_digit3
+    stx level+4
+    bne to_screen
+next_digit3
+    tax ; "0"
+    stx level+4
+    ldx level+3
+    inx
+    cpx #"6"
+    bcs next_digit1
+    stx level+3
+    bne to_screen
+next_digit1
+    tax ; "0"
+    stx level+3
+    ldx level+1
+    inx
+    cpx #"9"+1
+    bcs next_digit0
+    stx level+1
+    bne to_screen
+next_digit0
+    tax ; "0"
+    stx level+1
+    inc level
+to_screen    
     jsr LevelToScreen
     rts
 .endp
@@ -2147,6 +2829,7 @@ draw_branch1
     iny
     cpy #(5*32) ;5 lines
     bne @-
+    jsr LevelToScreen
 draw_branch2
     lda branches_anim_phase
     ; now calculate start screen address
@@ -2169,7 +2852,6 @@ draw_branch2
     cpy #(5*32) ;5 lines
     bne @-
     jsr ScoreToScreen
-    jsr LevelToScreen
 draw_branch3
     lda branches_anim_phase
     ldx #(5*32)     ; how many lines draw
@@ -2437,14 +3119,14 @@ KeyReleased
     and #%00001110
     beq is_PAL
 is_NTSC
-    ldx #31
+    ldx #63
 @   lda NTSC_colors,x
     sta GameColors,x
     dex
     bpl @-
     rts
 is_PAL
-    ldx #31
+    ldx #63
 @   lda PAL_colors,x
     sta GameColors,x
     dex
@@ -2497,7 +3179,11 @@ PAL_colors
     .by $ee
     .by $de
     .by $12
+    .by $2a
+    ; second set
+    .by $18
     .by $1a
+    .by $16
     ; rest of logo colors
     .by $04
     .by $12
@@ -2506,6 +3192,10 @@ PAL_colors
     .by $e8
     ; clouds on title screen
     .by $7e
+    ; timber shirt color on title screen
+    .by $26
+    ; game over colors
+    .by $10
 NTSC_colors
     ; black
     .by $00
@@ -2550,7 +3240,11 @@ NTSC_colors
     .by $fe
     .by $ee
     .by $22
+    .by $3a
+    ; second set
+    .by $28
     .by $2a
+    .by $26
     ; rest of logo colors
     .by $04
     .by $22
@@ -2559,8 +3253,42 @@ NTSC_colors
     .by $f8
     ; clouds on title screen
     .by $8e
+    ; timber shirt color on title screen
+    .by $36
+    ; game over colors
+    .by $20
 ;--------------------------------------------------
-
+title_anime_tableL
+    .by <eyes_0 ; first eyes animation
+    .by <eyes_1
+    .by <eyes_2
+    .by <eyes_1
+    .by <eyes_0
+    .by <eyes_3 ; second eyes animation
+    .by <eyes_4
+    .by <eyes_2
+    .by <eyes_4
+    .by <eyes_3
+title_anime_tableH
+    .by >eyes_0 ; first eyes animation
+    .by >eyes_1
+    .by >eyes_2
+    .by >eyes_1
+    .by >eyes_0
+    .by >eyes_3 ; second eyes animation
+    .by >eyes_4
+    .by >eyes_2
+    .by >eyes_4
+    .by >eyes_3
+title_animf_tableL
+    .by <foot_0 ; foot animation
+    .by <foot_1
+    .by <foot_0
+title_animf_tableH
+    .by >foot_0 ; foot animation
+    .by >foot_1
+    .by >foot_0
+;--------------------------------------------------
 initial_branches_list
     .by 1,0,2,0,0,0 ; 
 
@@ -2585,6 +3313,124 @@ PowerSpeedTableB
 PowerChar0 = $07    ; power bar first (0) character 
 PowerCharFull = $0b
 PowerCharEmpty = PowerChar0    
+;--------------------------------
+; characters tables for GAme Over screen
+    ;ascii codes
+    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+char_byte1
+    .by $00 ; space
+    .by $20 ; A
+    .by $22 ; B
+    .by $24 ; C
+    .by $26 ; D
+    .by $28 ; E
+    .by $2a ; F
+    .by $2c ; G
+    .by $2e ; H
+    .by $30 ; I
+    .by $32 ; J
+    .by $34 ; K
+    .by $36 ; L
+    .by $38 ; M
+    .by $3a ; N
+    .by $3c ; O
+    .by $3e ; P
+    .by $40 ; Q
+    .by $42 ; R
+    .by $44 ; S
+    .by $46 ; T
+    .by $48 ; U
+    .by $4a ; V
+    .by $4c ; W
+    .by $4e ; X
+    .by $50 ; Y
+    .by $52 ; Z
+    .by $0c ; 0
+    .by $0e ; 1
+    .by $10 ; 2
+    .by $12 ; 3
+    .by $14 ; 4
+    .by $16 ; 5
+    .by $18 ; 6
+    .by $1a ; 7
+    .by $1c ; 8
+    .by $1e ; 9    
+char_byte2
+    .by $00 ; space
+    .by $21 ; A
+    .by $23 ; B
+    .by $25 ; C
+    .by $27 ; D
+    .by $29 ; E
+    .by $2b ; F
+    .by $2d ; G
+    .by $2f ; H
+    .by $31 ; I
+    .by $33 ; J
+    .by $35 ; K
+    .by $37 ; L
+    .by $39 ; M
+    .by $3b ; N
+    .by $3d ; O
+    .by $3f ; P
+    .by $41 ; Q
+    .by $43 ; R
+    .by $45 ; S
+    .by $47 ; T
+    .by $49 ; U
+    .by $4b ; V
+    .by $4d ; W
+    .by $4f ; X
+    .by $51 ; Y
+    .by $53 ; Z
+    .by $0d ; 0
+    .by $0f ; 1
+    .by $11 ; 2
+    .by $13 ; 3
+    .by $15 ; 4
+    .by $17 ; 5
+    .by $19 ; 6
+    .by $1b ; 7
+    .by $1d ; 8
+    .by $1f ; 9    
+char_byte3
+    .by $00 ; space
+    .by $31 ; A
+    .by $31 ; B
+    .by $31 ; C
+    .by $31 ; D
+    .by $31 ; E
+    .by $31 ; F
+    .by $31 ; G
+    .by $31 ; H
+    .by $ff ; I
+    .by $31 ; J
+    .by $31 ; K
+    .by $58 ; L
+    .by $31 ; M
+    .by $31 ; N
+    .by $31 ; O
+    .by $31 ; P
+    .by $31 ; Q
+    .by $31 ; R
+    .by $31 ; S
+    .by $31 ; T
+    .by $31 ; U
+    .by $31 ; V
+    .by $31 ; W
+    .by $31 ; X
+    .by $31 ; Y
+    .by $31 ; Z
+    .by $31 ; 0
+    .by $31 ; 1
+    .by $31 ; 2
+    .by $31 ; 3
+    .by $31 ; 4
+    .by $31 ; 5
+    .by $31 ; 6
+    .by $31 ; 7
+    .by $31 ; 8
+    .by $31 ; 9    
 ;--------------------------------
 joyToKeyTable
     .by $ff             ;00
