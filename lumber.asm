@@ -171,12 +171,14 @@ dl_go
     .by $84     ; DLI3 - last clouds
     :4 .by $04
     .by $84     ; DLI4 - GO line
-    .by $45+$80    ; DLI5 - and GO line
+    .by $30
+    .by $45
 go_addr
     .wo go_text-32 ; empty line before
+    .by $30+$80; DLI5 - and GO line
     .by $44
-    .wo gamescreen_middle+32*12
-    :3 .by $04
+    .wo gamescreen_middle+32*13
+    :2 .by $04
     .by $84 ; DLI6
     .by $44
 ;animation_addr
