@@ -1649,29 +1649,33 @@ no_branch_l
 .proc AnimateGoLine
 ;--------------------------------------------------
     ; .... 3 ....
-    ldy #31
+    ldy #15
 @   inw go_addr
+    inw go_addr
     WaitForSync
     dey
     bpl @-
     pause 25
     ; .... 2 ....
-    ldy #31
+    ldy #15
 @   inw go_addr
+    inw go_addr
     WaitForSync
     dey
     bpl @-
     pause 25
     ; .... 1 ....
-    ldy #31
+    ldy #15
 @   inw go_addr
+    inw go_addr
     WaitForSync
     dey
     bpl @-
     pause 25
     ; .... go! ....
-    ldy #31
+    ldy #15
 @   inw go_addr
+    inw go_addr
     WaitForSync
     dey
     bpl @-
@@ -3321,6 +3325,124 @@ PowerSpeedTableB
 PowerChar0 = $07    ; power bar first (0) character 
 PowerCharFull = $0b
 PowerCharEmpty = PowerChar0    
+;--------------------------------
+; characters tables for GAme Over screen
+    ;ascii codes
+    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+char_byte1
+    .by $00 ; space
+    .by $20 ; A
+    .by $22 ; B
+    .by $24 ; C
+    .by $26 ; D
+    .by $28 ; E
+    .by $2a ; F
+    .by $2c ; G
+    .by $2e ; H
+    .by $30 ; I
+    .by $32 ; J
+    .by $34 ; K
+    .by $36 ; L
+    .by $38 ; M
+    .by $3a ; N
+    .by $3c ; O
+    .by $3e ; P
+    .by $40 ; Q
+    .by $42 ; R
+    .by $44 ; S
+    .by $46 ; T
+    .by $48 ; U
+    .by $4a ; V
+    .by $4c ; W
+    .by $4e ; X
+    .by $50 ; Y
+    .by $52 ; Z
+    .by $0c ; 0
+    .by $0e ; 1
+    .by $10 ; 2
+    .by $12 ; 3
+    .by $14 ; 4
+    .by $16 ; 5
+    .by $18 ; 6
+    .by $1a ; 7
+    .by $1c ; 8
+    .by $1e ; 9    
+char_byte2
+    .by $00 ; space
+    .by $21 ; A
+    .by $23 ; B
+    .by $25 ; C
+    .by $27 ; D
+    .by $29 ; E
+    .by $2b ; F
+    .by $2d ; G
+    .by $2f ; H
+    .by $31 ; I
+    .by $33 ; J
+    .by $35 ; K
+    .by $37 ; L
+    .by $39 ; M
+    .by $3b ; N
+    .by $3d ; O
+    .by $3f ; P
+    .by $41 ; Q
+    .by $43 ; R
+    .by $45 ; S
+    .by $47 ; T
+    .by $49 ; U
+    .by $4b ; V
+    .by $4d ; W
+    .by $4f ; X
+    .by $51 ; Y
+    .by $53 ; Z
+    .by $0d ; 0
+    .by $0f ; 1
+    .by $11 ; 2
+    .by $13 ; 3
+    .by $15 ; 4
+    .by $17 ; 5
+    .by $19 ; 6
+    .by $1b ; 7
+    .by $1d ; 8
+    .by $1f ; 9    
+char_byte3
+    .by $00 ; space
+    .by $31 ; A
+    .by $31 ; B
+    .by $31 ; C
+    .by $31 ; D
+    .by $31 ; E
+    .by $31 ; F
+    .by $31 ; G
+    .by $31 ; H
+    .by $ff ; I
+    .by $31 ; J
+    .by $31 ; K
+    .by $58 ; L
+    .by $31 ; M
+    .by $31 ; N
+    .by $31 ; O
+    .by $31 ; P
+    .by $31 ; Q
+    .by $31 ; R
+    .by $31 ; S
+    .by $31 ; T
+    .by $31 ; U
+    .by $31 ; V
+    .by $31 ; W
+    .by $31 ; X
+    .by $31 ; Y
+    .by $31 ; Z
+    .by $31 ; 0
+    .by $31 ; 1
+    .by $31 ; 2
+    .by $31 ; 3
+    .by $31 ; 4
+    .by $31 ; 5
+    .by $31 ; 6
+    .by $31 ; 7
+    .by $31 ; 8
+    .by $31 ; 9    
 ;--------------------------------
 joyToKeyTable
     .by $ff             ;00
