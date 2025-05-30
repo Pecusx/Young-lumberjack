@@ -314,6 +314,7 @@ credits_anim_counter    ; counter for credits animation/display
 .proc vint
 ;--------------------------------------------------
     lda StateFlag
+    jmi common_VBI
     bne no_titles
     ; titles (StateFlag=0) - set DLI
     vdli TitlesDLI1
@@ -1313,6 +1314,7 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
+    mva #$ff StateFlag
     mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
     jsr MakeDarkScreen
     jsr MenuAnimationsReset
@@ -1360,6 +1362,7 @@ EndOfStartScreen
 ;--------------------------------------------------
 .proc LevelScreen
 ;--------------------------------------------------
+    mva #$ff StateFlag
     jsr MakeDarkScreen
     jsr ClearPM
     mva #>font_game_upper CHBAS
@@ -1401,6 +1404,7 @@ EndOfStartScreen
 ;--------------------------------------------------
 .proc GameOverScreen
 ;--------------------------------------------------
+    mva #$ff StateFlag
     jsr MakeDarkScreen
     jsr ClearPM
     jsr HidePM
@@ -1785,6 +1789,7 @@ next_line
     mva #1 LumberjackDir    ; right side
     mva #0 Difficulty       ; level normal
     mva #0 TimeCount    ; time stopped
+    mva #$ff StateFlag
     
     ;jsr PrepareLevelPM
     ;jsr PrepareBirdsPM
