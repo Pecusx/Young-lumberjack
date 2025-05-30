@@ -1803,6 +1803,9 @@ next_line
     mwa #dl_level dlptrs
     ;vdli IngameDLI1
     mva #$ff RMT_blocked
+
+    lda #$f0                   ; initial value
+    sta RMTSFXVOLUME           ; sfx note volume * 16 (0,16,32,...,240)
                     
     ;VBI
     mva #0 NTSCCounter
