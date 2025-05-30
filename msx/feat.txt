@@ -1,5 +1,5 @@
 ;* --------BEGIN--------
-;* Z:\GitHub\Young-lumberjack\msx\tbm1_str.rmt
+;* Z:\GitHub\Young-lumberjack\msx\tbm2_str.rmt
 FEAT_SFX		equ 1
 FEAT_GLOBALVOLUMEFADE	equ 0		;RMTGLOBALVOLUMEFADE variable
 FEAT_NOSTARTINGSONGLINE	equ 0

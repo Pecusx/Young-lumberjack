@@ -431,10 +431,10 @@ wait_for_timer
     ; ------- RMT -------
     lda sfx_effect
     bmi lab2
-    asl @                       ; * 2
+    asl                         ; * 2
     tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
-    ldx #0                     ;X = 0          channel (0..3 or 0..7 for stereo module)
-    lda #0                      ;A = 0          note (0..60)
+    ldx #3                    ;X = 0          channel (0..3 or 0..7 for stereo module)
+    lda #00                     ;A = 0          note (0..60)
     jsr RASTERMUSICTRACKER+15   ;RMT_SFX start tone (It works only if FEAT_SFX is enabled !!!)
     lda #$ff
     sta sfx_effect              ;reinit value
@@ -1283,11 +1283,12 @@ main
 GameStart
     RMTsong song_main_menu
     jsr StartScreen
-    RMTSong song_ingame
     jsr ScoreClear
 gameloop
     jsr MakeDarkScreen
     jsr LevelScreen
+    RMTSong song_ingame
+    ;RMTSong song_empty
     jsr PlayLevel
     ;jsr NextLevel
     ; RMTSong song_ingame
@@ -1304,6 +1305,7 @@ gameOver
     ;game over
     ;RMTSong song_game_over 
     ;jsr HiScoreCheckWrite
+    RMTsong song_records
     jsr GameOverScreen
     jmp GameStart
 ;--------------------------------------------------
@@ -1388,6 +1390,7 @@ EndOfStartScreen
     mva #%00000011 GRACTL
     jsr SetPMr1
     mva #1 StateFlag    ; GO! screen
+    RMTsong song_go
     jsr AnimateGoLine
     mwa #dl_level dlptrs
     mva #2 StateFlag    ; Game
@@ -3496,7 +3499,7 @@ track_endvariables
 MODUL
                ; RMT module is standard Atari binary file already
                ; include music RMT module:
-      ins "msx/tbm1_str.rmt",+6
+      ins "msx/tbm2_str.rmt",+6
 MODULEND
 
 ;-----------------------------------
@@ -3507,8 +3510,11 @@ sfx_ciach = $03
 ; RMT songs (lines)
 ;--------------------------------
 song_main_menu  = $00
-song_ingame     = $07
+song_ingame     = $08
 song_game_over  = $05
+song_go         = $0d
+song_records    = $10
+song_empty      = $0e
 
 
     RUN main
