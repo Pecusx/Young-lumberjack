@@ -437,7 +437,7 @@ wait_for_timer
     asl                         ; * 2
     tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
     ldx #3                    ;X = 0          channel (0..3 or 0..7 for stereo module)
-    lda #00                     ;A = 0          note (0..60)
+    lda #0                     ;A = 0          note (0..60)
     jsr RASTERMUSICTRACKER+15   ;RMT_SFX start tone (It works only if FEAT_SFX is enabled !!!)
     lda #$ff
     sta sfx_effect              ;reinit value
