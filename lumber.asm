@@ -1296,6 +1296,7 @@ gameloop
     ;jsr NextLevel
     ; RMTSong song_ingame
     jsr AudioInit   ; after I/O
+    jsr ScoreToTable
     jmp gameOver
 EndOfLife
     ;dec Lives   ; decrease Lives
@@ -2705,6 +2706,53 @@ ScoreReady
     mva score+1 screen_score+1
     mva score+2 screen_score+2
     mva score+3 screen_score+3
+    rts
+.endp
+;--------------------------------------------------
+.proc ScoreToTable
+;--------------------------------------------------
+    ; points
+    lda score
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+6
+    lda score+1
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+7
+    lda score+2
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+8
+    lda score+3
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+9
+    ; time
+    lda level
+    sec
+    sbc #("0"-'0')
+    sta hs_posX
+    lda level+1
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+1
+    lda level+3
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+2
+    lda level+4
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+3
+    lda level+6
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+4
+    lda level+7
+    sec
+    sbc #("0"-'0')
+    sta hs_posX+5   
     rts
 .endp
 ;--------------------------------------------------
