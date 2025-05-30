@@ -41,7 +41,6 @@ display = $a000
     .zpvar displayposition .word
     .zpvar LastKey  .byte   ; $ff if no key pressed or last key released
     .zpvar RMT_blocked sfx_effect .byte
-    .zpvar AutoPlay .byte   ; Auto Play flag ($80 - auto)
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen (from $13 to $de)
     .zpvar birdsOffset  .byte
     .zpvar birds_order  .byte   ; $00 - standard , $80 - reverse
@@ -84,8 +83,9 @@ display = $a000
     .zpvar COLPM2_d   .byte
     .zpvar COLPM3_d   .byte
 
-RMT_zpvars = AutoPlay+1  ; POZOR!!! RMT vars go here
+RMT_zpvars = COLPM3_d+1  ; POZOR!!! RMT vars go here
 ;---------------------------------------------------
+
     org $2000
     .align $400
 PMmemory
@@ -431,7 +431,7 @@ wait_for_timer
     ; ------- RMT -------
     lda sfx_effect
     bmi lab2
-    asl                         ; * 2
+    asl @                        ; * 2
     tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
     ldx #3                    ;X = 0          channel (0..3 or 0..7 for stereo module)
     lda #00                     ;A = 0          note (0..60)
@@ -1305,7 +1305,7 @@ gameOver
     ;game over
     ;RMTSong song_game_over 
     ;jsr HiScoreCheckWrite
-    RMTsong song_records
+    RMTsong song_scores
     jsr GameOverScreen
     jmp GameStart
 ;--------------------------------------------------
@@ -3319,7 +3319,7 @@ PowerCharEmpty = PowerChar0
 ;--------------------------------
 ; characters tables for GAme Over screen
     ;ascii codes
-    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl"
 char_byte1
     .by $00 ; space
     .by $20 ; A
@@ -3358,6 +3358,8 @@ char_byte1
     .by $1a ; 7
     .by $1c ; 8
     .by $1e ; 9    
+    .by $54 ; S`    
+    .by $56 ; L/   
 char_byte2
     .by $00 ; space
     .by $21 ; A
@@ -3396,6 +3398,8 @@ char_byte2
     .by $1b ; 7
     .by $1d ; 8
     .by $1f ; 9    
+    .by $55 ; S`    
+    .by $57 ; L/   
 char_byte3
     .by $00 ; space
     .by $31 ; A
@@ -3434,6 +3438,8 @@ char_byte3
     .by $31 ; 7
     .by $31 ; 8
     .by $31 ; 9    
+    .by $31 ; S`    
+    .by $58 ; L/   
 ;--------------------------------
 joyToKeyTable
     .by $ff             ;00
@@ -3453,6 +3459,21 @@ joyToKeyTable
     .by @kbcode._up     ;0e
     .by $ff             ;0f
 
+;-------------------------------------------------
+high_scores
+    ;   "0123456789012345"  - 16bytes
+hs_pos1
+    .by "0000000180 PECUs"  
+hs_pos2
+    .by "0000000150 PIRX "
+hs_pos3
+    .by "0000000120 ADAM "
+hs_pos4
+    .by "0000000090 ALEX "
+hs_pos5
+    .by "0000000060 TDC  "
+hs_posX
+    .by "0000000000      "  ;reserved
 ;-------------------------------------------------
 ;RMT PLAYER variables
 track_variables
@@ -3513,7 +3534,7 @@ song_main_menu  = $00
 song_ingame     = $08
 song_game_over  = $05
 song_go         = $0d
-song_records    = $10
+song_scores    = $10
 song_empty      = $0e
 
 
