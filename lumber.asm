@@ -3458,20 +3458,20 @@ char_byte1
     .by $22 ; B
     .by $24 ; C
     .by $26 ; D
-    .by $28 ; E
-    .by $2a ; F
-    .by $2c ; G
-    .by $2e ; H
+    .by $26 ; E
+    .by $26 ; F
+    .by $24 ; G
+    .by $26 ; H
     .by $30 ; I
     .by $32 ; J
-    .by $34 ; K
+    .by $26 ; K
     .by $36 ; L
     .by $38 ; M
     .by $3a ; N
-    .by $3c ; O
-    .by $3e ; P
-    .by $40 ; Q
-    .by $42 ; R
+    .by $24 ; O
+    .by $26 ; P
+    .by $24 ; Q
+    .by $26 ; R
     .by $44 ; S
     .by $46 ; T
     .by $48 ; U
@@ -3486,16 +3486,16 @@ char_byte1
     .by $12 ; 3
     .by $14 ; 4
     .by $16 ; 5
-    .by $18 ; 6
+    .by $0c ; 6
     .by $1a ; 7
     .by $1c ; 8
     .by $1e ; 9    
     .by $54 ; S`    
-    .by $56 ; L/   
+    .by $36 ; L/   
 char_byte2
     .by $00 ; space
     .by $21 ; A
-    .by $23 ; B
+    .by $13 ; B
     .by $25 ; C
     .by $27 ; D
     .by $29 ; E
@@ -3526,9 +3526,9 @@ char_byte2
     .by $13 ; 3
     .by $15 ; 4
     .by $17 ; 5
-    .by $19 ; 6
+    .by $17 ; 6
     .by $1b ; 7
-    .by $1d ; 8
+    .by $13 ; 8
     .by $1f ; 9    
     .by $55 ; S`    
     .by $57 ; L/   

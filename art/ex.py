@@ -27,7 +27,7 @@ write_asm(
     out='over_screen.asm',
     page=5,
     line_from=0,
-    line_to=12,
+    line_to=13,
     skip_left=0,
     skip_right=8)
 
@@ -60,9 +60,9 @@ write_asm(
 
 write_asm(
     atrview="title_fonts.atrview",
-    out='credits.asm',
-    page='Credits',
+    out='go.asm',
+    page='GO',
     line_from=0,
-    line_to=0+10,
+    line_to=0+4,
     skip_left=0,
-    skip_right=0)
+    skip_right=8)
