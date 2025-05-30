@@ -26,6 +26,7 @@ display = $a000
     .zpvar temp2 .word
     .zpvar VBItemp .word
     .zpvar tempbyte .byte
+    .zpvar tempbyte2 .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
     .zpvar StateFlag .byte    ; 0 - menu, 1 = GO!, 2 - game screen, 3 RIP screen, 4 - game over screen, etc.
@@ -298,6 +299,7 @@ difficulty_easy_text = difficulty_normal_text + 40
     .align $400
 over_screen
     icl 'art/over_screen.asm'   ;   13 lines, mode 5 narrow
+scores_on_screen = over_screen+(32*7)+6   ; first byte of text in scores
 credits_texts
     icl 'art/credits.asm'   ;   10 lines, mode 5
 number_of_credits = 5
@@ -431,7 +433,7 @@ wait_for_timer
     ; ------- RMT -------
     lda sfx_effect
     bmi lab2
-    asl @                        ; * 2
+    asl                         ; * 2
     tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
     ldx #3                    ;X = 0          channel (0..3 or 0..7 for stereo module)
     lda #00                     ;A = 0          note (0..60)
@@ -1403,6 +1405,7 @@ EndOfStartScreen
     jsr ClearPM
     jsr HidePM
     jsr PrepareOverPM
+    jsr PrepareScores
     mva #4 StateFlag
     mva #>font_over CHBAS
     mwa #dl_over dlptrs
@@ -1631,6 +1634,78 @@ right_side
     rts
 no_branch_l
     mwa #gamescreen_r_ph1p1 animation_addr
+    rts
+.endp
+;--------------------------------------------------
+.proc TextToScreen
+;--------------------------------------------------
+; print text from temp address to screen at temp2 address
+; X = characters to print
+    stx tempbyte2
+@   jsr PrintChar
+    dec tempbyte2
+    bne @-
+    rts
+PrintChar
+    ldy #0
+    lda (temp),y
+    ; looking for char in the array
+    ldx #0
+@   cmp char_ascii,x
+    beq char_found
+    inx
+    cpx char_count
+    bne @-
+    ; error - char not found
+    beq skip_char
+    rts
+char_found
+    ; print it
+    lda char_byte1,x
+    beq space_char  ; if space then skip one byte
+    sta (temp2),y
+space_char
+    lda char_byte2,x
+    inw temp2
+    sta (temp2),y
+    lda char_byte3,x
+    bmi skip_char  ; space or I has only 2 bytes
+    inw temp2
+    sta (temp2),y
+skip_char
+    inw temp    
+    rts
+.endp
+;--------------------------------------------------
+.proc PrepareScores
+;--------------------------------------------------
+; display all scores table on Game Over screen
+    mva #0 ScorePosition
+print_loop
+    mwa #(hs_pos1+6) temp
+    mwa #scores_on_screen temp2
+    lda ScorePosition
+    :4 asl  ; *16
+    clc
+    adc temp
+    sta temp
+    bcc @+
+    inc temp+1
+@
+    lda ScorePosition
+    :5 asl  ; *32
+    clc
+    adc temp2
+    sta temp2
+    bcc @+
+    inc temp2+1
+@
+    ldx #10
+    jsr TextToScreen
+    inc ScorePosition
+    lda ScorePosition
+    cmp #5
+    bne print_loop
     rts
 .endp
 ;--------------------------------------------------
@@ -2539,6 +2614,8 @@ FootTimer
     .ds 1
 TimeCount
     .ds 1   ; 00 - time stopped , $ff - time count
+ScorePosition
+    .ds 1   ; line number in hi-score list (0-4)
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
@@ -3319,7 +3396,9 @@ PowerCharEmpty = PowerChar0
 ;--------------------------------
 ; characters tables for GAme Over screen
     ;ascii codes
+char_ascii
     .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl"
+char_count = 39
 char_byte1
     .by $00 ; space
     .by $20 ; A
@@ -3463,15 +3542,15 @@ joyToKeyTable
 high_scores
     ;   "0123456789012345"  - 16bytes
 hs_pos1
-    .by "0000000180 PECUs"  
+    .by "0000000210 PECUs"  
 hs_pos2
-    .by "0000000150 PIRX "
+    .by "0000000170 PIRX "
 hs_pos3
-    .by "0000000120 ADAM "
+    .by "0000000130 ADAM "
 hs_pos4
-    .by "0000000090 ALEX "
+    .by "0000000110 ALEX "
 hs_pos5
-    .by "0000000060 TDC  "
+    .by "0000000090 TDC  "
 hs_posX
     .by "0000000000      "  ;reserved
 ;-------------------------------------------------
