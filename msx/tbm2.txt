@@ -2,5 +2,6 @@ Songs:
 #1 - title
 #2 - dead
 #3 - ingame (3ch) [temporary]
-#4 - count down [efekty $0C i $0D]
-#5 - high score
+#4 - count down 1
+#5 - count down 2
+#6 - high score
