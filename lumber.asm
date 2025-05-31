@@ -2010,18 +2010,28 @@ end_of_name
 ;--------------------------------------------------
 .proc AnimateGoLine
 ;--------------------------------------------------
-    ldy #4  ; 4 lines
+    ldy #3  ; 3 lines
 next_line
-    ; .... 3 , 2 , 1 , GO! ....
+    ; .... 3 , 2 , 1 ,  ....
     ldx #16     ; 32 characters
 @   inw go_addr 
     inw go_addr
     WaitForSync
     dex
     bne @-
+    mva #sfx_go1 sfx_effect
     pause 25
     dey
     bne next_line
+    ; .... GO! ....
+    ldx #16     ; 32 characters
+@   inw go_addr 
+    inw go_addr
+    WaitForSync
+    dex
+    bne @-
+    mva #sfx_go2 sfx_effect
+    pause 25
     rts
 .endp
 ;--------------------------------------------------
@@ -3947,6 +3957,8 @@ MODULEND
 ; names of RMT instruments (sfx)
 ;--------------------------------
 sfx_ciach = $03
+sfx_go1 = $0c
+sfx_go2 = $0d
 ;--------------------------------
 ; RMT songs (lines)
 ;--------------------------------
