@@ -1720,8 +1720,13 @@ no_branch_l
     sta (temp2),y   ; first space fix
     stx tempbyte2
 @   jsr PrintChar
+    ; after PrintChar i X register we have charcode and Y=0
     dec tempbyte2
     bne @-
+    cpx #9  ; I character
+    tya ; 0 - space
+    iny
+    sta (temp2),y   ; fix for last I
     rts
 PrintChar
     ldy #0
