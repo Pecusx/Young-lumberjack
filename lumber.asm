@@ -988,6 +988,8 @@ DLI2
     ; character set change
     sta WSYNC
     mva #>font_titles CHBASE
+    lda NewHiScorePosition
+    beq this_line_score1
     ; and font colors
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
@@ -996,39 +998,95 @@ DLI2
     mwa #GameOverDLI1.DLI3 VDSLST
     pla
     rti
+this_line_score1
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #GameOverDLI1.DLI3 VDSLST
+    pla
+    rti
 DLI3
     pha
     sta WSYNC
+    lda NewHiScorePosition
+    cmp #1
+    beq this_line_score2
+    mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #GameOverDLI1.DLI4 VDSLST
     pla
     rti
+this_line_score2
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #GameOverDLI1.DLI4 VDSLST
+    pla
+    rti
 DLI4
     pha
     sta WSYNC
+    lda NewHiScorePosition
+    cmp #2
+    beq this_line_score3
+    mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #GameOverDLI1.DLI5 VDSLST
     pla
     rti
+this_line_score3
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #GameOverDLI1.DLI5 VDSLST
+    pla
+    rti
 DLI5
     pha
     sta WSYNC
+    lda NewHiScorePosition
+    cmp #3
+    beq this_line_score4
+    mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #GameOverDLI1.DLI6 VDSLST
     pla
     rti
+this_line_score4
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #GameOverDLI1.DLI6 VDSLST
+    pla
+    rti
 DLI6
     pha
     sta WSYNC
+    lda NewHiScorePosition
+    cmp #4
+    beq this_line_score5
+    mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI7 VDSLST
+    pla
+    rti
+this_line_score5
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
     mwa #GameOverDLI1.DLI7 VDSLST
     pla
     rti
