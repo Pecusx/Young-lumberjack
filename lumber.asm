@@ -3538,8 +3538,8 @@ PowerCharEmpty = PowerChar0
 ; characters tables for GAme Over screen
     ;ascii codes
 char_ascii
-    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl"
-char_count = 39
+    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl<"
+char_count = 39 ; without DEL
 char_byte1
     .by $00 ; space
     .by $20 ; A
@@ -3579,7 +3579,8 @@ char_byte1
     .by $1c ; 8
     .by $1e ; 9    
     .by $54 ; S`    
-    .by $36 ; L/   
+    .by $36 ; L/  
+    .by $18 ; DEL (arrow)
 char_byte2
     .by $00 ; space
     .by $21 ; A
@@ -3619,7 +3620,8 @@ char_byte2
     .by $13 ; 8
     .by $1f ; 9    
     .by $55 ; S`    
-    .by $57 ; L/   
+    .by $57 ; L/  
+    .by $19 ; DEL (arrow)
 char_byte3
     .by $00 ; space
     .by $31 ; A
@@ -3660,6 +3662,7 @@ char_byte3
     .by $31 ; 9    
     .by $31 ; S`    
     .by $58 ; L/   
+    .by $00 ; DEL (arrow)
 ;--------------------------------
 joyToKeyTable
     .by $ff             ;00

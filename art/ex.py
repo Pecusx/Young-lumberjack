@@ -25,7 +25,7 @@ def write_asm(atrview, out, page, line_from, line_to, skip_left, skip_right):
 write_asm(
     atrview='title_fonts.atrview',
     out='over_screen.asm',
-    page=5,
+    page='GameOver',
     line_from=0,
     line_to=13,
     skip_left=0,
@@ -52,7 +52,7 @@ write_asm(
 write_asm(
     atrview="title_fonts.atrview",
     out='difficulty_texts.asm',
-    page=4,
+    page='Options',
     line_from=0,
     line_to=0+2,
     skip_left=0,
