@@ -1296,7 +1296,6 @@ gameloop
     ;jsr NextLevel
     ; RMTSong song_ingame
     jsr AudioInit   ; after I/O
-    jsr ScoreToTable
     jmp gameOver
 EndOfLife
     ;dec Lives   ; decrease Lives
@@ -1406,10 +1405,15 @@ EndOfStartScreen
 .proc GameOverScreen
 ;--------------------------------------------------
     mva #$ff StateFlag
+    jsr ScoreToBuffer
     jsr MakeDarkScreen
     jsr ClearPM
     jsr HidePM
     jsr PrepareOverPM
+    lda Difficulty
+    bne training_mode
+    jsr ScoreToTable    ; score saving only in normal game mode
+training_mode
     jsr PrepareScores
     mva #4 StateFlag
     mva #>font_over CHBAS
@@ -1685,10 +1689,20 @@ skip_char
 .proc PrepareScores
 ;--------------------------------------------------
 ; display all scores table on Game Over screen
-    mva #0 ScorePosition
+    mva #0 ScorePosition    ; HiScore table position (0-4)
 print_loop
+    jsr InMemoryCacl    ; position in temp (word)
+    jsr OnScreenCacl    ; positiom in temp2 (word)
+    ldx #10     ; 10 characters ( result(4) + space(1) + name(5) )
+    jsr TextToScreen
+    inc ScorePosition
+    lda ScorePosition
+    cmp #5
+    bne print_loop
+    rts
+
+InMemoryCacl    ; calculate position in memory (result in temp)
     mwa #(hs_pos1+6) temp
-    mwa #scores_on_screen temp2
     lda ScorePosition
     :4 asl  ; *16
     clc
@@ -1696,7 +1710,9 @@ print_loop
     sta temp
     bcc @+
     inc temp+1
-@
+@   rts
+OnScreenCacl    ; calculate position on screen (result in temp2)
+    mwa #scores_on_screen temp2
     lda ScorePosition
     :5 asl  ; *32
     clc
@@ -1704,15 +1720,82 @@ print_loop
     sta temp2
     bcc @+
     inc temp2+1
-@
-    ldx #10
-    jsr TextToScreen
+@   rts
+.endp
+;--------------------------------------------------
+.proc ScoreToTable
+;--------------------------------------------------
+; moving last score from buffer to HiScore table
+; in ScorePosition returns position in HiScore
+; if ScorePosition=5 then not in HiScore
+    mva #4 ScorePosition    ; starting from last (4) HiScore position
+compare_next_position
+    jsr PrepareScores.InMemoryCacl ; score address in temp (word)
+    ldy #0
+    ; compare last score (buffer) to HiScore in ScorePosition
+compare_loop
+    lda hs_posX+6,y   ; buffer
+    cmp (temp),y    ; score in table
+    beq next_digit
+    bcc is_lower
+is_bigger
+    ldx ScorePosition
+    dex
+    bmi new_record
+    stx ScorePosition
+    bpl compare_next_position
+next_digit
+    iny
+    cpy #4
+    bne compare_loop
+    ; last score is equal to HiScore position ScorePosition
+is_lower
     inc ScorePosition
+new_record
+    ; now we have position of last score in HiScore (ScorePosition)
     lda ScorePosition
+    sta NewHiScorePosition  ; save position for new name input
     cmp #5
-    bne print_loop
+    beq no_in_hiscore   ; last score is lower than last HiScore score
+    cmp #4
+    beq move_score_to_table ; last hi score position, then we dont moving lower scores down in table
+    ; move down lower scores
+    mva #4 ScorePosition    ; startig from penultimate position in HiScore
+moving_loop
+    dec ScorePosition
+    ; now calculate position of overwritten score
+    inc ScorePosition
+    jsr PrepareScores.InMemoryCacl ; score address in temp (word)
+    sbw temp #6 temp2    ; time in hiscore correction save to temp2
+    ; calculate position of score to write
+    dec ScorePosition
+    jsr PrepareScores.InMemoryCacl ; score address in temp (word)
+    sbw temp #6    ; time in hiscore correction
+    ; move one position down
+    ldy #15  ; 16bytes
+@   lda (temp),y
+    sta (temp2),y
+    dey
+    bpl @-
+    ; one score moved
+    lda ScorePosition
+    cmp NewHiScorePosition
+    bne moving_loop
+    ; we have prepared space in HiScore
+move_score_to_table
+    ;mva NewHiScorePosition ScorePosition   ; unnecessary ?
+    jsr PrepareScores.InMemoryCacl ; score address in temp (word)
+    sbw temp #6    ; time in hiscore correction
+    ldy #15  ; 16bytes
+@   lda hs_posX,y
+    sta (temp),y
+    dey
+    bpl @-
+no_in_hiscore
+    ; great success!!
     rts
 .endp
+
 ;--------------------------------------------------
 .proc AudioInit
 ;--------------------------------------------------
@@ -2625,6 +2708,8 @@ TimeCount
     .ds 1   ; 00 - time stopped , $ff - time count
 ScorePosition
     .ds 1   ; line number in hi-score list (0-4)
+NewHiScorePosition
+    .ds 1   ; line number in hi-score list (0-4)
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
@@ -2712,7 +2797,7 @@ ScoreReady
     rts
 .endp
 ;--------------------------------------------------
-.proc ScoreToTable
+.proc ScoreToBuffer
 ;--------------------------------------------------
     ; points
     lda score
@@ -3564,7 +3649,7 @@ char_byte3
     .by $31 ; Y
     .by $31 ; Z
     .by $31 ; 0
-    .by $31 ; 1
+    .by $58 ; 1
     .by $31 ; 2
     .by $31 ; 3
     .by $31 ; 4
@@ -3608,7 +3693,7 @@ hs_pos4
 hs_pos5
     .by "0000000090 TDC  "
 hs_posX
-    .by "0000000000      "  ;reserved
+    .by "0000000000 NEW  "  ; buffer for last score
 ;-------------------------------------------------
 ;RMT PLAYER variables
 track_variables
