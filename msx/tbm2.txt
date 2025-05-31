@@ -2,5 +2,5 @@ Songs:
 #1 - title
 #2 - dead
 #3 - ingame (3ch) [temporary]
-#4 - count down [example] jest problem z instrumentem dwukanałowym, za każdym razem inaczej gra
+#4 - count down [efekty $0C i $0D]
 #5 - high score
