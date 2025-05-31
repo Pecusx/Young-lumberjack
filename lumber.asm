@@ -1715,6 +1715,9 @@ no_branch_l
 ;--------------------------------------------------
 ; print text from temp address to screen at temp2 address
 ; X = characters to print
+    lda #0
+    tay
+    sta (temp2),y   ; first space fix
     stx tempbyte2
 @   jsr PrintChar
     dec tempbyte2
