@@ -1485,6 +1485,13 @@ training_mode
     sta dmactls
     mva #%00000011 GRACTL
     pause 1
+    lda Difficulty
+    bne training_mode2
+    lda NewHiScorePosition
+    cmp #5
+    beq training_mode2
+    jsr EnterPlayerName    ; enter name only in normal game mode and if there are new score
+training_mode2
 OverLoop
     jsr GetKey
     cmp #@kbcode._space
@@ -1853,7 +1860,90 @@ no_in_hiscore
     ; great success!!
     rts
 .endp
-
+;--------------------------------------------------
+.proc EnterPlayerName
+;--------------------------------------------------
+    ; initial variables - "A" on first position
+    mva #0 PositionInName
+    mva #1 CharCode ;   1 = "A"
+    mva NewHiScorePosition ScorePosition    ; HiScore table position (0-4)
+    jsr PrepareScores.InMemoryCacl    ; position in temp (word)
+    adw temp #5    ; after points
+    ; clear name
+    lda #0
+    ldy #4
+@   sta (temp),y
+    dey
+    bpl @-
+input_name_loop
+    jsr PrepareScores.InMemoryCacl    ; position in temp (word)
+    adw temp #5    ; after points
+    jsr PrepareScores.OnScreenCacl    ; positiom in temp2 (word)
+    adw temp2 #10    ; after points
+    ldy PositionInName
+    ldx CharCode
+    lda char_ascii,x
+    sta (temp),y
+    ; display name on Game Over screen
+    ldx #5     ; 5 characters
+    jsr TextToScreen
+    pause 1
+    jsr GetKey
+    cmp #@kbcode._left
+    beq leftkey
+    cmp #@kbcode._right
+    beq rightkey
+    cmp #@kbcode._space
+    bne input_name_loop
+    beq next_char
+leftkey
+    ldx CharCode
+    dex
+    bne not_minimal ; check for lowart than A (not space)
+    ldx #char_count
+not_minimal
+not_maximal
+    stx CharCode
+    jmp input_name_loop
+rightkey   
+    ldx CharCode
+    inx
+    cpx #char_count+1
+    bne not_maximal
+    ldx #1  ; A (not space)
+    bne not_maximal
+next_char
+    ; space / fire pressed
+    ; next character or DEL or end of name
+    lda CharCode
+    cmp #char_count ; DEL
+    bne no_del
+    ; backspace :)
+    ; set current char to space (clear)
+    jsr PrepareScores.InMemoryCacl    ; position in temp (word)
+    adw temp #5    ; after points
+    ldy PositionInName
+    bne no_first_char
+    ; first char in name - nothing to do
+    jmp input_name_loop    
+no_first_char
+    lda char_ascii  ; first char i table = space
+    sta (temp),y    ; clear current char
+    dey
+    sty PositionInName
+    jmp input_name_loop
+no_del
+    inc PositionInName
+    lda PositionInName
+    cmp #5 ; last character in name
+    beq end_of_name
+    ; set naxt char to space - no .. no change charcode
+    ldx CharCode
+    bne not_maximal
+end_of_name
+    mva #5 NewHiScorePosition   ; name entered, set color to standard
+    rts
+.endp
 ;--------------------------------------------------
 .proc AudioInit
 ;--------------------------------------------------
@@ -2768,6 +2858,10 @@ ScorePosition
     .ds 1   ; line number in hi-score list (0-4)
 NewHiScorePosition
     .ds 1   ; line number in hi-score list (0-4)
+PositionInName
+    .ds 1   ; position in player name
+CharCode
+    .ds 1   ; input character code in player name
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
@@ -3755,6 +3849,8 @@ hs_pos5
     .by "0000000090 TDC  "
 hs_posX
     .by "0000000000 NEW  "  ; buffer for last score
+hs_def_name
+    .by "A    "
 ;-------------------------------------------------
 ;RMT PLAYER variables
 track_variables
