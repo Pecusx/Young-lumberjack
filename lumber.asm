@@ -1754,6 +1754,7 @@ skip_char
 .proc PrepareScores
 ;--------------------------------------------------
 ; display all scores table on Game Over screen
+    jsr ClearScreenNames
     mva #0 ScorePosition    ; HiScore table position (0-4)
 print_loop
     jsr InMemoryCacl    ; position in temp (word)
@@ -1786,6 +1787,24 @@ OnScreenCacl    ; calculate position on screen (result in temp2)
     bcc @+
     inc temp2+1
 @   rts
+.endp
+;--------------------------------------------------
+.proc ClearScreenNames
+;--------------------------------------------------
+; clear place for names on HiScore table
+    mva #0 ScorePosition    ; HiScore table position (0-4)
+clear_loop
+    jsr PrepareScores.OnScreenCacl    ; calculate address on screen (result in temp2)    
+    ldy #20     ; 21 bytes in each line
+    lda #0  ; value to fill
+@   sta (temp2),y
+    dey
+    bpl @-
+    inc ScorePosition
+    lda ScorePosition
+    cmp #5
+    bne clear_loop
+    rts
 .endp
 ;--------------------------------------------------
 .proc ScoreToTable
@@ -1887,6 +1906,9 @@ input_name_loop
     ; display name on Game Over screen
     ldx #5     ; 5 characters
     jsr TextToScreen
+    lda NewHiScorePosition
+    cmp #5  ; trick for END before 5 characters
+    jeq end_of_name
     pause 1
     jsr GetKey
     cmp #@kbcode._left
@@ -1899,8 +1921,8 @@ input_name_loop
 leftkey
     ldx CharCode
     dex
-    bne not_minimal ; check for lowart than A (not space)
-    ldx #char_count
+    bne not_minimal ; check for lower than A (not space)
+    ldx #char_count+1
 not_minimal
 not_maximal
     stx CharCode
@@ -1908,7 +1930,7 @@ not_maximal
 rightkey   
     ldx CharCode
     inx
-    cpx #char_count+1
+    cpx #char_count+2
     bne not_maximal
     ldx #1  ; A (not space)
     bne not_maximal
@@ -1933,6 +1955,14 @@ no_first_char
     sty PositionInName
     jmp input_name_loop
 no_del
+    cmp #char_count+1   ; END
+    bne no_end
+    ; END
+    ; change to space
+    mva #0 CharCode ; space
+    mva #5 NewHiScorePosition   ; name entered (trick)
+    jmp input_name_loop    
+no_end    
     inc PositionInName
     lda PositionInName
     cmp #5 ; last character in name
@@ -3690,8 +3720,8 @@ PowerCharEmpty = PowerChar0
 ; characters tables for GAme Over screen
     ;ascii codes
 char_ascii
-    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl<"
-char_count = 39 ; without DEL
+    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl<^"
+char_count = 39 ; without DEL and END
 char_byte1
     .by $00 ; space
     .by $20 ; A
@@ -3733,6 +3763,7 @@ char_byte1
     .by $54 ; S`    
     .by $36 ; L/  
     .by $18 ; DEL (arrow)
+    .by $5a ; END (arrow)
 char_byte2
     .by $00 ; space
     .by $21 ; A
@@ -3774,6 +3805,7 @@ char_byte2
     .by $55 ; S`    
     .by $57 ; L/  
     .by $19 ; DEL (arrow)
+    .by $5b ; END (arrow)
 char_byte3
     .by $00 ; space
     .by $31 ; A
@@ -3815,6 +3847,7 @@ char_byte3
     .by $31 ; S`    
     .by $58 ; L/   
     .by $00 ; DEL (arrow)
+    .by $00 ; END (arrow)
 ;--------------------------------
 joyToKeyTable
     .by $ff             ;00
