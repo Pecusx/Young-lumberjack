@@ -1724,9 +1724,11 @@ no_branch_l
     dec tempbyte2
     bne @-
     cpx #9  ; I character
+    bne not_last_I
     tya ; 0 - space
     iny
     sta (temp2),y   ; fix for last I
+not_last_I
     rts
 PrintChar
     ldy #0
