@@ -1404,9 +1404,9 @@ wait_for_key
     pause 1
 StartLoop
     jsr GetKey
-    cmp #@kbcode._left
+    cmp #@kbcode._left  ; left, Select
     beq leftkey
-    cmp #@kbcode._right
+    cmp #@kbcode._right ; right , Option
     bne notdirectionskeys
 leftkey
     lda Difficulty
@@ -1414,6 +1414,10 @@ leftkey
     sta Difficulty
     jmp difficulty_display
 notdirectionskeys
+    cmp #@kbcode._space  ; space, Start
+    beq EndOfStartScreen
+    cmp #@kbcode._tab  ; TAB, 1st joy button
+    bne StartLoop
 EndOfStartScreen
     rts
 .endp
@@ -1492,9 +1496,12 @@ training_mode
     beq training_mode2
     jsr EnterPlayerName    ; enter name only in normal game mode and if there are new score
 training_mode2
+    mva #5 NewHiScorePosition ; prevent highlighting of result
 OverLoop
     jsr GetKey
-    cmp #@kbcode._space
+    cmp #@kbcode._space ; space, Start
+    beq EndOfOverScreen
+    cmp #@kbcode._tab   ; TAB, Joy 1st button
     bne OverLoop
 EndOfOverScreen
     rts
@@ -1523,17 +1530,16 @@ loop
     bne No_keys
 key_released_before
     jsr GetKeyFast
-    cmp #@kbcode._left
+    cmp #@kbcode._left  ; left, Select
     beq left_pressed
-    cmp #@kbcode._right
+    cmp #@kbcode._tab   ; TAB, 1st button
+    beq left_pressed
+    cmp #@kbcode._right ; right, Option
+    beq right_pressed
+    cmp #@kbcode._ret ; Return
     beq right_pressed
     ; other keys or no key
-    cmp #@kbcode._up
-    bne NoNextLevel
-    ; next level if joy UP
     sta LastKey
-    ;jsr LevelUp
-NoNextLevel
 No_keys
     lda PowerValue
     jeq LevelDeath
@@ -1614,8 +1620,11 @@ LevelDeath
     RMTsong song_game_over
 @   
     jsr GetKey
-    cmp #@kbcode._space
+    cmp #@kbcode._space ; space, Start
+    beq restart
+    cmp #@kbcode._tab   ; TAB, 1st joy button
     bne @-
+restart
     ; restart game
     rts
 go_loop
@@ -1921,13 +1930,15 @@ input_name_loop
     jeq end_of_name
     pause 1
     jsr GetKey
-    cmp #@kbcode._left
+    cmp #@kbcode._left  ; left, Select
     beq leftkey
-    cmp #@kbcode._right
+    cmp #@kbcode._right ; right, Option
     beq rightkey
-    cmp #@kbcode._space
-    bne input_name_loop
+    cmp #@kbcode._space ; space, Start
     beq next_char
+    cmp #@kbcode._tab ; TAB, 1st joy buttom
+    beq next_char
+    bne input_name_loop
 leftkey
     ldx CharCode
     dex
@@ -3439,18 +3450,26 @@ checkSelectKey
       lda CONSOL
       and #%00000100           ; Option
       beq OptionPressed
+      lda CONSOL
+      and #%00000001           ; Start
+      beq StartPressed
     .ENDIF
     lda #@kbcode._none
     bne getkeyend
 OptionPressed
-    lda #@kbcode._atari        ; Option key
+    lda #@kbcode._right        ; Option key = right key
     bne getkeyend
 SecondButton
+    lda #@kbcode._ret          ; 2nd joy button = Return key
+    bne getkeyend
 SelectPressed
-    lda #@kbcode._tab          ; Select key
+    lda #@kbcode._left          ; Select key = left key
+    bne getkeyend
+StartPressed
+    lda #@kbcode._space          ; Start key = space key
     bne getkeyend
 JoyButton
-    lda #@kbcode._ret          ; Return key
+    lda #@kbcode._tab          ; 1st joy button = TAB key
 getkeyend
     rts
 ; ----
@@ -3490,8 +3509,8 @@ StillWait
       and #%00000100  ;  any key  
       beq StillWait
       lda CONSOL
-      and #%00000110           ; Select and Option only
-      cmp #%00000110
+      and #%00000111           ; Start, Select and Option
+      cmp #%00000111
       bne StillWait
     .ELIF TARGET = 5200
       lda SkStatSimulator
@@ -3500,13 +3519,6 @@ StillWait
     .ENDIF
 KeyReleased
       rts
-.endp
-;--------------------------------------------------
-.proc CheckStartKey
-;--------------------------------------------------
-    lda CONSOL  ; turbo mode
-    and #%00000001 ; START KEY
-    rts
 .endp
 ;--------------------------------------------------
 .proc InitBranches
