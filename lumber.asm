@@ -2106,6 +2106,7 @@ next_line
     vmain vint,7
     
     mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level
+    jsr GetKeyFast.Check2button  ; update state second joy button
     rts
 .endp
 
