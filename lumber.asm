@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.47" ; number of this build (4 bytes)
+    dta d"0.51" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -301,8 +301,8 @@ over_screen
     icl 'art/over_screen.asm'   ;   13 lines, mode 5 narrow
 scores_on_screen = over_screen+(32*7)+6   ; first byte of text in scores
 credits_texts
-    icl 'art/credits.asm'   ;   10 lines, mode 5
-number_of_credits = 5
+    icl 'art/credits.asm'   ;   12 lines, mode 5
+number_of_credits = 6
 credits_lines   ; 2 lines for credits animations
     :80 .by 0
     .by 0   ; for second line animation
@@ -1732,7 +1732,7 @@ no_branch_l
     ; after PrintChar i X register we have charcode and Y=0
     dec tempbyte2
     bne @-
-    cpx #9  ; I character
+    cpx #11  ; I character
     bne not_last_I
     tya ; 0 - space
     iny
@@ -1903,7 +1903,7 @@ no_in_hiscore
 ;--------------------------------------------------
     ; initial variables - "A" on first position
     mva #0 PositionInName
-    mva #1 CharCode ;   1 = "A"
+    mva #3 CharCode ;   3 = "A"
     mva NewHiScorePosition ScorePosition    ; HiScore table position (0-4)
     jsr PrepareScores.InMemoryCacl    ; position in temp (word)
     adw temp #5    ; after points
@@ -1942,7 +1942,8 @@ input_name_loop
 leftkey
     ldx CharCode
     dex
-    bne not_minimal ; check for lower than A (not space)
+    cpx #2
+    bne not_minimal ; check for lower than A (not space and s, l)
     ldx #char_count+1
 not_minimal
 not_maximal
@@ -1953,7 +1954,7 @@ rightkey
     inx
     cpx #char_count+2
     bne not_maximal
-    ldx #1  ; A (not space)
+    ldx #3  ; A (not space and s, l)
     bne not_maximal
 next_char
     ; space / fire pressed
@@ -3756,10 +3757,12 @@ PowerCharEmpty = PowerChar0
 ; characters tables for GAme Over screen
     ;ascii codes
 char_ascii
-    .by " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789sl<^"
+    .by " slABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<^"
 char_count = 39 ; without DEL and END
 char_byte1
     .by $00 ; space
+    .by $54 ; S`    
+    .by $36 ; L/  
     .by $20 ; A
     .by $22 ; B
     .by $24 ; C
@@ -3796,12 +3799,12 @@ char_byte1
     .by $1a ; 7
     .by $1c ; 8
     .by $1e ; 9    
-    .by $54 ; S`    
-    .by $36 ; L/  
     .by $18 ; DEL (arrow)
     .by $5a ; END (arrow)
 char_byte2
     .by $00 ; space
+    .by $55 ; S`    
+    .by $57 ; L/  
     .by $21 ; A
     .by $13 ; B
     .by $25 ; C
@@ -3838,12 +3841,12 @@ char_byte2
     .by $1b ; 7
     .by $13 ; 8
     .by $1f ; 9    
-    .by $55 ; S`    
-    .by $57 ; L/  
     .by $19 ; DEL (arrow)
     .by $5b ; END (arrow)
 char_byte3
     .by $00 ; space
+    .by $31 ; S`    
+    .by $58 ; L/   
     .by $31 ; A
     .by $31 ; B
     .by $31 ; C
@@ -3880,8 +3883,6 @@ char_byte3
     .by $31 ; 7
     .by $31 ; 8
     .by $31 ; 9    
-    .by $31 ; S`    
-    .by $58 ; L/   
     .by $00 ; DEL (arrow)
     .by $00 ; END (arrow)
 ;--------------------------------
