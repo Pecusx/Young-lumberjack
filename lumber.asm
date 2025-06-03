@@ -120,9 +120,17 @@ dl_over
     .wo dl_over
 ;---------------------------------------------------
 dl_help
-    .by $45
+    .by $30+$80
+    .by $45+$80
     .wo help_screen    ; 
-    :12 .by $05
+    :3 .by $05+$80
+    .by $05
+    .by $30+$80
+    :3 .by $05+$80
+    .by $05
+    .by $30+$80
+    :3 .by $05+$80
+    .by $05
     .by $41
     .wo dl_help
 ;---------------------------------------------------
@@ -338,7 +346,7 @@ no_go
     cmp #5
     bne no_help
     ; help screen dli
-    vdli noDLI
+    vdli HelpDLI1
     jmp DLI_OK
 no_help
     cmp #4
@@ -991,7 +999,7 @@ DLI_L2
 .endp
 ;--------------------------------------------------
 .proc GameOverDLI1
-; Clouds, color changes
+; color changes
 ;--------------------------------------------------
     pha
     ; end of chain
@@ -1114,6 +1122,19 @@ DLI7
     mva #>font_over CHBASE
     ; set cloud 3 horizontal position
     inc SyncByte
+    pla
+    rti
+.endp
+;--------------------------------------------------
+.proc HelpDLI1
+; color changes
+;--------------------------------------------------
+    pha
+    sta WSYNC
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
     pla
     rti
 .endp
@@ -1539,10 +1560,10 @@ EndOfOverScreen
     mva #5 StateFlag
     mva #>font_titles CHBAS
     mwa #dl_help dlptrs
-    mva GameColors+c_sky COLBAKS
+    mva GameColors+c_grass COLBAKS
     mva GameColors+c_over1 COLOR0
-    mva GameColors+c_white2 COLOR1
-    mva GameColors+c_white2 COLOR2
+    mva GameColors+c_font1 COLOR1
+    mva GameColors+c_font2 COLOR2
     mva GameColors+c_font3 COLOR3
     lda #@dmactl(narrow|dma)  ; narrow screen width, P/M off
     sta dmactls
