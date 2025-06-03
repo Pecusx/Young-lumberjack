@@ -29,7 +29,7 @@ display = $a000
     .zpvar tempbyte2 .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
-    .zpvar StateFlag .byte    ; 0 - menu, 1 = GO!, 2 - game screen, 3 RIP screen, 4 - game over screen, etc.
+    .zpvar StateFlag .byte    ; 0 - menu, 1 = GO!, 2 - game screen, 3 RIP screen, 4 - game over screen, 5 - halp screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
     .zpvar PowerDownSpeed .byte
@@ -108,7 +108,7 @@ font_over
 ;---------------------------------------------------
 dl_over
     .by $45
-    .wo over_screen    ; title screen (menu?)
+    .wo over_screen    ; Game Over screen
     .by $05
     .by $85 ; DLI1 - end of chain
     :3 .by $05
@@ -118,6 +118,13 @@ dl_over
     .by $05 
     .by $41
     .wo dl_over
+;---------------------------------------------------
+dl_help
+    .by $45
+    .wo help_screen    ; 
+    :12 .by $05
+    .by $41
+    .wo dl_help
 ;---------------------------------------------------
 dl_title
     .by $10,$70
@@ -310,6 +317,8 @@ credit_nr   ; number of credit to display (displayed)
     .ds 1
 credits_anim_counter    ; counter for credits animation/display
     .ds 1
+help_screen
+    icl 'art/help.asm'   ;   13 lines, mode 5
 ;--------------------------------------------------
 .proc vint
 ;--------------------------------------------------
@@ -325,13 +334,19 @@ no_titles
     ; go screen dli (StateFlag = 1)
     vdli GoDLI1
     jmp DLI_OK
-no_go    
+no_go
+    cmp #5
+    bne no_help
+    ; help screen dli
+    vdli noDLI
+    jmp DLI_OK
+no_help
     cmp #4
-    beq no_geme_and_RIP
+    beq no_game_and_RIP
     ; game screen and RIP screen (StateFlag=2 or 3) - set DLI
     vdli IngameDLI1
     jmp DLI_OK
-no_geme_and_RIP    
+no_game_and_RIP    
     ; game over screen (StateFlag=4) - set DLI
     vdli GameOverDLI1
 
@@ -346,6 +361,8 @@ DLI_OK
     beq game_VBI
     cmp #4
     jeq gameover_VBI
+    cmp #5
+    jeq common_VBI
 game_VBI
 go_VBI
     ; game screen and RIP screen (StateFlag=2 or 3) VBI
@@ -1414,6 +1431,11 @@ leftkey
     sta Difficulty
     jmp difficulty_display
 notdirectionskeys
+    cmp #@kbcode._help
+    bne no_help
+    jsr HelpScreen
+    jmp StartScreen
+no_help
     cmp #@kbcode._space  ; space, Start
     beq EndOfStartScreen
     cmp #@kbcode._tab  ; TAB, 1st joy button
@@ -1504,6 +1526,34 @@ OverLoop
     cmp #@kbcode._tab   ; TAB, Joy 1st button
     bne OverLoop
 EndOfOverScreen
+    rts
+.endp
+;--------------------------------------------------
+.proc HelpScreen
+;--------------------------------------------------
+    mva #$ff StateFlag
+    jsr ScoreToBuffer
+    jsr MakeDarkScreen
+    jsr ClearPM
+    jsr HidePM
+    mva #5 StateFlag
+    mva #>font_titles CHBAS
+    mwa #dl_help dlptrs
+    mva GameColors+c_sky COLBAKS
+    mva GameColors+c_over1 COLOR0
+    mva GameColors+c_white2 COLOR1
+    mva GameColors+c_white2 COLOR2
+    mva GameColors+c_font3 COLOR3
+    lda #@dmactl(narrow|dma)  ; narrow screen width, P/M off
+    sta dmactls
+    pause 1
+HelpLoop
+    jsr GetKey
+    cmp #@kbcode._space ; space, Start
+    beq EndOfHelpScreen
+    cmp #@kbcode._tab   ; TAB, Joy 1st button
+    bne HelpLoop
+EndOfHelpScreen
     rts
 .endp
 ;--------------------------------------------------
