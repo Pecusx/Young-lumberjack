@@ -1440,8 +1440,9 @@ level_easy
     mwa #PowerSpeedTableB SpeedTableAdr     ; difficulty level easy
 wait_for_key
     pause 1
+    jsr WaitForKeyRelease
 StartLoop
-    jsr GetKey
+    jsr GetKeyFast
     cmp #@kbcode._left  ; left, Select
     beq leftkey
     cmp #@kbcode._right ; right , Option
@@ -1455,6 +1456,8 @@ notdirectionskeys
     cmp #@kbcode._help
     bne no_help
     jsr HelpScreen
+go_startloop
+    jsr WaitForKeyRelease
     jmp StartScreen
 no_help
     cmp #@kbcode._space  ; space, Start
@@ -1540,8 +1543,9 @@ training_mode
     jsr EnterPlayerName    ; enter name only in normal game mode and if there are new score
 training_mode2
     mva #5 NewHiScorePosition ; prevent highlighting of result
+    jsr WaitForKeyRelease
 OverLoop
-    jsr GetKey
+    jsr GetKeyFast
     cmp #@kbcode._space ; space, Start
     beq EndOfOverScreen
     cmp #@kbcode._tab   ; TAB, Joy 1st button
@@ -1568,8 +1572,9 @@ EndOfOverScreen
     lda #@dmactl(narrow|dma)  ; narrow screen width, P/M off
     sta dmactls
     pause 1
+    jsr WaitForKeyRelease
 HelpLoop
-    jsr GetKey
+    jsr GetKeyFast
     cmp #@kbcode._space ; space, Start
     beq EndOfHelpScreen
     cmp #@kbcode._tab   ; TAB, Joy 1st button
@@ -1689,8 +1694,9 @@ LevelDeath
     mva #0 TimeCount    ; stop time
     jsr SetRIPscreen
     RMTsong song_game_over
+    jsr WaitForKeyRelease
 @   
-    jsr GetKey
+    jsr GetKeyFast
     cmp #@kbcode._space ; space, Start
     beq restart
     cmp #@kbcode._tab   ; TAB, 1st joy button
