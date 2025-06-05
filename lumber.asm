@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.51" ; number of this build (4 bytes)
+    dta d"0.55" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -1410,6 +1410,8 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
+    jsr ZeroClock
+    mva #$00 AutoScreen
     mva #$ff StateFlag
     mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
     jsr MakeDarkScreen
@@ -1463,7 +1465,16 @@ no_help
     cmp #@kbcode._space  ; space, Start
     beq EndOfStartScreen
     cmp #@kbcode._tab  ; TAB, 1st joy button
+    beq EndOfStartScreen
+    ; check timer
+    lda RTCLOK+1
+    cmp #8
     bne StartLoop
+    ; if timer then auto change screens (help, Hi-score)
+    mva #$ff AutoScreen
+    jsr HelpScreen
+    jsr GameOverScreen
+    jmp StartScreen    
 EndOfStartScreen
     rts
 .endp
@@ -1512,14 +1523,19 @@ EndOfStartScreen
 ;--------------------------------------------------
 .proc GameOverScreen
 ;--------------------------------------------------
-    mva #$ff StateFlag
-    jsr ScoreToBuffer
+    mvy #$ff StateFlag
+    iny
+    sty ATRACT                 ; reset atract mode
+    jsr ZeroClock
     jsr MakeDarkScreen
     jsr ClearPM
     jsr HidePM
     jsr PrepareOverPM
+    bit AutoScreen
+    bmi training_mode
     lda Difficulty
     bne training_mode
+    jsr ScoreToBuffer
     jsr ScoreToTable    ; score saving only in normal game mode
 training_mode
     jsr PrepareScores
@@ -1535,6 +1551,8 @@ training_mode
     sta dmactls
     mva #%00000011 GRACTL
     pause 1
+    bit AutoScreen
+    bmi training_mode2
     lda Difficulty
     bne training_mode2
     lda NewHiScorePosition
@@ -1549,6 +1567,13 @@ OverLoop
     cmp #@kbcode._space ; space, Start
     beq EndOfOverScreen
     cmp #@kbcode._tab   ; TAB, Joy 1st button
+    beq EndOfOverScreen
+    ; if AutoScreen flag is set
+    bit AutoScreen
+    bpl OverLoop
+    ; check timer
+    lda RTCLOK+1
+    cmp #2
     bne OverLoop
 EndOfOverScreen
     rts
@@ -1557,6 +1582,7 @@ EndOfOverScreen
 .proc HelpScreen
 ;--------------------------------------------------
     mva #$ff StateFlag
+    jsr ZeroClock
     jsr ScoreToBuffer
     jsr MakeDarkScreen
     jsr ClearPM
@@ -1578,6 +1604,13 @@ HelpLoop
     cmp #@kbcode._space ; space, Start
     beq EndOfHelpScreen
     cmp #@kbcode._tab   ; TAB, Joy 1st button
+    beq EndOfHelpScreen
+    ; if AutoScreen flag is set
+    bit AutoScreen
+    bpl HelpLoop
+    ; check timer
+    lda RTCLOK+1
+    cmp #2
     bne HelpLoop
 EndOfHelpScreen
     rts
@@ -1794,6 +1827,14 @@ right_side
     rts
 no_branch_l
     mwa #gamescreen_r_ph1p1 animation_addr
+    rts
+.endp
+;--------------------------------------------------
+.proc ZeroClock
+;--------------------------------------------------
+    lda #0
+    sta RTCLOK+1
+    sta RTCLOK+2
     rts
 .endp
 ;--------------------------------------------------
@@ -3005,6 +3046,8 @@ PositionInName
     .ds 1   ; position in player name
 CharCode
     .ds 1   ; input character code in player name
+AutoScreen
+    .ds 1   ; 0 - standard, $ff - auto screen change
 ;--------------------------------------------------
 .proc MenuAnimationsReset
 ;--------------------------------------------------
