@@ -107,14 +107,15 @@ font_over
     ins 'art/game_over.fnt'   ;
 ;---------------------------------------------------
 dl_over
+    .by $80 ; DLI1
     .by $45
     .wo over_screen    ; Game Over screen
     .by $05
-    .by $85 ; DLI1 - end of chain
+    .by $85 ; DLI2 - end of chain
     :3 .by $05
-    .by $85 ; DLI2 - font change
-    :4 .by $85 ; DLI3-6 - font colors
-    .by $85 ; DLI7 - font change
+    .by $85 ; DLI3 - font change
+    :4 .by $85 ; DLI4-7 - font colors
+    .by $85 ; DLI8 - font change
     .by $05 
     .by $41
     .wo dl_over
@@ -1002,13 +1003,20 @@ DLI_L2
 ; color changes
 ;--------------------------------------------------
     pha
-    ; end of chain
-    :3 sta WSYNC
-    mva GameColors+c_font1b COLPF1
+    sta WSYNC
+    mva GameColors+c_sky COLBAK
     mwa #GameOverDLI1.DLI2 VDSLST
     pla
     rti
 DLI2
+    pha
+    ; end of chain
+    :3 sta WSYNC
+    mva GameColors+c_font1b COLPF1
+    mwa #GameOverDLI1.DLI3 VDSLST
+    pla
+    rti
+DLI3
     pha
     ; character set change
     sta WSYNC
@@ -1020,31 +1028,10 @@ DLI2
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI3 VDSLST
-    pla
-    rti
-this_line_score1
-    mva GameColors+c_font1b COLPF1
-    mva GameColors+c_font2b COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5b COLPF2
-    mwa #GameOverDLI1.DLI3 VDSLST
-    pla
-    rti
-DLI3
-    pha
-    sta WSYNC
-    lda NewHiScorePosition
-    cmp #1
-    beq this_line_score2
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5 COLPF2
     mwa #GameOverDLI1.DLI4 VDSLST
     pla
     rti
-this_line_score2
+this_line_score1
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
@@ -1056,8 +1043,8 @@ DLI4
     pha
     sta WSYNC
     lda NewHiScorePosition
-    cmp #2
-    beq this_line_score3
+    cmp #1
+    beq this_line_score2
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
@@ -1065,7 +1052,7 @@ DLI4
     mwa #GameOverDLI1.DLI5 VDSLST
     pla
     rti
-this_line_score3
+this_line_score2
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
@@ -1077,8 +1064,8 @@ DLI5
     pha
     sta WSYNC
     lda NewHiScorePosition
-    cmp #3
-    beq this_line_score4
+    cmp #2
+    beq this_line_score3
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
@@ -1086,7 +1073,7 @@ DLI5
     mwa #GameOverDLI1.DLI6 VDSLST
     pla
     rti
-this_line_score4
+this_line_score3
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
@@ -1098,8 +1085,8 @@ DLI6
     pha
     sta WSYNC
     lda NewHiScorePosition
-    cmp #4
-    beq this_line_score5
+    cmp #3
+    beq this_line_score4
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
@@ -1107,7 +1094,7 @@ DLI6
     mwa #GameOverDLI1.DLI7 VDSLST
     pla
     rti
-this_line_score5
+this_line_score4
     mva GameColors+c_font1b COLPF1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
@@ -1116,6 +1103,27 @@ this_line_score5
     pla
     rti
 DLI7
+    pha
+    sta WSYNC
+    lda NewHiScorePosition
+    cmp #4
+    beq this_line_score5
+    mva GameColors+c_font1 COLPF1
+    mva GameColors+c_font2 COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5 COLPF2
+    mwa #GameOverDLI1.DLI8 VDSLST
+    pla
+    rti
+this_line_score5
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2b COLPF2
+    :12 sta WSYNC
+    mva GameColors+c_font5b COLPF2
+    mwa #GameOverDLI1.DLI8 VDSLST
+    pla
+    rti
+DLI8
     pha
     ; character set change
     sta WSYNC
@@ -1542,7 +1550,7 @@ training_mode
     mva #4 StateFlag
     mva #>font_over CHBAS
     mwa #dl_over dlptrs
-    mva GameColors+c_sky COLBAKS
+    mva GameColors+c_black COLBAKS
     mva GameColors+c_over1 COLOR0
     mva GameColors+c_white2 COLOR1
     mva GameColors+c_white2 COLOR2
@@ -2924,7 +2932,7 @@ datalines_tlogo=11
     lda #$90
     sta HPOSP3_u
 Hoffset_over = 30
-High_over=77
+High_over=78
     rts
 .endp
 ;--------------------------------------------------
