@@ -111,7 +111,7 @@ dl_over
     .by $45
     .wo over_screen    ; Game Over screen
     .by $05
-    .by $85 ; DLI2 - end of chain
+    .by $05 ; DLI2 - end of chain (off)
     :3 .by $05
     .by $85 ; DLI3 - font change
     :4 .by $85 ; DLI4-7 - font colors
@@ -1003,9 +1003,32 @@ DLI_L2
 ; color changes
 ;--------------------------------------------------
     pha
+    phy
     sta WSYNC
     mva GameColors+c_sky COLBAK
-    mwa #GameOverDLI1.DLI2 VDSLST
+    ldy #2
+@   mva #8 COLPF3
+    :2 sta WSYNC
+    mva #10 COLPF3
+    :4 sta WSYNC
+    mva #12 COLPF3
+    :2 sta WSYNC
+    mva #10 COLPF3
+    :2 sta WSYNC
+    mva #8 COLPF3
+    :2 sta WSYNC
+    mva #12 COLPF3
+    :4 sta WSYNC
+    dey
+    bpl @-
+    mva #10 COLPF3
+    ply
+    :2 sta WSYNC
+    mva #8 COLPF3
+    mva GameColors+c_font1b COLPF1
+    :2 sta WSYNC
+    mva GameColors+c_font3 COLPF3
+    mwa #GameOverDLI1.DLI3 VDSLST
     pla
     rti
 DLI2
