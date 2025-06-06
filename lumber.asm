@@ -1522,7 +1522,7 @@ EndOfStartScreen
     mva #%00000011 GRACTL
     jsr SetPMr1
     mva #1 StateFlag    ; GO! screen
-    RMTsong song_go1
+    RMTsong song_go
     jsr AnimateGoLine
     mwa #dl_level dlptrs
     mva #2 StateFlag    ; Game
@@ -2157,10 +2157,10 @@ next_line
     WaitForSync
     dex
     bne @-
-    ;RMTsong song_go1
-    mva #%00000100 AUDCTL   ; audio hack
-    mva #sfx_go1 sfx_effect
+    phy
+    RMTsong song_go1
     pause 25
+    ply
     dey
     bne next_line
     ; .... GO! ....
@@ -2170,8 +2170,7 @@ next_line
     WaitForSync
     dex
     bne @-
-    ;RMTsong song_go2
-    mva #sfx_go2 sfx_effect
+    RMTsong song_go2
     pause 25
     rts
 .endp
@@ -4108,11 +4107,12 @@ sfx_go2 = $0d
 ; RMT songs (lines)
 ;--------------------------------
 song_main_menu  = $00
-song_ingame     = $08
-song_game_over  = $05
-song_go1        = $0d
-song_go2        = $0f
-song_scores    = $11
+song_ingame     = $1a
+song_game_over  = $07
+song_go         = $0f
+song_go1        = $11
+song_go2        = $13
+song_scores    = $15
 song_empty      = $12
 
 
