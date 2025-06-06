@@ -1,7 +1,8 @@
-Songs:
-#1 - title
-#2 - dead
-#3 - ingame (3ch) [temporary]
-#4 - count down 1
-#5 - count down 2
-#6 - high score
+00 - title
+07 - death
+0A - in game (old)
+0F - count down
+11 - count down (pim 1)
+13 - count down (pim 2)
+15 - high score 
+1A - in game (new)
