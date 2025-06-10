@@ -1234,10 +1234,10 @@ DLI5
     mva GameColors+c_white COLPF2   
     :2 sta WSYNC
     mva GameColors+c_sky COLBAK
-    mwa #GoDLI1.DLI6 VDSLST
+    mwa #IngameDLI1.DLI4 VDSLST ; !!! From here on, DLI interrupts are shared with the ingame screen
     pla
     rti
-DLI6
+/* DLI6
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
@@ -1306,7 +1306,7 @@ DLI10
     :3 sta WSYNC
     mva GameColors+c_shadow COLPF2 ; shadow
     pla
-    rti
+    rti */
 .endp
 ;--------------------------------------------------
 .proc IngameDLI1
@@ -1386,11 +1386,8 @@ DLI6
     pha
     lda StateFlag
     sta WSYNC
-    cmp #2
-    beq go_dli6
-    cmp #1  ; go
-    bne @+
-go_dli6
+    cmp #3  ; RIP screen
+    beq @+
     mva GameColors+c_buckle COLPF2 ; button and buckle
 @   mva #>font_game_upper CHBASE
     mwa #IngameDLI1.DLI7 VDSLST
@@ -1399,11 +1396,8 @@ go_dli6
 DLI7
     pha
     lda StateFlag
-    cmp #2
-    beq go_dli7
-    cmp #1  ; go
-    bne @+
-go_dli7
+    cmp #3  ; RIP screen
+    beq @+
     sta WSYNC
     sta WSYNC
     sta WSYNC
@@ -1414,12 +1408,11 @@ go_dli7
 DLI8
     pha
     lda StateFlag
-    cmp #3
-    beq rip_dli8
+    cmp #3  ; RIP screen
+    beq @+
     :3 sta WSYNC
     mva GameColors+c_shadow COLPF2 ; shadow
-rip_dli8
-    pla
+@   pla
     rti
 .endp
 ;--------------------------------------------------
