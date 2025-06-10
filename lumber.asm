@@ -205,7 +205,7 @@ go_addr
     :3 .by $04
     .by $84 ; DLI8
     .by $84 ; DLI9
-    .by $04
+    .by $04+$80 ; DLI10 - shadow
     .by $44
 ;lastline_addr
     .wo last_line_r
@@ -231,7 +231,7 @@ animation_addr
     :3 .by $04
     .by $84 ; DLI6
     .by $84 ; DLI7
-    .by $04
+    .by $04+$80 ; DLI8 - shadow
     .by $44
 lastline_addr
     .wo last_line_r
@@ -281,6 +281,7 @@ c_logo5 = 31
 c_clouds = 32  ; clouds
 c_shirtC = 33  ; timberman shirt on title screen
 c_over1 = 34   ; additional Game Over color
+c_shadow = 35   ; lumberjack green shadow
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -1218,7 +1219,7 @@ DLI4
     mva GameColors+c_font2 COLPF2 
     :2 sta WSYNC
     mva GameColors+c_buckle COLBAK
-    :10 sta WSYNC
+    :14 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #GoDLI1.DLI5 VDSLST
     pla
@@ -1297,7 +1298,14 @@ go_dli7
     sta WSYNC
     sta WSYNC
     mva GameColors+c_pants COLPF2 ; blue pants
-@   pla
+@   mwa #GoDLI1.DLI10 VDSLST
+    pla
+    rti
+DLI10
+    pha
+    :3 sta WSYNC
+    mva GameColors+c_shadow COLPF2 ; shadow
+    pla
     rti
 .endp
 ;--------------------------------------------------
@@ -1400,7 +1408,18 @@ go_dli7
     sta WSYNC
     sta WSYNC
     mva GameColors+c_pants COLPF2 ; blue pants
-@   pla
+@   mwa #IngameDLI1.DLI8 VDSLST
+    pla
+    rti
+DLI8
+    pha
+    lda StateFlag
+    cmp #3
+    beq rip_dli8
+    :3 sta WSYNC
+    mva GameColors+c_shadow COLPF2 ; shadow
+rip_dli8
+    pla
     rti
 .endp
 ;--------------------------------------------------
@@ -3786,6 +3805,8 @@ PAL_colors
     .by $26
     ; game over colors
     .by $10
+    ; shadow
+    .by $c6
 NTSC_colors
     ; black
     .by $00
@@ -3847,6 +3868,8 @@ NTSC_colors
     .by $36
     ; game over colors
     .by $20
+    ; shadow
+    .by $d6
 ;--------------------------------------------------
 title_anime_tableL
     .by <eyes_0 ; first eyes animation
