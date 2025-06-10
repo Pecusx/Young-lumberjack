@@ -86,6 +86,16 @@ display = $a000
 
 RMT_zpvars = COLPM3_d+1  ; POZOR!!! RMT vars go here
 ;---------------------------------------------------
+        ; init.... dark screean and BASIC off
+        ORG $2000
+        mva #0 dmactls             ; dark screen
+        mva #$ff portb
+        ; and wait one frame :)
+        seq:wait                   ; or waitRTC ?
+        mva #$ff portb        ; BASIC off
+        rts
+        ini $2000
+;---------------------------------------------------
 
     org $2000
     .align $400
