@@ -3,6 +3,9 @@
 .IFNDEF TARGET
     .def TARGET = 800 ; 5200
 .ENDIF
+.IFNDEF RMT
+    .def RMT = 1 ; 2 - new player
+.ENDIF
 ;---------------------------------------------------
 
          ;OPT r+  ; saves 10 bytes, and probably works :) https://github.com/tebe6502/Mad-Assembler/issues/10
@@ -84,7 +87,7 @@ display = $a000
     .zpvar COLPM2_d   .byte
     .zpvar COLPM3_d   .byte
 
-RMT_zpvars = COLPM3_d+1  ; POZOR!!! RMT vars go here
+RMT_Zero_Page_V = COLPM3_d+1  ; POZOR!!! RMT vars go here
 ;---------------------------------------------------
         ; init.... dark screean and BASIC off
         ORG $2000
@@ -4108,6 +4111,7 @@ hs_def_name
     .by "A    "
 ;-------------------------------------------------
 ;RMT PLAYER variables
+.IF RMT = 2
 track_variables
 trackn_db   .ds TRACKS
 trackn_hb   .ds TRACKS
@@ -4142,9 +4146,17 @@ trackn_audc .ds TRACKS
 trackn_audctl   .ds TRACKS
 v_aspeed        .ds 1
 track_endvariables
+.ENDIF
 ;-------------------------------------------------
 ;RMT PLAYER loading shenaningans
+    .align $100
+    .ds $400
+PLAYER
+.IF RMT =2
     icl 'msx/rmtplayr_modified.asm'
+.ELSE
+    icl 'msx/rmtplayr.asm'
+.ENDIF
 ;-------------------------------------------------
 ;-------------------------------------------------
 ; music and sfx
