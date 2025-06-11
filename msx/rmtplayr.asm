@@ -57,69 +57,69 @@ p_tis = p_instrstable
 	org PLAYER-$400+$e0
 	EIF
 track_variables
-trackn_db	org *+TRACKS
-trackn_hb	org *+TRACKS
-trackn_idx	org *+TRACKS
-trackn_pause	org *+TRACKS
-trackn_note	org *+TRACKS
-trackn_volume	org *+TRACKS
-trackn_distor 	org *+TRACKS
-trackn_shiftfrq	org *+TRACKS
+trackn_db           .ds TRACKS
+trackn_hb           .ds TRACKS
+trackn_idx          .ds TRACKS
+trackn_pause        .ds TRACKS
+trackn_note         .ds TRACKS
+trackn_volume       .ds TRACKS
+trackn_distor       .ds TRACKS
+trackn_shiftfrq     .ds TRACKS
 	IFT FEAT_PORTAMENTO
-trackn_portafrqc org *+TRACKS
-trackn_portafrqa org *+TRACKS
-trackn_portaspeed org *+TRACKS
-trackn_portaspeeda org *+TRACKS
-trackn_portadepth org *+TRACKS
+trackn_portafrqc    .ds TRACKS
+trackn_portafrqa    .ds TRACKS
+trackn_portaspeed   .ds TRACKS
+trackn_portaspeeda  .ds TRACKS
+trackn_portadepth   .ds TRACKS
 	EIF
-trackn_instrx2	org *+TRACKS
-trackn_instrdb	org *+TRACKS
-trackn_instrhb	org *+TRACKS
-trackn_instridx	org *+TRACKS
-trackn_instrlen	org *+TRACKS
-trackn_instrlop	org *+TRACKS
-trackn_instrreachend	org *+TRACKS
-trackn_volumeslidedepth org *+TRACKS
-trackn_volumeslidevalue org *+TRACKS
+trackn_instrx2      .ds TRACKS
+trackn_instrdb      .ds TRACKS
+trackn_instrhb      .ds TRACKS
+trackn_instridx     .ds TRACKS
+trackn_instrlen     .ds TRACKS
+trackn_instrlop     .ds TRACKS
+trackn_instrreachend    .ds TRACKS
+trackn_volumeslidedepth .ds TRACKS
+trackn_volumeslidevalue .ds TRACKS
 	IFT FEAT_VOLUMEMIN
-trackn_volumemin		org *+TRACKS
+trackn_volumemin    .ds TRACKS
 	EIF
 FEAT_EFFECTS equ FEAT_EFFECTVIBRATO||FEAT_EFFECTFSHIFT
 	IFT FEAT_EFFECTS
-trackn_effdelay			org *+TRACKS
+trackn_effdelay     .ds TRACKS
 	EIF
 	IFT FEAT_EFFECTVIBRATO
-trackn_effvibratoa		org *+TRACKS
+trackn_effvibratoa  .ds TRACKS
 	EIF
 	IFT FEAT_EFFECTFSHIFT
-trackn_effshift		org *+TRACKS
+trackn_effshift     .ds TRACKS
 	EIF
-trackn_tabletypespeed org *+TRACKS
+trackn_tabletypespeed   .ds TRACKS
 	IFT FEAT_TABLEMODE
-trackn_tablemode	org *+TRACKS
+trackn_tablemode    .ds TRACKS
 	EIF
-trackn_tablenote	org *+TRACKS
-trackn_tablea		org *+TRACKS
-trackn_tableend		org *+TRACKS
+trackn_tablenote    .ds TRACKS
+trackn_tablea       .ds TRACKS
+trackn_tableend     .ds TRACKS
 	IFT FEAT_TABLEGO
-trackn_tablelop		org *+TRACKS
+trackn_tablelop     .ds TRACKS
 	EIF
-trackn_tablespeeda	org *+TRACKS
+trackn_tablespeeda  .ds TRACKS
 	IFT FEAT_FILTER||FEAT_BASS16
-trackn_command		org *+TRACKS
+trackn_command      .ds TRACKS
 	EIF
 	IFT FEAT_BASS16
-trackn_outnote		org *+TRACKS
+trackn_outnote      .ds TRACKS
 	EIF
 	IFT FEAT_FILTER
-trackn_filter		org *+TRACKS
+trackn_filter       .ds TRACKS
 	EIF
-trackn_audf	org *+TRACKS
-trackn_audc	org *+TRACKS
+trackn_audf         .ds TRACKS
+trackn_audc         .ds TRACKS
 	IFT FEAT_AUDCTLMANUALSET
-trackn_audctl	org *+TRACKS
+trackn_audctl       .ds TRACKS
 	EIF
-v_aspeed		org *+1
+v_aspeed    .ds 1
 track_endvariables
 		org PLAYER-$100-$140-$40+2
 INSTRPAR	equ 12
