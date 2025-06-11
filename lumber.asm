@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.55" ; number of this build (4 bytes)
+    dta d"0.56" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -85,6 +85,16 @@ display = $a000
     .zpvar COLPM3_d   .byte
 
 RMT_zpvars = COLPM3_d+1  ; POZOR!!! RMT vars go here
+;---------------------------------------------------
+        ; init.... dark screean and BASIC off
+        ORG $2000
+        mva #0 dmactls             ; dark screen
+        mva #$ff portb
+        ; and wait one frame :)
+        seq:wait                   ; or waitRTC ?
+        mva #$ff portb        ; BASIC off
+        rts
+        ini $2000
 ;---------------------------------------------------
 
     org $2000
@@ -205,7 +215,7 @@ go_addr
     :3 .by $04
     .by $84 ; DLI8
     .by $84 ; DLI9
-    .by $04
+    .by $04+$80 ; DLI10 - shadow
     .by $44
 ;lastline_addr
     .wo last_line_r
@@ -231,7 +241,7 @@ animation_addr
     :3 .by $04
     .by $84 ; DLI6
     .by $84 ; DLI7
-    .by $04
+    .by $04+$80 ; DLI8 - shadow
     .by $44
 lastline_addr
     .wo last_line_r
@@ -281,6 +291,7 @@ c_logo5 = 31
 c_clouds = 32  ; clouds
 c_shirtC = 33  ; timberman shirt on title screen
 c_over1 = 34   ; additional Game Over color
+c_shadow = 35   ; lumberjack green shadow
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -1218,7 +1229,7 @@ DLI4
     mva GameColors+c_font2 COLPF2 
     :2 sta WSYNC
     mva GameColors+c_buckle COLBAK
-    :10 sta WSYNC
+    :14 sta WSYNC
     mva GameColors+c_font5 COLPF2
     mwa #GoDLI1.DLI5 VDSLST
     pla
@@ -1233,10 +1244,10 @@ DLI5
     mva GameColors+c_white COLPF2   
     :2 sta WSYNC
     mva GameColors+c_sky COLBAK
-    mwa #GoDLI1.DLI6 VDSLST
+    mwa #IngameDLI1.DLI4 VDSLST ; !!! From here on, DLI interrupts are shared with the ingame screen
     pla
     rti
-DLI6
+/* DLI6
     pha
     sta WSYNC
     mva LowCharsetBase CHBASE
@@ -1297,8 +1308,15 @@ go_dli7
     sta WSYNC
     sta WSYNC
     mva GameColors+c_pants COLPF2 ; blue pants
-@   pla
+@   mwa #GoDLI1.DLI10 VDSLST
+    pla
     rti
+DLI10
+    pha
+    :3 sta WSYNC
+    mva GameColors+c_shadow COLPF2 ; shadow
+    pla
+    rti */
 .endp
 ;--------------------------------------------------
 .proc IngameDLI1
@@ -1378,11 +1396,8 @@ DLI6
     pha
     lda StateFlag
     sta WSYNC
-    cmp #2
-    beq go_dli6
-    cmp #1  ; go
-    bne @+
-go_dli6
+    cmp #3  ; RIP screen
+    beq @+
     mva GameColors+c_buckle COLPF2 ; button and buckle
 @   mva #>font_game_upper CHBASE
     mwa #IngameDLI1.DLI7 VDSLST
@@ -1391,15 +1406,22 @@ go_dli6
 DLI7
     pha
     lda StateFlag
-    cmp #2
-    beq go_dli7
-    cmp #1  ; go
-    bne @+
-go_dli7
+    cmp #3  ; RIP screen
+    beq @+
     sta WSYNC
     sta WSYNC
     sta WSYNC
     mva GameColors+c_pants COLPF2 ; blue pants
+@   mwa #IngameDLI1.DLI8 VDSLST
+    pla
+    rti
+DLI8
+    pha
+    lda StateFlag
+    cmp #3  ; RIP screen
+    beq @+
+    :3 sta WSYNC
+    mva GameColors+c_shadow COLPF2 ; shadow
 @   pla
     rti
 .endp
@@ -3786,6 +3808,8 @@ PAL_colors
     .by $26
     ; game over colors
     .by $10
+    ; shadow
+    .by $c6
 NTSC_colors
     ; black
     .by $00
@@ -3847,6 +3871,8 @@ NTSC_colors
     .by $36
     ; game over colors
     .by $20
+    ; shadow
+    .by $d6
 ;--------------------------------------------------
 title_anime_tableL
     .by <eyes_0 ; first eyes animation
