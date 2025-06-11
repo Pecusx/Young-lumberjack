@@ -51,6 +51,26 @@ p_tis = p_instrstable
 	IFT FEAT_COMMAND2
     .zpvar frqaddcmd2   .byte
 	EIF
+     ; de-self-modification vars
+    .zpvar v_audctl         .byte
+	.IF TRACKS>4
+    .zpvar v_audctl2        .byte
+    .ENDIF
+	.IF FEAT_INSTRSPEED==0||FEAT_INSTRSPEED>1
+    .zpvar v_ainstrspeed    .byte
+    .ENDIF
+    .zpvar v_maxtracklen    .byte
+    .zpvar v_abeat          .byte
+	.IF FEAT_CONSTANTSPEED==0
+    .zpvar v_bspeed         .byte
+    .ENDIF
+	.IF FEAT_CONSTANTSPEED==0
+    .zpvar v_speed          .byte
+    .ENDIF
+	.IF FEAT_SFX
+    .zpvar RMTSFXVOLUME     .byte
+    .ENDIF
+    ; end of de-self-modification vars
 	IFT TRACKS>4
 	org PLAYER-$400+$40
 	ELS
@@ -366,8 +386,7 @@ GetTrackLine
 oo0
 oo0a
 	IFT FEAT_CONSTANTSPEED==0
-	lda #$ff
-v_speed equ *-1
+	lda v_speed
 	sta v_bspeed
 	EIF
 	ldx #-1
@@ -423,8 +442,7 @@ oo1x
 xtracks03sub1	cpx #TRACKS-1
 	bne oo1
 	IFT FEAT_CONSTANTSPEED==0
-	lda #$ff
-v_bspeed equ *-1
+	lda v_bspeed
 	sta v_speed
 	ELS
 	lda #FEAT_CONSTANTSPEED
@@ -481,8 +499,7 @@ rmt_sfx
 	IFT FEAT_BASS16
 	sta trackn_outnote,x
 	EIF
-	lda #$f0				;* sfx note volume*16
-RMTSFXVOLUME equ *-1		;* label for sfx note volume parameter overwriting
+	lda RMTSFXVOLUME    ;* sfx note volume*16
 	sta trackn_volume,x
 	EIF
 SetUpInstrumentY2
@@ -606,10 +623,8 @@ rmt_p2
 	dec v_aspeed
 	bne rmt_p3
 	inc v_abeat
-	lda #$ff
-v_abeat equ *-1
-	cmp #$ff
-v_maxtracklen equ *-1
+	lda v_abeat
+	cmp v_maxtracklen
 	beq p2o3
 	jmp GetTrackLine
 p2o3
@@ -1240,16 +1255,14 @@ qs5
 	EIF
 rmt_p5
 	IFT FEAT_INSTRSPEED==0||FEAT_INSTRSPEED>1
-	lda #$ff
-v_ainstrspeed equ *-1
+	lda v_ainstrspeed
 	ELS
 	lda #1
 	EIF
 	rts
 SetPokey
 	IFT STEREOMODE==1		;* L1 L2 L3 L4 R1 R2 R3 R4
-	ldy #$ff
-v_audctl2 equ *-1
+	ldy v_audctl2
 	lda trackn_audf+0+4
 	ldx trackn_audf+0
 xstastx01	sta $d210
@@ -1282,13 +1295,11 @@ xstastx07	sta $d216
 	ldx trackn_audc+3
 xstastx08	sta $d217
 	stx $d207
-	lda #$ff
-v_audctl equ *-1
+	lda v_audctl
 xstysta01	sty $d218
 	sta $d208
 	ELI STEREOMODE==0		;* L1 L2 L3 L4
-	ldy #$ff
-v_audctl equ *-1
+	ldy v_audctl
 	lda trackn_audf+0
 	ldx trackn_audc+0
 	sta $d200
@@ -1307,8 +1318,7 @@ v_audctl equ *-1
 	stx $d201+6
 	sty $d208
 	ELI STEREOMODE==2		;* L1 R2 R3 L4
-	ldy #$ff
-v_audctl equ *-1
+	ldy v_audctl
 	lda trackn_audf+0
 	ldx trackn_audc+0
 	sta $d200
@@ -1331,8 +1341,7 @@ v_audctl equ *-1
 	sty $d218
 	sty $d208
 	ELI STEREOMODE==3		;* L1 L2 R3 R4
-	ldy #$ff
-v_audctl equ *-1
+	ldy v_audctl
 	lda trackn_audf+0
 	ldx trackn_audc+0
 	sta $d200
