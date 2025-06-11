@@ -473,7 +473,7 @@ wait_for_timer
     bmi lab2
     asl                         ; * 2
     tay                         ;Y = 2,4,..,16  instrument number * 2 (0,2,4,..,126)
-    ldx #0                    ;X = 0          channel (0..3 or 0..7 for stereo module)
+    ldx #3                    ;X = 0          channel (0..3 or 0..7 for stereo module)
     lda #0                     ;A = 0          note (0..60)
     jsr RASTERMUSICTRACKER+15   ;RMT_SFX start tone (It works only if FEAT_SFX is enabled !!!)
     lda #$ff
