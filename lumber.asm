@@ -9,7 +9,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.56" ; number of this build (4 bytes)
+    dta d"0.60" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -169,12 +169,12 @@ timber_eyes_addr
     .wo title_timber+(32*2)
     .by $84 ; DLI11 - color bars
     .by $84 ; DLI12 - pants color
-    .by $04    
-    .by $44+$80 ; DLI13
+    .by $84 ; DLI13 - shadow
+    .by $44+$80 ; DLI14
 timber_foot_addr
     .wo foot_0
     .by $44+$80 ; DLI_L2 - fonts
-    .wo empty_line
+    .wo title_timber+(32*7) ; rest of shadow
     .by $45 
 difficulty_text_addr
     .wo difficulty_normal_text
@@ -308,14 +308,14 @@ c_shadow = 35   ; lumberjack green shadow
 title_logo
     icl 'art/title_logo.asm'    ;   8 lines, mode 4 narrow
 title_timber
-    icl 'art/title_timber.asm'    ;   7 lines, mode 4 narrow (+ 4 lines - eyes animation, + 1 line - foot animation)
+    icl 'art/title_timber.asm'    ;   8 lines, mode 4 narrow (+ 4 lines - eyes animation, + 1 line - foot animation)
 eyes_0 = title_timber+32
-eyes_1 = title_timber+(32*7)
-eyes_2 = title_timber+(32*8)
-eyes_3 = title_timber+(32*9)
-eyes_4 = title_timber+(32*10)
+eyes_1 = title_timber+(32*8)
+eyes_2 = title_timber+(32*9)
+eyes_3 = title_timber+(32*10)
+eyes_4 = title_timber+(32*11)
 foot_0 = title_timber+(32*6)
-foot_1 = title_timber+(32*11)
+foot_1 = title_timber+(32*12)
 empty_line
     :40 .by 0
 go_text
@@ -966,6 +966,13 @@ DLI12
     pla
     rti
 DLI13
+    pha
+    :4 sta WSYNC
+    mva GameColors+c_shadow COLPF2 ; shadow color
+    mwa #TitlesDLI1.DLI14 VDSLST
+    pla
+    rti
+DLI14
     pha
     ; PMG colors, horizontal coordinates and sizes
     txa
@@ -2203,7 +2210,8 @@ next_line
     dex
     bne @-
     phy
-    RMTsong song_go1
+    ;RMTsong song_go1
+    mva #sfx_go1 sfx_effect
     pause 25
     ply
     dey
@@ -2215,7 +2223,8 @@ next_line
     WaitForSync
     dex
     bne @-
-    RMTsong song_go2
+    ;RMTsong song_go2
+    mva #sfx_go2 sfx_effect
     pause 25
     rts
 .endp
@@ -4143,7 +4152,7 @@ track_endvariables
 MODUL
                ; RMT module is standard Atari binary file already
                ; include music RMT module:
-      ins "msx/tbm2_str.rmt",+6
+      ins "msx/tbm3_str.rmt",+6
 MODULEND
 
 ;-----------------------------------
@@ -4156,12 +4165,12 @@ sfx_go2 = $0d
 ; RMT songs (lines)
 ;--------------------------------
 song_main_menu  = $00
-song_ingame     = $1a
-song_game_over  = $07
-song_go         = $0f
+song_ingame     = $1c
+song_game_over  = $0d
+song_go         = $15
 song_go1        = $11
 song_go2        = $13
-song_scores    = $15
+song_scores    = $17
 song_empty      = $12
 
 

@@ -45,7 +45,7 @@ write_asm(
     out='title_timber.asm',
     page=1,
     line_from=12,
-    line_to=12+12,
+    line_to=12+13,
     skip_left=0,
     skip_right=8)
 
