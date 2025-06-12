@@ -1806,13 +1806,17 @@ LevelDeath
     mva #0 TimeCount    ; stop time
     jsr SetRIPscreen
     RMTsong song_game_over
+    jsr ZeroClock
     jsr WaitForKeyRelease
-@   
+RIPLoop   
     jsr GetKeyFast
     cmp #@kbcode._space ; space, Start
     beq restart
     cmp #@kbcode._tab   ; TAB, 1st joy button
-    bne @-
+    beq restart
+    lda RTCLOK+1
+    cmp #2
+    bne RIPLoop
 restart
     ; restart game
     rts
