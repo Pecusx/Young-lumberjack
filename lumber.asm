@@ -21,6 +21,12 @@
 .endm
 
 ;---------------------------------------------------
+.IF TARGET = 800
+.local
+    icl 'art/DM_logo_src/digital_melody_logo.asm'
+.endl
+.ENDIF
+;---------------------------------------------------
     icl 'lib/ATARISYS.ASM'
     icl 'lib/MACRO.ASM'
 
