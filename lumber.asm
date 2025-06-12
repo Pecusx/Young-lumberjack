@@ -1604,7 +1604,6 @@ EndOfStartScreen
     mvy #$ff StateFlag
     iny
     sty ATRACT                 ; reset atract mode
-    jsr ZeroClock
     jsr MakeDarkScreen
     jsr ClearPM
     jsr HidePM
@@ -1638,6 +1637,8 @@ training_mode
     beq training_mode2
     jsr EnterPlayerName    ; enter name only in normal game mode and if there are new score
 training_mode2
+    jsr ZeroClock
+    mva #$ff AutoScreen
     mva #5 NewHiScorePosition ; prevent highlighting of result
     jsr WaitForKeyRelease
 OverLoop
