@@ -732,7 +732,7 @@ no_eyes
     lda RANDOM
     and #%00000011
     beq no_eyes_animation ; 00 - no animation
-    cmp #1
+/*     cmp #1
     bne no_eyes_change ; up/down
     ; eyes change (or not :) )
     ldx #5  ; eyes up
@@ -743,8 +743,8 @@ no_eyes
 @   stx EyesPhase
     jsr MenuEyesSet
     jmp no_eyes_animation
-no_eyes_change
-    ; %10 and %11 - eyes animation
+ */no_eyes_change
+    ; %10 , %01 and %11 - eyes animation
     inc EyesPhase
     ldx EyesPhase
     jsr MenuEyesSet
@@ -758,6 +758,10 @@ no_eyes_animation
     inx
     cpx #25   ; after last phase of foot animation (one frame = 4, one "step" = 2 frames = 8 .... +1 (ending frame) - 25 = 8(step)*3+1
     bne not_end_f
+    ldx #0
+    ; end of foot animation? - eyes down :)
+    stx EyesPhase
+    jsr MenuEyesSet
     ldx #0  ; set to mo animation phase
 not_end_f
     stx FootPhase
@@ -771,6 +775,9 @@ no_foot
     dec FootTimer
     bne no_timber_animation
     ; start foot animation
+    ; foot animation - eyes up :)
+    mvx #5 EyesPhase
+    jsr MenuEyesSet
     ldx #1
     stx FootPhase
     jsr MenuFootSet
@@ -1479,10 +1486,11 @@ gameOver
 ;--------------------------------------------------
 .proc StartScreen
 ;--------------------------------------------------
+    mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
+no_foot_delay
     jsr ZeroClock
     mva #$00 AutoScreen
     mva #$ff StateFlag
-    mva #125 FootTimer  ; set delay for first foot animation (125 = 20s in PAL)
     jsr MakeDarkScreen
     jsr MenuAnimationsReset
     jsr ClearPM
@@ -1543,7 +1551,8 @@ no_help
     mva #$ff AutoScreen
     jsr HelpScreen
     jsr GameOverScreen
-    jmp StartScreen    
+    mva #40 FootTimer  ; set delay for foot animation
+    jmp StartScreen.no_foot_delay
 EndOfStartScreen
     rts
 .endp
