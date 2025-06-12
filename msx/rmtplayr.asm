@@ -48,9 +48,9 @@ p_tis = p_instrstable
     .zpvar reg2 .byte
     .zpvar reg3 .byte
     .zpvar tmp  .byte
-	IFT FEAT_COMMAND2
+	.IF FEAT_COMMAND2
     .zpvar frqaddcmd2   .byte
-	EIF
+	.ENDIF
      ; de-self-modification vars
     .zpvar v_audctl         .byte
 	.IF TRACKS>4
@@ -71,11 +71,11 @@ p_tis = p_instrstable
     .zpvar RMTSFXVOLUME     .byte
     .ENDIF
     ; end of de-self-modification vars
-	IFT TRACKS>4
+	.IF TRACKS>4
 	org PLAYER-$400+$40
-	ELS
+	.ELSE
 	org PLAYER-$400+$e0
-	EIF
+	.ENDIF
 track_variables
 trackn_db           .ds TRACKS
 trackn_hb           .ds TRACKS
@@ -85,13 +85,13 @@ trackn_note         .ds TRACKS
 trackn_volume       .ds TRACKS
 trackn_distor       .ds TRACKS
 trackn_shiftfrq     .ds TRACKS
-	IFT FEAT_PORTAMENTO
+	.IF FEAT_PORTAMENTO
 trackn_portafrqc    .ds TRACKS
 trackn_portafrqa    .ds TRACKS
 trackn_portaspeed   .ds TRACKS
 trackn_portaspeeda  .ds TRACKS
 trackn_portadepth   .ds TRACKS
-	EIF
+	.ENDIF
 trackn_instrx2      .ds TRACKS
 trackn_instrdb      .ds TRACKS
 trackn_instrhb      .ds TRACKS
@@ -101,44 +101,44 @@ trackn_instrlop     .ds TRACKS
 trackn_instrreachend    .ds TRACKS
 trackn_volumeslidedepth .ds TRACKS
 trackn_volumeslidevalue .ds TRACKS
-	IFT FEAT_VOLUMEMIN
+	.IF FEAT_VOLUMEMIN
 trackn_volumemin    .ds TRACKS
-	EIF
+	.ENDIF
 FEAT_EFFECTS equ FEAT_EFFECTVIBRATO||FEAT_EFFECTFSHIFT
-	IFT FEAT_EFFECTS
+	.IF FEAT_EFFECTS
 trackn_effdelay     .ds TRACKS
-	EIF
-	IFT FEAT_EFFECTVIBRATO
+	.ENDIF
+	.IF FEAT_EFFECTVIBRATO
 trackn_effvibratoa  .ds TRACKS
-	EIF
-	IFT FEAT_EFFECTFSHIFT
+	.ENDIF
+	.IF FEAT_EFFECTFSHIFT
 trackn_effshift     .ds TRACKS
-	EIF
+	.ENDIF
 trackn_tabletypespeed   .ds TRACKS
-	IFT FEAT_TABLEMODE
+	.IF FEAT_TABLEMODE
 trackn_tablemode    .ds TRACKS
-	EIF
+	.ENDIF
 trackn_tablenote    .ds TRACKS
 trackn_tablea       .ds TRACKS
 trackn_tableend     .ds TRACKS
-	IFT FEAT_TABLEGO
+	.IF FEAT_TABLEGO
 trackn_tablelop     .ds TRACKS
-	EIF
+	.ENDIF
 trackn_tablespeeda  .ds TRACKS
-	IFT FEAT_FILTER||FEAT_BASS16
+	.IF FEAT_FILTER||FEAT_BASS16
 trackn_command      .ds TRACKS
-	EIF
-	IFT FEAT_BASS16
+	.ENDIF
+	.IF FEAT_BASS16
 trackn_outnote      .ds TRACKS
-	EIF
-	IFT FEAT_FILTER
+	.ENDIF
+	.IF FEAT_FILTER
 trackn_filter       .ds TRACKS
-	EIF
+	.ENDIF
 trackn_audf         .ds TRACKS
 trackn_audc         .ds TRACKS
-	IFT FEAT_AUDCTLMANUALSET
+	.IF FEAT_AUDCTLMANUALSET
 trackn_audctl       .ds TRACKS
-	EIF
+	.ENDIF
 v_aspeed    .ds 1
 track_endvariables
 		org PLAYER-$100-$140-$40+2
@@ -152,7 +152,7 @@ tabbeganddistor
  dta frqtabpure-frqtab,$a0
  dta frqtabbass1-frqtab,$c0
  dta frqtabbass2-frqtab,$c0
-		IFT FEAT_EFFECTVIBRATO
+		.IF FEAT_EFFECTVIBRATO
 vibtabbeg dta 0,vib1-vib0,vib2-vib0,vib3-vib0
 vib0	dta 0
 vib1	dta 1,-1,-1,1
@@ -163,15 +163,15 @@ vibtabnext
 		dta vib1-vib0+1,vib1-vib0+2,vib1-vib0+3,vib1-vib0+0
 		dta vib2-vib0+1,vib2-vib0+2,vib2-vib0+3,vib2-vib0+4,vib2-vib0+5,vib2-vib0+0
 		dta vib3-vib0+1,vib3-vib0+2,vib3-vib0+3,vib3-vib0+4,vib3-vib0+5,vib3-vib0+6,vib3-vib0+7,vib3-vib0+8,vib3-vib0+9,vib3-vib0+0
-		EIF
+		.ENDIF
 		org PLAYER-$100-$140
-	IFT FEAT_BASS16
+	.IF FEAT_BASS16
 frqtabbasslo
 	dta $F2,$33,$96,$E2,$38,$8C,$00,$6A,$E8,$6A,$EF,$80,$08,$AE,$46,$E6
 	dta $95,$41,$F6,$B0,$6E,$30,$F6,$BB,$84,$52,$22,$F4,$C8,$A0,$7A,$55
 	dta $34,$14,$F5,$D8,$BD,$A4,$8D,$77,$60,$4E,$38,$27,$15,$06,$F7,$E8
 	dta $DB,$CF,$C3,$B8,$AC,$A2,$9A,$90,$88,$7F,$78,$70,$6A,$64,$5E,$00
-	EIF
+	.ENDIF
 		org PLAYER-$100-$100
 frqtab
 	ERT [<frqtab]!=0	;* frqtab must begin at the memory page bound! (i.e. $..00 address)
@@ -190,13 +190,13 @@ frqtabpure
 	dta $60,$5B,$55,$51,$4C,$48,$44,$40,$3C,$39,$35,$32,$2F,$2D,$2A,$28
 	dta $25,$23,$21,$1F,$1D,$1C,$1A,$18,$17,$16,$14,$13,$12,$11,$10,$0F
 	dta $0E,$0D,$0C,$0B,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$00,$00
-	IFT FEAT_BASS16
+	.IF FEAT_BASS16
 frqtabbasshi
 	dta $0D,$0D,$0C,$0B,$0B,$0A,$0A,$09,$08,$08,$07,$07,$07,$06,$06,$05
 	dta $05,$05,$04,$04,$04,$04,$03,$03,$03,$03,$03,$02,$02,$02,$02,$02
 	dta $02,$02,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00
 	dta $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-	EIF
+	.ENDIF
 		org PLAYER-$0100
 volumetab
 	dta $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -225,56 +225,56 @@ RASTERMUSICTRACKER
 	jmp rmt_p3
 	jmp rmt_silence
 	jmp SetPokey
-	IFT FEAT_SFX
+	.IF FEAT_SFX
 	jmp rmt_sfx			;* A=note(0,..,60),X=channel(0,..,3 or 0,..,7),Y=instrument*2(0,2,4,..,126)
-	EIF
+	.ENDIF
 rmt_init
 	stx ns
 	sty ns+1
-	IFT FEAT_NOSTARTINGSONGLINE==0
+	.IF FEAT_NOSTARTINGSONGLINE==0
 	pha
-	EIF
-	IFT track_endvariables-track_variables>255
+	.ENDIF
+	.IF track_endvariables-track_variables>255
 	ldy #0
 	tya
 ri0	sta track_variables,y
 	sta track_endvariables-$100,y
 	iny
 	bne ri0
-	ELS
+	.ELSE
 	ldy #track_endvariables-track_variables
 	lda #0
 ri0	sta track_variables-1,y
 	dey
 	bne ri0
-	EIF
+	.ENDIF
 	ldy #4
 	lda (ns),y
 	sta v_maxtracklen
 	iny
-	IFT FEAT_CONSTANTSPEED==0
+	.IF FEAT_CONSTANTSPEED==0
 	lda (ns),y
 	sta v_speed
-	EIF
-	IFT FEAT_INSTRSPEED==0
+	.ENDIF
+	.IF FEAT_INSTRSPEED==0
 	iny
 	lda (ns),y
 	sta v_instrspeed
 	sta v_ainstrspeed
-	ELI FEAT_INSTRSPEED>1
+	.ELSEIF FEAT_INSTRSPEED>1
 	lda #FEAT_INSTRSPEED
 	sta v_ainstrspeed
-	EIF
+	.ENDIF
 	ldy #8
 ri1	lda (ns),y
 	sta p_tis-8,y
 	iny
 	cpy #8+8
 	bne ri1
-	IFT FEAT_NOSTARTINGSONGLINE==0
+	.IF FEAT_NOSTARTINGSONGLINE==0
 	pla
 	pha
-	IFT TRACKS>4
+	.IF TRACKS>4
 	asl @
 	asl @
 	asl @
@@ -288,7 +288,7 @@ ri1	lda (ns),y
 	rol @
 	rol @
 	rol @
-	ELS
+	.ELSE
 	asl @
 	asl @
 	clc
@@ -300,14 +300,14 @@ ri1	lda (ns),y
 	asl @
 	rol @
 	rol @
-	EIF
+	.ENDIF
 	plp
 	adc p_song+1
 	sta p_song+1
-	EIF
+	.ENDIF
 	jsr GetSongLineTrackLineInitOfNewSetInstrumentsOnlyRmtp3
 rmt_silence
-	IFT STEREOMODE>0
+	.IF STEREOMODE>0
 	lda #0
 	sta $d208
 	sta $d218
@@ -319,7 +319,7 @@ si1	sta $d200,y
 	sta $d210,y
 	dey
 	bpl si1
-	ELS
+	.ELSE
 	lda #0
 	sta $d208
 	ldy #3
@@ -328,12 +328,12 @@ si1	sta $d200,y
 si1	sta $d200,y
 	dey
 	bpl si1
-	EIF
-	IFT FEAT_INSTRSPEED==0
+	.ENDIF
+	.IF FEAT_INSTRSPEED==0
 	lda v_instrspeed
-	ELS
+	.ELSE
 	lda #FEAT_INSTRSPEED
-	EIF
+	.ENDIF
 	rts
 GetSongLineTrackLineInitOfNewSetInstrumentsOnlyRmtp3
 GetSongLine
@@ -385,10 +385,10 @@ nn3
 GetTrackLine
 oo0
 oo0a
-	IFT FEAT_CONSTANTSPEED==0
+	.IF FEAT_CONSTANTSPEED==0
 	lda v_speed
 	sta v_bspeed
-	EIF
+	.ENDIF
 	ldx #-1
 oo1
 	inx
@@ -409,9 +409,9 @@ oo1i
 	beq oo1a
 	bcs oo2
 	sta trackn_note,x
-	IFT FEAT_BASS16
+	.IF FEAT_BASS16
 	sta trackn_outnote,x
-	EIF
+	.ENDIF
 	iny
 	lda (ns),y
 	lsr @
@@ -428,25 +428,25 @@ oo1a
 	lsr @
 	ror reg1
 	lda reg1
-	IFT FEAT_GLOBALVOLUMEFADE
+	.IF FEAT_GLOBALVOLUMEFADE
 	sec
 	sbc #$00
 RMTGLOBALVOLUMEFADE equ *-1
 	bcs voig
 	lda #0
 voig
-	EIF
+	.ENDIF
 	and #$f0
 	sta trackn_volume,x
 oo1x
 xtracks03sub1	cpx #TRACKS-1
 	bne oo1
-	IFT FEAT_CONSTANTSPEED==0
+	.IF FEAT_CONSTANTSPEED==0
 	lda v_bspeed
 	sta v_speed
-	ELS
+	.ELSE
 	lda #FEAT_CONSTANTSPEED
-	EIF
+	.ENDIF
 	sta v_aspeed
 	jmp InitOfNewSetInstrumentsOnly
 oo2
@@ -468,7 +468,7 @@ oo62_b
 	jmp oo1x
 oo63
 	lda reg1
-	IFT FEAT_CONSTANTSPEED==0
+	.IF FEAT_CONSTANTSPEED==0
 	bmi oo63_1X
 	iny
 	lda (ns),y
@@ -476,7 +476,7 @@ oo63
 	inc trackn_idx,x
 	jmp oo1i
 oo63_1X
-	EIF
+	.ENDIF
 	cmp #255
 	beq oo63_11
 	iny
@@ -491,17 +491,17 @@ p2x0 dex
 InitOfNewSetInstrumentsOnly
 p2x1 ldy trackn_instrx2,x
 	bmi p2x0
-	IFT FEAT_SFX
+	.IF FEAT_SFX
 	jsr SetUpInstrumentY2
 	jmp p2x0
 rmt_sfx
 	sta trackn_note,x
-	IFT FEAT_BASS16
+	.IF FEAT_BASS16
 	sta trackn_outnote,x
-	EIF
+	.ENDIF
 	lda RMTSFXVOLUME    ;* sfx note volume*16
 	sta trackn_volume,x
-	EIF
+	.ENDIF
 SetUpInstrumentY2
 	lda (p_instrstable),y
 	sta trackn_instrdb,x
@@ -510,22 +510,22 @@ SetUpInstrumentY2
 	lda (p_instrstable),y
 	sta trackn_instrhb,x
 	sta nt+1
-	IFT FEAT_FILTER
+	.IF FEAT_FILTER
 	lda #1
 	sta trackn_filter,x
-	EIF
-	IFT FEAT_TABLEGO
-	IFT FEAT_FILTER
+	.ENDIF
+	.IF FEAT_TABLEGO
+	.IF FEAT_FILTER
 	tay
-	ELS
+	.ELSE
 	ldy #1
-	EIF
+	.ENDIF
 	lda (nt),y
 	sta trackn_tablelop,x
 	iny
-	ELS
+	.ELSE
 	ldy #2
-	EIF
+	.ENDIF
 	lda (nt),y
 	sta trackn_instrlen,x
 	iny
@@ -534,53 +534,53 @@ SetUpInstrumentY2
 	iny
 	lda (nt),y
 	sta trackn_tabletypespeed,x
-	IFT FEAT_TABLETYPE||FEAT_TABLEMODE
+	.IF FEAT_TABLETYPE||FEAT_TABLEMODE
 	and #$3f
-	EIF
+	.ENDIF
 	sta trackn_tablespeeda,x
-	IFT FEAT_TABLEMODE
+	.IF FEAT_TABLEMODE
 	lda (nt),y
 	and #$40
 	sta trackn_tablemode,x
-	EIF
-	IFT FEAT_AUDCTLMANUALSET
+	.ENDIF
+	.IF FEAT_AUDCTLMANUALSET
 	iny
 	lda (nt),y
 	sta trackn_audctl,x
 	iny
-	ELS
+	.ELSE
 	ldy #6
-	EIF
+	.ENDIF
 	lda (nt),y
 	sta trackn_volumeslidedepth,x
-	IFT FEAT_VOLUMEMIN
+	.IF FEAT_VOLUMEMIN
 	iny
 	lda (nt),y
 	sta trackn_volumemin,x
-	IFT FEAT_EFFECTS
+	.IF FEAT_EFFECTS
 	iny
-	EIF
-	ELS
-	IFT FEAT_EFFECTS
+	.ENDIF
+	.ELSE
+	.IF FEAT_EFFECTS
 	ldy #8
-	EIF
-	EIF
-	IFT FEAT_EFFECTS
+	.ENDIF
+	.ENDIF
+	.IF FEAT_EFFECTS
 	lda (nt),y
 	sta trackn_effdelay,x
-	IFT FEAT_EFFECTVIBRATO
+	.IF FEAT_EFFECTVIBRATO
 	iny
 	lda (nt),y
 	tay
 	lda vibtabbeg,y
 	sta trackn_effvibratoa,x
-	EIF
-	IFT FEAT_EFFECTFSHIFT
+	.ENDIF
+	.IF FEAT_EFFECTFSHIFT
 	ldy #10
 	lda (nt),y
 	sta trackn_effshift,x
-	EIF
-	EIF
+	.ENDIF
+	.ENDIF
 	lda #128
 	sta trackn_volumeslidevalue,x
 	sta trackn_instrx2,x
@@ -598,27 +598,27 @@ SetUpInstrumentY2
 	lda (nt),y
 	sta trackn_tablenote,x
 xata_rtshere
-	IFT FEAT_SFX
+	.IF FEAT_SFX
 	rts
-	ELS
+	.ELSE
 	jmp p2x0
-	EIF
+	.ENDIF
 rmt_play
 rmt_p0
 	jsr SetPokey
 rmt_p1
-	IFT FEAT_INSTRSPEED==0||FEAT_INSTRSPEED>1
+	.IF FEAT_INSTRSPEED==0||FEAT_INSTRSPEED>1
 	dec v_ainstrspeed
 	bne rmt_p3
-	EIF
-	IFT FEAT_INSTRSPEED==0
+	.ENDIF
+	.IF FEAT_INSTRSPEED==0
 	lda #$ff
 v_instrspeed	equ *-1
 	sta v_ainstrspeed
-	ELI FEAT_INSTRSPEED>1
+	.ELSEIF FEAT_INSTRSPEED>1
 	lda #FEAT_INSTRSPEED
 	sta v_ainstrspeed
-	EIF
+	.ENDIF
 rmt_p2
 	dec v_aspeed
 	bne rmt_p3
@@ -660,7 +660,7 @@ pp1b
 	lda trackn_instrlop,x
 pp2	sta trackn_instridx,x
 	lda reg1
-	IFT TRACKS>4
+	.IF TRACKS>4
 	cpx #4
 	bcc pp2s
 	lsr @
@@ -668,7 +668,7 @@ pp2	sta trackn_instridx,x
 	lsr @
 	lsr @
 pp2s
-	EIF
+	.ENDIF
 	and #$0f
 	ora trackn_volume,x
 	tay
@@ -683,31 +683,31 @@ pp2s
 	ora tabbeganddistor+1,y
 	sta trackn_audc,x
 InstrumentsEffects
-	IFT FEAT_EFFECTS
+	.IF FEAT_EFFECTS
 	lda trackn_effdelay,x
 	beq ei2
 	cmp #1
 	bne ei1
 	lda trackn_shiftfrq,x
-	IFT FEAT_EFFECTFSHIFT
+	.IF FEAT_EFFECTFSHIFT
 	clc
 	adc trackn_effshift,x
-	EIF
-	IFT FEAT_EFFECTVIBRATO
+	.ENDIF
+	.IF FEAT_EFFECTVIBRATO
 	clc
 	ldy trackn_effvibratoa,x
 	adc vib0,y
-	EIF
+	.ENDIF
 	sta trackn_shiftfrq,x
-	IFT FEAT_EFFECTVIBRATO
+	.IF FEAT_EFFECTVIBRATO
 	lda vibtabnext,y
 	sta trackn_effvibratoa,x
-	EIF
+	.ENDIF
 	jmp ei2
 ei1
 	dec trackn_effdelay,x
 ei2
-	EIF
+	.ENDIF
 	ldy trackn_tableend,x
 	cpy #INSTRPAR+1
 	bcc ei3
@@ -717,11 +717,11 @@ ei2c
 	tya
 	cmp trackn_tablea,x
 	bne ei2c2
-	IFT FEAT_TABLEGO
+	.IF FEAT_TABLEGO
 	lda trackn_tablelop,x
-	ELS
+	.ELSE
 	lda #INSTRPAR
-	EIF
+	.ENDIF
 	sta trackn_tablea,x
 	bne ei2a
 ei2c2
@@ -733,18 +733,18 @@ ei2a
 	sta nt+1
 	ldy trackn_tablea,x
 	lda (nt),y
-	IFT FEAT_TABLEMODE
+	.IF FEAT_TABLEMODE
 	ldy trackn_tablemode,x
 	beq ei2e
 	clc
 	adc trackn_tablenote,x
 ei2e
-	EIF
+	.ENDIF
 	sta trackn_tablenote,x
 	lda trackn_tabletypespeed,x
-	IFT FEAT_TABLETYPE||FEAT_TABLEMODE
+	.IF FEAT_TABLETYPE||FEAT_TABLEMODE
 	and #$3f
-	EIF
+	.ENDIF
 ei2f
 	sec
 	sbc #1
@@ -754,11 +754,11 @@ ei3
 	bpl ei4
 	lda trackn_volume,x
 	beq ei4
-	IFT FEAT_VOLUMEMIN
+	.IF FEAT_VOLUMEMIN
 	cmp trackn_volumemin,x
 	beq ei4
 	bcc ei4
-	EIF
+	.ENDIF
 	tay
 	lda trackn_volumeslidevalue,x
 	clc
@@ -769,90 +769,78 @@ ei3
 	sbc #16
 	sta trackn_volume,x
 ei4
-	IFT FEAT_COMMAND2
+	.IF FEAT_COMMAND2
 	lda #0
 	sta frqaddcmd2
-	EIF
-	IFT FEAT_COMMAND1||FEAT_COMMAND2||FEAT_COMMAND3||FEAT_COMMAND4||FEAT_COMMAND5||FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
+	.ENDIF
+	.IF FEAT_COMMAND1||FEAT_COMMAND2||FEAT_COMMAND3||FEAT_COMMAND4||FEAT_COMMAND5||FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
 	lda reg2
-	IFT FEAT_FILTER||FEAT_BASS16
+	.IF FEAT_FILTER||FEAT_BASS16
 	sta trackn_command,x
-	EIF
+	.ENDIF
 	and #$70
-	IFT 1==[FEAT_COMMAND1+FEAT_COMMAND2+FEAT_COMMAND3+FEAT_COMMAND4+FEAT_COMMAND5+FEAT_COMMAND6+[FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY]]
+	.IF 1==[FEAT_COMMAND1+FEAT_COMMAND2+FEAT_COMMAND3+FEAT_COMMAND4+FEAT_COMMAND5+FEAT_COMMAND6+[FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY]]
 	beq cmd0
-	ELS
-;	lsr @
-;	lsr @
-	lda #0	; my fix :)
-;	sta jmx+1
-;jmx	bcc *
-	jmp cmd0
-	nop
-	jmp cmd1
-	IFT FEAT_COMMAND2||FEAT_COMMAND3||FEAT_COMMAND4||FEAT_COMMAND5||FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	nop
-	jmp cmd2
-	EIF
-	IFT FEAT_COMMAND3||FEAT_COMMAND4||FEAT_COMMAND5||FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	nop
-	jmp cmd3
-	EIF
-	IFT FEAT_COMMAND4||FEAT_COMMAND5||FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	nop
-	jmp cmd4
-	EIF
-	IFT FEAT_COMMAND5||FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	nop
-	jmp cmd5
-	EIF
-	IFT FEAT_COMMAND6||FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	nop
-	jmp cmd6
-	EIF
-	IFT FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	nop
-	jmp cmd7
-	EIF
-	EIF
-	ELS
-	IFT FEAT_FILTER||FEAT_BASS16
+	.ELSE
+    ; de-self-modification routine by Pecus
+	lsr @
+	lsr @
+	lsr @
+    tay
+    lda cmdroutines+1,y
+    pha
+    lda cmdroutines,y
+    pha
+    rts
+cmdroutines
+    .word cmd0-1
+    .word cmd1-1
+    .word cmd2-1
+    .word cmd3-1
+    .word cmd4-1
+    .word cmd5-1
+    .word cmd6-1
+    .word cmd7-1
+    ; end of de-self-modification routine
+	.ENDIF
+	.ELSE
+	.IF FEAT_FILTER||FEAT_BASS16
 	lda reg2
 	sta trackn_command,x
-	EIF
-	EIF
+	.ENDIF
+	.ENDIF
 cmd1
-	IFT FEAT_COMMAND1
+	.IF FEAT_COMMAND1
 	lda reg3
 	jmp cmd0c
-	EIF
+	.ENDIF
 cmd2
-	IFT FEAT_COMMAND2
+	.IF FEAT_COMMAND2
 	lda reg3
 	sta frqaddcmd2
 	lda trackn_note,x
 	jmp cmd0a
-	EIF
+	.ENDIF
 cmd3
-	IFT FEAT_COMMAND3
+	.IF FEAT_COMMAND3
 	lda trackn_note,x
 	clc
 	adc reg3
 	sta trackn_note,x
 	jmp cmd0a
-	EIF
+	.ENDIF
 cmd4
-	IFT FEAT_COMMAND4
+	.IF FEAT_COMMAND4
 	lda trackn_shiftfrq,x
 	clc
 	adc reg3
 	sta trackn_shiftfrq,x
 	lda trackn_note,x
 	jmp cmd0a
-	EIF
+	.ENDIF
 cmd5
-	IFT FEAT_COMMAND5&&FEAT_PORTAMENTO
-	IFT FEAT_TABLETYPE
+	.IF FEAT_COMMAND5&&FEAT_PORTAMENTO
+	.IF FEAT_TABLETYPE
 	lda trackn_tabletypespeed,x
 	bpl cmd5a1
 	ldy trackn_note,x
@@ -860,7 +848,7 @@ cmd5
 	clc
 	adc trackn_tablenote,x
 	jmp cmd5ax
-	EIF
+	.ENDIF
 cmd5a1
 	lda trackn_note,x
 	clc
@@ -889,51 +877,51 @@ cmd5a
 	sta trackn_portadepth,x
 	lda trackn_note,x
 	jmp cmd0a
-	ELI FEAT_COMMAND5
+	.ELSEIF FEAT_COMMAND5
 	lda trackn_note,x
 	jmp cmd0a
-	EIF
+	.ENDIF
 cmd6
-	IFT FEAT_COMMAND6&&FEAT_FILTER
+	.IF FEAT_COMMAND6&&FEAT_FILTER
 	lda reg3
 	clc
 	adc trackn_filter,x
 	sta trackn_filter,x
 	lda trackn_note,x
 	jmp cmd0a
-	ELI FEAT_COMMAND6
+	.ELSEIF FEAT_COMMAND6
 	lda trackn_note,x
 	jmp cmd0a
-	EIF
+	.ENDIF
 cmd7
-	IFT FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
-	IFT FEAT_COMMAND7SETNOTE
+	.IF FEAT_COMMAND7SETNOTE||FEAT_COMMAND7VOLUMEONLY
+	.IF FEAT_COMMAND7SETNOTE
 	lda reg3
-	IFT FEAT_COMMAND7VOLUMEONLY
+	.IF FEAT_COMMAND7VOLUMEONLY
 	cmp #$80
 	beq cmd7a
-	EIF
+	.ENDIF
 	sta trackn_note,x
 	jmp cmd0a
-	EIF
-	IFT FEAT_COMMAND7VOLUMEONLY
+	.ENDIF
+	.IF FEAT_COMMAND7VOLUMEONLY
 cmd7a
 	lda trackn_audc,x
 	ora #$f0
 	sta trackn_audc,x
 	lda trackn_note,x
 	jmp cmd0a
-	EIF
-	EIF
+	.ENDIF
+	.ENDIF
 cmd0
 	lda trackn_note,x
 	clc
 	adc reg3
 cmd0a
-	IFT FEAT_TABLETYPE
+	.IF FEAT_TABLETYPE
 	ldy trackn_tabletypespeed,x
 	bmi cmd0b
-	EIF
+	.ENDIF
 	clc
 	adc trackn_tablenote,x
 	cmp #61
@@ -942,18 +930,18 @@ cmd0a
 	sta trackn_audc,x
 	lda #63
 cmd0a1
-	IFT FEAT_BASS16
+	.IF FEAT_BASS16
 	sta trackn_outnote,x
-	EIF
+	.ENDIF
 	tay
 	lda (nr),y
 	clc
 	adc trackn_shiftfrq,x
-	IFT FEAT_COMMAND2
+	.IF FEAT_COMMAND2
 	clc
 	adc frqaddcmd2
-	EIF
-	IFT FEAT_TABLETYPE
+	.ENDIF
+	.IF FEAT_TABLETYPE
 	jmp cmd0c
 cmd0b
 	cmp #61
@@ -968,15 +956,15 @@ cmd0b1
 	adc trackn_tablenote,x
 	clc
 	adc (nr),y
-	IFT FEAT_COMMAND2
+	.IF FEAT_COMMAND2
 	clc
 	adc frqaddcmd2
-	EIF
-	EIF
+	.ENDIF
+	.ENDIF
 cmd0c
 	sta trackn_audf,x
 pp9
-	IFT FEAT_PORTAMENTO
+	.IF FEAT_PORTAMENTO
 	lda trackn_portaspeeda,x
 	beq pp10
 	dec trackn_portaspeeda,x
@@ -1010,25 +998,25 @@ pp10
 	adc trackn_shiftfrq,x
 	sta trackn_audf,x
 pp11
-	EIF
+	.ENDIF
 ppnext
 	dex
 	bmi rmt_p4
 	jmp pp1
 rmt_p4
-	IFT FEAT_AUDCTLMANUALSET
+	.IF FEAT_AUDCTLMANUALSET
 	lda trackn_audctl+0
 	ora trackn_audctl+1
 	ora trackn_audctl+2
 	ora trackn_audctl+3
 	tax
-	ELS
+	.ELSE
 	ldx #0
-	EIF
+	.ENDIF
 qq1
 	stx v_audctl
-	IFT FEAT_FILTER
-	IFT FEAT_FILTERG0L
+	.IF FEAT_FILTER
+	.IF FEAT_FILTERG0L
 	lda trackn_command+0
 	bpl qq2
 	lda trackn_audc+0
@@ -1038,20 +1026,20 @@ qq1
 	clc
 	adc trackn_filter+0
 	sta trackn_audf+2
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2L
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2L
 	lda trackn_audc+2
 	and #$10
 	bne qq1a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+2
 qq1a
 	txa
 	ora #4
 	tax
-	EIF
+	.ENDIF
 qq2
-	IFT FEAT_FILTERG1L
+	.IF FEAT_FILTERG1L
 	lda trackn_command+1
 	bpl qq3
 	lda trackn_audc+1
@@ -1061,26 +1049,26 @@ qq2
 	clc
 	adc trackn_filter+1
 	sta trackn_audf+3
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG3L
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG3L
 	lda trackn_audc+3
 	and #$10
 	bne qq2a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+3
 qq2a
 	txa
 	ora #2
 	tax
-	EIF
+	.ENDIF
 qq3
-	IFT FEAT_FILTERG0L||FEAT_FILTERG1L
+	.IF FEAT_FILTERG0L||FEAT_FILTERG1L
 	cpx v_audctl
 	bne qq5
-	EIF
-	EIF
-	IFT FEAT_BASS16
-	IFT FEAT_BASS16G1L
+	.ENDIF
+	.ENDIF
+	.IF FEAT_BASS16
+	.IF FEAT_BASS16G1L
 	lda trackn_command+1
 	and #$0e
 	cmp #6
@@ -1093,20 +1081,20 @@ qq3
 	sta trackn_audf+0
 	lda frqtabbasshi,y
 	sta trackn_audf+1
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG0L
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG0L
 	lda trackn_audc+0
 	and #$10
 	bne qq3a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+0
 qq3a
 	txa
 	ora #$50
 	tax
-	EIF
+	.ENDIF
 qq4
-	IFT FEAT_BASS16G3L
+	.IF FEAT_BASS16G3L
 	lda trackn_command+3
 	and #$0e
 	cmp #6
@@ -1119,34 +1107,34 @@ qq4
 	sta trackn_audf+2
 	lda frqtabbasshi,y
 	sta trackn_audf+3
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2L
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2L
 	lda trackn_audc+2
 	and #$10
 	bne qq4a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+2
 qq4a
 	txa
 	ora #$28
 	tax
-	EIF
-	EIF
+	.ENDIF
+	.ENDIF
 qq5
 	stx v_audctl
-	IFT TRACKS>4
-	IFT FEAT_AUDCTLMANUALSET
+	.IF TRACKS>4
+	.IF FEAT_AUDCTLMANUALSET
 	lda trackn_audctl+4
 	ora trackn_audctl+5
 	ora trackn_audctl+6
 	ora trackn_audctl+7
 	tax
-	ELS
+	.ELSE
 	ldx #0
-	EIF
+	.ENDIF
 	stx v_audctl2
-	IFT FEAT_FILTER
-	IFT FEAT_FILTERG0R
+	.IF FEAT_FILTER
+	.IF FEAT_FILTERG0R
 	lda trackn_command+0+4
 	bpl qs2
 	lda trackn_audc+0+4
@@ -1156,20 +1144,20 @@ qq5
 	clc
 	adc trackn_filter+0+4
 	sta trackn_audf+2+4
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2R
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2R
 	lda trackn_audc+2+4
 	and #$10
 	bne qs1a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+2+4
 qs1a
 	txa
 	ora #4
 	tax
-	EIF
+	.ENDIF
 qs2
-	IFT FEAT_FILTERG1R
+	.IF FEAT_FILTERG1R
 	lda trackn_command+1+4
 	bpl qs3
 	lda trackn_audc+1+4
@@ -1179,26 +1167,26 @@ qs2
 	clc
 	adc trackn_filter+1+4
 	sta trackn_audf+3+4
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG3R
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG3R
 	lda trackn_audc+3+4
 	and #$10
 	bne qs2a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+3+4
 qs2a
 	txa
 	ora #2
 	tax
-	EIF
+	.ENDIF
 qs3
-	IFT FEAT_FILTERG0R||FEAT_FILTERG1R
+	.IF FEAT_FILTERG0R||FEAT_FILTERG1R
 	cpx v_audctl2
 	bne qs5
-	EIF
-	EIF
-	IFT FEAT_BASS16
-	IFT FEAT_BASS16G1R
+	.ENDIF
+	.ENDIF
+	.IF FEAT_BASS16
+	.IF FEAT_BASS16G1R
 	lda trackn_command+1+4
 	and #$0e
 	cmp #6
@@ -1211,20 +1199,20 @@ qs3
 	sta trackn_audf+0+4
 	lda frqtabbasshi,y
 	sta trackn_audf+1+4
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG0R
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG0R
 	lda trackn_audc+0+4
 	and #$10
 	bne qs3a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+0+4
 qs3a
 	txa
 	ora #$50
 	tax
-	EIF
+	.ENDIF
 qs4
-	IFT FEAT_BASS16G3R
+	.IF FEAT_BASS16G3R
 	lda trackn_command+3+4
 	and #$0e
 	cmp #6
@@ -1237,31 +1225,31 @@ qs4
 	sta trackn_audf+2+4
 	lda frqtabbasshi,y
 	sta trackn_audf+3+4
-	IFT FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2R
+	.IF FEAT_COMMAND7VOLUMEONLY&&FEAT_VOLUMEONLYG2R
 	lda trackn_audc+2+4
 	and #$10
 	bne qs4a
-	EIF
+	.ENDIF
 	lda #0
 	sta trackn_audc+2+4
 qs4a
 	txa
 	ora #$28
 	tax
-	EIF
-	EIF
+	.ENDIF
+	.ENDIF
 qs5
 	stx v_audctl2
-	EIF
+	.ENDIF
 rmt_p5
-	IFT FEAT_INSTRSPEED==0||FEAT_INSTRSPEED>1
+	.IF FEAT_INSTRSPEED==0||FEAT_INSTRSPEED>1
 	lda v_ainstrspeed
-	ELS
+	.ELSE
 	lda #1
-	EIF
+	.ENDIF
 	rts
 SetPokey
-	IFT STEREOMODE==1		;* L1 L2 L3 L4 R1 R2 R3 R4
+	.IF STEREOMODE==1		;* L1 L2 L3 L4 R1 R2 R3 R4
 	ldy v_audctl2
 	lda trackn_audf+0+4
 	ldx trackn_audf+0
@@ -1298,7 +1286,7 @@ xstastx08	sta $d217
 	lda v_audctl
 xstysta01	sty $d218
 	sta $d208
-	ELI STEREOMODE==0		;* L1 L2 L3 L4
+	.ELSEIF STEREOMODE==0		;* L1 L2 L3 L4
 	ldy v_audctl
 	lda trackn_audf+0
 	ldx trackn_audc+0
@@ -1317,7 +1305,7 @@ xstysta01	sty $d218
 	sta $d200+6
 	stx $d201+6
 	sty $d208
-	ELI STEREOMODE==2		;* L1 R2 R3 L4
+	.ELSEIF STEREOMODE==2		;* L1 R2 R3 L4
 	ldy v_audctl
 	lda trackn_audf+0
 	ldx trackn_audc+0
@@ -1340,7 +1328,7 @@ xstysta01	sty $d218
 	sta $d210+6
 	sty $d218
 	sty $d208
-	ELI STEREOMODE==3		;* L1 L2 R3 R4
+	.ELSEIF STEREOMODE==3		;* L1 L2 R3 R4
 	ldy v_audctl
 	lda trackn_audf+0
 	ldx trackn_audc+0
@@ -1362,6 +1350,6 @@ xstysta01	sty $d218
 	sta $d200+6
 	sty $d218
 	sty $d208
-	EIF
+	.ENDIF
 	rts
 RMTPLAYEREND
