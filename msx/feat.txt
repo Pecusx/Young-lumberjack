@@ -1,3 +1,4 @@
+STEREOMODE	equ 0
 ;* --------BEGIN--------
 ;* C:\Documents\GitHub\Young-lumberjack\msx\tbm3_str.rmt
 FEAT_SFX		equ 1

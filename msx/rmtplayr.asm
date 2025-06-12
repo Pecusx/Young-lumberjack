@@ -24,7 +24,6 @@
 ;* RMT FEATures definitions file
 ;* For optimizations of RMT player routine to concrete RMT modul only!
 	icl "feat.txt"
-STEREOMODE	equ 0
 
 	.IF STEREOMODE==1
 TRACKS		equ 8
