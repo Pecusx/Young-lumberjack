@@ -772,7 +772,9 @@ not_end_f
     stx FootPhase
     cpx #10
     bne no_eyes_up
-    ; foot animation phase 10 - eyes up :)
+    ; foot animation phase 10 - eyes up :) 50/50
+    bit RANDOM
+    bmi no_eyes_up
     mvx #5 EyesPhase
     jsr MenuEyesSet
 no_eyes_up
