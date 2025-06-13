@@ -301,6 +301,7 @@ c_clouds = 32  ; clouds
 c_shirtC = 33  ; timberman shirt on title screen
 c_over1 = 34   ; additional Game Over color
 c_shadow = 35   ; lumberjack green shadow
+c_fonti = 36    ; invertet font color
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -743,10 +744,18 @@ no_eyes
 @   stx EyesPhase
     jsr MenuEyesSet
     jmp no_eyes_animation
- */no_eyes_change
-    ; %10 , %01 and %11 - eyes animation
+ */
+    cmp #1
+    bne no_eyes_change
+    ;  eyes down :)
+    ldx #0  ; set to no animation phase
+    stx EyesPhase
+    beq go_eyes_set
+no_eyes_change
+    ; %10 and %11 - eyes animation
     inc EyesPhase
     ldx EyesPhase
+go_eyes_set
     jsr MenuEyesSet
 no_eyes_animation
     ; Foot animation (or not)
@@ -756,15 +765,18 @@ no_eyes_animation
     beq no_foot ; eyes up (no animation)
     ; continue foot animation
     inx
-    cpx #25   ; after last phase of foot animation (one frame = 4, one "step" = 2 frames = 8 .... +1 (ending frame) - 25 = 8(step)*3+1
+    cpx #65   ; after last phase of foot animation (one frame = 8, one "step" = 2 frames = 8 .... +1 (ending frame) - 65 = 8(step)*4+1
     bne not_end_f
     ldx #0
-    ; end of foot animation? - eyes down :)
-    stx EyesPhase
-    jsr MenuEyesSet
-    ldx #0  ; set to mo animation phase
 not_end_f
     stx FootPhase
+    cpx #10
+    bne no_eyes_up
+    ; foot animation phase 10 - eyes up :)
+    mvx #5 EyesPhase
+    jsr MenuEyesSet
+no_eyes_up
+    ldx FootPhase
     jsr MenuFootSet
     jmp no_timber_animation
 no_foot
@@ -775,9 +787,6 @@ no_foot
     dec FootTimer
     bne no_timber_animation
     ; start foot animation
-    ; foot animation - eyes up :)
-    mvx #5 EyesPhase
-    jsr MenuEyesSet
     ldx #1
     stx FootPhase
     jsr MenuFootSet
@@ -1669,11 +1678,11 @@ EndOfOverScreen
     mva #5 StateFlag
     mva #>font_titles CHBAS
     mwa #dl_help dlptrs
-    mva GameColors+c_grass COLBAKS
+    mva GameColors+c_sky COLBAKS
     mva GameColors+c_over1 COLOR0
     mva GameColors+c_font1 COLOR1
     mva GameColors+c_font2 COLOR2
-    mva GameColors+c_font3 COLOR3
+    mva GameColors+c_fonti COLOR3
     lda #@dmactl(narrow|dma)  ; narrow screen width, P/M off
     sta dmactls
     pause 1
@@ -3160,7 +3169,7 @@ AutoScreen
 ;--------------------------------------------------
 ; set eyes to phase in X register
     txa
-    :2 lsr ; 4 times lower animation speed
+    :3 lsr ; 8 times lower animation speed
     and #%00000001
     tax
     lda title_animf_tableL,x
@@ -3842,6 +3851,8 @@ PAL_colors
     .by $10
     ; shadow
     .by $c6
+    ; inverted fonts
+    .by $fa
 NTSC_colors
     ; black
     .by $00
@@ -3905,6 +3916,8 @@ NTSC_colors
     .by $20
     ; shadow
     .by $d6
+    ; inverted fonts
+    .by $2a
 ;--------------------------------------------------
 title_anime_tableL
     .by <eyes_0 ; first eyes animation
