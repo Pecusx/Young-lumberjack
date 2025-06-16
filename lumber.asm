@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.60" ; number of this build (4 bytes)
+    dta d"0.61" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -765,14 +765,14 @@ no_eyes_animation
     beq no_foot ; eyes up (no animation)
     ; continue foot animation
     inx
-    cpx #65   ; after last phase of foot animation (one frame = 8, one "step" = 2 frames = 8 .... +1 (ending frame) - 65 = 8(step)*4+1
+    cpx #33   ; after last phase of foot animation (one frame = 4, one "step" = 2 frames = 8 .... +1 (ending frame) - 33 = 8(step)*4+1
     bne not_end_f
     ldx #0
 not_end_f
     stx FootPhase
-    cpx #10
+    cpx #8
     bne no_eyes_up
-    ; foot animation phase 10 - eyes up :) 50/50
+    ; foot animation phase 8 - eyes up :) 50/50
     bit RANDOM
     bmi no_eyes_up
     mvx #5 EyesPhase
@@ -3171,7 +3171,7 @@ AutoScreen
 ;--------------------------------------------------
 ; set eyes to phase in X register
     txa
-    :3 lsr ; 8 times lower animation speed
+    :2 lsr ; 4 times lower animation speed
     and #%00000001
     tax
     lda title_animf_tableL,x
