@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.64" ; number of this build (4 bytes)
+    dta d"0.65" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -823,6 +823,16 @@ DLI2
     :5 sta WSYNC
     mva GameColors+c_logo2 COLPF1
     mva GameColors+c_logo4 COLPM1
+    ; set cloud 2 horizontal position
+    lda clouds2Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
     mwa #TitlesDLI1.DLI3 VDSLST
     pla
     rti
@@ -836,16 +846,7 @@ DLI3
     rti
 DLI4
     pha
-    ; set cloud 2 horizontal position
-    lda clouds2Hpos
-    clc
-    sta HPOSM2
-    adc #4
-    sta HPOSP2
-    adc #8
-    sta HPOSP3
-    adc #8
-    sta HPOSM3
+    sta WSYNC
     mva GameColors+c_logo1 COLPF2
     mva #$70 HPOSP0
     mva #$03 SIZEP0
@@ -876,11 +877,6 @@ DLI6
     mva GameColors+c_logo5 COLPF2    
     :2 sta WSYNC
     mva GameColors+c_logo1 COLPF2    
-    mwa #TitlesDLI1.DLI7 VDSLST
-    pla
-    rti
-DLI7
-    pha
     ; set cloud 3 horizontal position
     lda clouds3Hpos
     clc
@@ -897,6 +893,11 @@ DLI7
     sta HPOSP2
     sta HPOSP3
     sta HPOSM3     */
+    mwa #TitlesDLI1.DLI7 VDSLST
+    pla
+    rti
+DLI7
+    pha
     ; timberman initial colors
     mva GameColors+c_black COLPF0
     mva GameColors+c_shirtB COLPF1
