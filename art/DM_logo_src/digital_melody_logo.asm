@@ -25,7 +25,7 @@ HEIGHT	= 30
 	org $2000
 ant	dta $42,a(scr)
 	dta $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-	dta $02,$02,$02,$02,$02,$02,$02,$02,$82,$04,$02,$02,$22
+	dta $02,$02,$02,$02,$02,$02,$02,$02,$82,$04,$82,$02,$22
 	dta $41,a(ant)
 
 scr	ins "digital_melody_logo.scr"
@@ -47,6 +47,7 @@ pmg	.ds $0300
 
 main
 ; ---	init PMG
+
 	ift USESPRITES
 	mva >pmg pmbase		;missiles and players data address
 	mva #$03 pmcntl		;enable players and missiles
@@ -76,11 +77,11 @@ _lp	lda trig0		; FIRE #0
 	lda consol		; START
 	and #1
 	beq stop
-    
+
     lda cloc
     cmp #200    ; timer - 4s.
     bcs stop
-    
+
 	lda skctl
 	and #$04
 	bne _lp			;wait to press any key; here you can put any own routine
@@ -95,7 +96,7 @@ null	jmp DLI.dli1		;CPU is busy here, so no more routines allowed
 stop
     mva #0 dmactls             ; dark screen
     sta dmactl
-	mva #$00 pmcntl		;PMG disabled
+    mva #$00 pmcntl		;PMG disabled
 	tax
 	sta:rne hposp0,x+
 
@@ -154,6 +155,24 @@ c11	ldy #$0E
 c12	lda #$82
 	sta color3
 	lda #$01
+	sta gtictl
+	DLINEW dli5 1 1 1
+
+dli5
+	sta regA
+	stx regX
+	sty regY
+
+c13	lda #$82
+c14	ldx #$02
+c15	ldy #$56
+	sta wsync		;line=224
+	sta color0
+	stx color1
+	sty color2
+c16	lda #$86
+	sta color3
+	lda #$81
 	sta gtictl
 
 	lda regA
