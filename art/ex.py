@@ -32,6 +32,15 @@ write_asm(
     skip_right=8)
 
 write_asm(
+    atrview='title_fonts.atrview',
+    out='credits.asm',
+    page='Credits',
+    line_from=0,
+    line_to=12,
+    skip_left=0,
+    skip_right=0)
+
+write_asm(
     atrview="title.atrview",
     out='title_logo.asm',
     page=1,
