@@ -19,6 +19,7 @@ def write_asm(atrview, out, page, line_from, line_to, skip_left, skip_right):
             break
 
     with open(out, 'wt') as f:
+        print(f'Writing file: {out}')
         print_lines(dtas, line_from, line_to, skip_left,skip_right, f)
 
 
