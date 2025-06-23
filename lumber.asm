@@ -1583,7 +1583,13 @@ EndOfStartScreen
     mva GameColors+c_red COLOR2 ; red
     mva GameColors+c_light_brown COLOR3 ; light brown
     
-    mva #$00 birds_order    ; standard birds order
+    ldy #$ff
+    lda RANDOM
+    and #%00000011  ; randomize bird order: 11, 10, 01 - stabdard / 00 - reverse
+    beq reverse_birds
+    iny
+reverse_birds    
+    sty birds_order    ; set birds order
     jsr LevelReset
     jsr InitBranches
     jsr draw_branches
