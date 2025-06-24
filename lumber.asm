@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.68" ; number of this build (4 bytes)
+    dta d"0.70" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -2615,7 +2615,7 @@ make_cloud1
     lda RANDOM
     and #%00000011
     clc
-    adc #4  ; (4 to 7 = shapes 5 to 8)
+    adc #6  ; (6 to 9 = shapes 7 to 10)
     bne fill_cloud
 make_cloud2
     ; clear cloud 2 PMG memory 
@@ -2632,7 +2632,7 @@ make_cloud2
     lda RANDOM
     and #%00000011
     clc
-    adc #2  ; (2 to 5 = shapes 3 to 6)
+    adc #3  ; (3 to 6 = shapes 4 to 7)
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
@@ -2651,7 +2651,7 @@ make_cloud3
     ; fill cloud PMG memory
 fill_cloud
     ldx #datalines_clouds-1
-    and #%00000111
+    and #%00001111
     bne not_shape_1
     ; shape1
 @   lda cloud1_P2,x
@@ -2749,12 +2749,40 @@ not_shape_6
     bpl @-
     rts
 not_shape_7
+    cmp #7
+    bne not_shape_8
     ; shape 8
 @   lda cloud8_P2,x
     sta PMmemory+$300,y
     lda cloud8_P3,x
     sta PMmemory+$380,y
     lda cloud8_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_8
+    cmp #8
+    bne not_shape_9
+    ; shape 9
+@   lda cloud9_P2,x
+    sta PMmemory+$300,y
+    lda cloud9_P3,x
+    sta PMmemory+$380,y
+    lda cloud9_M,x
+    sta PMmemory+$180,y
+    dey
+    dex
+    bpl @-
+    rts
+not_shape_9
+    ; shape 10
+@   lda cloud10_P2,x
+    sta PMmemory+$300,y
+    lda cloud10_P3,x
+    sta PMmemory+$380,y
+    lda cloud10_M,x
     sta PMmemory+$180,y
     dey
     dex
@@ -2767,63 +2795,63 @@ cloud1_P2
     .by $00,$00,$00,$00,$08,$1D,$3F,$3F,$00,$00,$00,$00
 cloud2_P2
     .by $00,$00,$00,$00,$07,$1F,$3F,$FF,$00,$00,$00,$00
-;cloud3_P2
-;	.by $00,$00,$00,$00,$39,$7D,$FF,$FF,$00,$00,$00,$00
-cloud3_P2 ; => cloud4_P2
+cloud3_P2
+	.by $00,$00,$00,$00,$39,$7D,$FF,$FF,$00,$00,$00,$00
+cloud4_P2
     .by $00,$00,$00,$38,$7D,$FF,$FF,$FF,$00,$00,$00,$00
-cloud4_P2 ; => cloud5_P2
+cloud5_P2
     .by $00,$00,$00,$0E,$1F,$1F,$7F,$FF,$FF,$00,$00,$00
-;cloud6_P2
-;	.by $00,$00,$00,$38,$7C,$7C,$FD,$FD,$FF,$FF,$00,$00
-cloud5_P2 ; => cloud7_P2
+cloud6_P2
+	.by $00,$00,$00,$38,$7C,$7C,$FD,$FD,$FF,$FF,$00,$00
+cloud7_P2
     .by $00,$00,$00,$00,$01,$73,$FF,$FF,$FF,$FF,$00,$00
-cloud6_P2 ; => cloud8_P2
+cloud8_P2
     .by $00,$00,$00,$3E,$FF,$FF,$FF,$FF,$FF,$7C,$00,$00
-cloud7_P2 ; => cloud9_P2
+cloud9_P2
     .by $00,$00,$01,$03,$77,$FF,$FF,$FF,$FF,$FF,$07,$01
-cloud8_P2 ; => cloud10_P2
+cloud10_P2
     .by $00,$0F,$1F,$BF,$FF,$FF,$FF,$FF,$FF,$FF,$1F,$07
 ; player 3
 cloud1_P3
     .by $00,$00,$00,$00,$00,$80,$E0,$F8,$00,$00,$00,$00
 cloud2_P3
     .by $00,$00,$00,$00,$80,$DC,$FE,$FF,$00,$00,$00,$00
-;cloud3_P3
-;    .by $00,$00,$00,$F0,$F8,$FA,$FF,$FF,$00,$00,$00,$00
-cloud3_P3 ; => cloud4_P3
+cloud3_P3
+    .by $00,$00,$00,$F0,$F8,$FA,$FF,$FF,$00,$00,$00,$00
+cloud4_P3
     .by $00,$00,$00,$C0,$F0,$FC,$FE,$FF,$00,$00,$00,$00
-cloud4_P3 ; => cloud5_P3
+cloud5_P3
     .by $00,$00,$00,$30,$78,$78,$FB,$FF,$FF,$00,$00,$00
-;cloud6_P3
-;    .by $00,$00,$00,$00,$00,$E0,$F0,$F6,$FF,$FF,$00,$00
-cloud5_P3 ; => cloud7_P3
+cloud6_P3
+    .by $00,$00,$00,$00,$00,$E0,$F0,$F6,$FF,$FF,$00,$00
+cloud7_P3
     .by $00,$00,$00,$00,$C0,$F6,$FF,$FF,$FF,$FF,$00,$00
-cloud6_P3 ; => cloud8_P3
+cloud8_P3
     .by $00,$00,$00,$00,$7C,$FF,$FF,$FF,$FF,$FF,$00,$00
-cloud7_P3 ; => cloud9_P3
+cloud9_P3
     .by $00,$00,$F0,$FB,$FF,$FF,$FF,$FF,$FF,$FF,$FC,$F8
-cloud8_P3 ; => cloud10_P3
+cloud10_P3
     .by $0F,$1F,$BF,$FF,$FF,$FF,$FF,$FF,$FF,$FC,$C0,$80
 ; missiles
 cloud1_M
     .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 cloud2_M
     .by $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-;cloud3_M
-;    .by $00,$00,$00,$00,$00,$00,$00,$80,$00,$00,$00,$00
-cloud3_M ; => cloud4_M
+cloud3_M
+    .by $00,$00,$00,$00,$00,$00,$00,$80,$00,$00,$00,$00
+cloud4_M
     .by $00,$00,$00,$00,$00,$00,$10,$30,$00,$00,$00,$00
-cloud4_M ; => cloud5_M
+cloud5_M
     .by $00,$00,$00,$00,$00,$00,$00,$00,$90,$00,$00,$00
-;cloud6_M
-;    .by $00,$00,$00,$00,$00,$00,$00,$00,$10,$B0,$00,$00
-cloud5_M ; => cloud7_M
+cloud6_M
+    .by $00,$00,$00,$00,$00,$00,$00,$00,$10,$B0,$00,$00
+cloud7_M
     .by $00,$00,$00,$00,$00,$00,$00,$10,$B0,$F0,$00,$00
-cloud6_M ; => cloud8_M
+cloud8_M
     .by $00,$00,$00,$00,$10,$30,$B0,$B0,$90,$00,$00,$00
-cloud7_M ; => cloud9_M
+cloud9_M
     .by $00,$00,$00,$80,$C0,$C0,$D0,$F0,$F0,$80,$00,$00
-cloud8_M ; => cloud10_M
+cloud10_M
     .by $00,$80,$80,$D0,$F0,$F0,$F0,$F0,$B0,$10,$00,$00
 
 
