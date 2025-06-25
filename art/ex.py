@@ -14,7 +14,7 @@ def write_asm(atrview, out, page, line_from, line_to, skip_left, skip_right):
     for p in s['Pages']:
         if (isinstance(page, int) and p['Nr'] == page) or (isinstance(page, str) and p['Name'] == page):
             dta = p['View']
-            width = p['Width'] * 2  # 2 hex chars per byte
+            width = p.get(['Width'], 40) * 2  # 2 hex chars per byte or 40
             dtas = [dta[i * width:(i + 1) * width] for i in range(len(dta) // width)]
             break
 
