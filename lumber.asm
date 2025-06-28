@@ -204,27 +204,28 @@ dl_go
     .wo gamescreen_middle   ; branches
     .by $84  ; DLI2 - second clouds
     :3 .by $04
-    .by $84     ; DLI3 - last clouds
-    :4 .by $04
-    .by $84     ; DLI4 - GO line
+    .by $84     ; DLI3 - 3th clouds
+    :3 .by $04
+    .by $84     ; DLI4 - last clouds
+    .by $84     ; DLI5 - GO line
     .by $30
     .by $45
 go_addr
     .wo go_text-32 ; empty line before
-    .by $10+$80; DLI5 - end GO line
+    .by $10+$80; DLI6 - end GO line
     .by $10
     .by $44
     .wo gamescreen_middle+32*13
     :2 .by $04
-    .by $84 ; DLI6
+    .by $84 ; DLI7
     .by $44
 ;animation_addr
     .wo gamescreen_r_ph1p1
-    .by $84 ; DLI7
-    :3 .by $04
     .by $84 ; DLI8
+    :3 .by $04
     .by $84 ; DLI9
-    .by $04+$80 ; DLI10 - shadow
+    .by $84 ; DLI10
+    .by $04+$80 ; DLI11 - shadow
     .by $44
 ;lastline_addr
     .wo last_line_r
@@ -240,17 +241,19 @@ dl_level
     .wo gamescreen_middle   ; branches
     .by $84  ; DLI2 - second clouds
     :3 .by $04
-    .by $84     ; DLI3 - last clouds
-    :11 .by $04
-    .by $84 ; DLI4
+    .by $84     ; DLI3 - 3th clouds
+    :3 .by $04
+    .by $84     ; DLI4 - last clouds
+    :7 .by $04
+    .by $84 ; DLI5
     .by $44
 animation_addr
     .wo gamescreen_r_ph1p1
-    .by $84 ; DLI5
-    :3 .by $04
     .by $84 ; DLI6
+    :3 .by $04
     .by $84 ; DLI7
-    .by $04+$80 ; DLI8 - shadow
+    .by $84 ; DLI8
+    .by $04+$80 ; DLI9 - shadow
     .by $44
 lastline_addr
     .wo last_line_r
@@ -609,6 +612,20 @@ no_new_cloud2
 cloud3_fly
     dec clouds3Hpos
 no_new_cloud3
+    lda StateFlag
+    beq no_new_cloud4   ; no cloud 4 on Start (Menu) screem
+    lda clouds4Hpos
+    bne cloud4_fly
+    ; if no cloud 3 then randomize new cloud 3 start
+    lda RANDOM
+    and #%11111000  ;   1:32
+    bne no_new_cloud4
+    ; then create new cloud 3 shape
+    jsr PrepareCloudsPM.make_cloud4
+    mva #$de clouds4Hpos
+cloud4_fly
+    dec clouds4Hpos
+no_new_cloud4
 no_clouds_change
     rts
 .endp
@@ -1256,6 +1273,18 @@ DLI3
     rti
 DLI4
     pha
+    ; set cloud 4 horizontal position
+    lda #0  ; hide 4 cloud on GO screen
+    sta HPOSM2
+    sta HPOSP2
+    sta HPOSP3
+    sta HPOSM3
+    mwa #GoDLI1.DLI5 VDSLST
+    pla
+    rti
+
+DLI5
+    pha
     sta WSYNC
     mva #>font_titles CHBASE
     mva GameColors+c_over1 COLBAK
@@ -1266,10 +1295,10 @@ DLI4
     mva GameColors+c_buckle COLBAK
     :14 sta WSYNC
     mva GameColors+c_font5 COLPF2
-    mwa #GoDLI1.DLI5 VDSLST
+    mwa #GoDLI1.DLI6 VDSLST
     pla
     rti
-DLI5
+DLI6
     pha
     sta WSYNC
     mva #>font_game_upper CHBASE
@@ -1279,7 +1308,7 @@ DLI5
     mva GameColors+c_white COLPF2   
     :2 sta WSYNC
     mva GameColors+c_sky COLBAK
-    mwa #IngameDLI1.DLI4 VDSLST ; !!! From here on, DLI interrupts are shared with the ingame screen
+    mwa #IngameDLI1.DLI5 VDSLST ; !!! From here on, DLI interrupts are shared with the ingame screen
     pla
     rti
 /* DLI6
@@ -1394,6 +1423,21 @@ DLI3
     rti
 DLI4
     pha
+    ; set cloud 4 horizontal position
+    lda clouds4Hpos
+    clc
+    sta HPOSM2
+    adc #4
+    sta HPOSP2
+    adc #8
+    sta HPOSP3
+    adc #8
+    sta HPOSM3
+    mwa #IngameDLI1.DLI5 VDSLST
+    pla
+    rti
+DLI5
+    pha
     sta WSYNC
     mva LowCharsetBase CHBASE
     mva GameColors+c_horizonA COLBAK ; thin line
@@ -1415,19 +1459,19 @@ DLI4
     pla
     tax
     inc SyncByte
-    mwa #IngameDLI1.DLI5 VDSLST
+    mwa #IngameDLI1.DLI6 VDSLST
     pla
     rti
-DLI5
+DLI6
     pha
     sta WSYNC
     mva GameColors+c_hat COLPF2 ; hat
     :4 STA WSYNC
     mva GameColors+c_white COLPF2 ; white
-    mwa #IngameDLI1.DLI6 VDSLST
+    mwa #IngameDLI1.DLI7 VDSLST
     pla
     rti
-DLI6
+DLI7
     pha
     lda StateFlag
     sta WSYNC
@@ -1435,10 +1479,10 @@ DLI6
     beq @+
     mva GameColors+c_buckle COLPF2 ; button and buckle
 @   mva #>font_game_upper CHBASE
-    mwa #IngameDLI1.DLI7 VDSLST
+    mwa #IngameDLI1.DLI8 VDSLST
     pla
     rti
-DLI7
+DLI8
     pha
     lda StateFlag
     cmp #3  ; RIP screen
@@ -1447,10 +1491,10 @@ DLI7
     sta WSYNC
     sta WSYNC
     mva GameColors+c_pants COLPF2 ; blue pants
-@   mwa #IngameDLI1.DLI8 VDSLST
+@   mwa #IngameDLI1.DLI9 VDSLST
     pla
     rti
-DLI8
+DLI9
     pha
     lda StateFlag
     cmp #3  ; RIP screen
