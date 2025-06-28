@@ -54,7 +54,7 @@ display = $a000
     .zpvar birdsHpos    .byte   ; 0 - no birds on screen (from $13 to $de)
     .zpvar birdsOffset  .byte
     .zpvar birds_order  .byte   ; $00 - standard , $80 - reverse
-    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos  .byte     ; 0 - no cloud on screen (from $0e to $de)
+    .zpvar clouds1Hpos,clouds2Hpos,clouds3Hpos,clouds4Hpos  .byte     ; 0 - no cloud on screen (from $0e to $de)
      ; PMG registers for sprites over horizon	
     .zpvar HPOSP0_u   .byte	
     .zpvar HPOSP1_u   .byte	
@@ -1507,10 +1507,10 @@ no_foot_delay
     jsr MenuAnimationsReset
     jsr ClearPM
     jsr HidePM
-    jsr PrepareCloudsPM
     jsr PrepareTitlePM
     jsr CreditsClear
     mva #0 StateFlag
+    jsr PrepareCloudsPM
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
     mva GameColors+c_sky COLBAKS
@@ -2575,22 +2575,30 @@ datalines_bird=8
     ; 3 clouds
     ; 1 - vertical offset in PM from 5 (first byte) to 19 (last byte)
     ; 2 - vertical offset in PM from 20 (first byte) to 35 (last byte)
-    ; 3 - vertical offset in PM from 36 (first byte) to 84 (last byte)
+    ; 3 - vertical offset in PM from 36 (first byte) to 51 (last byte)
+    ; 4 - vertical offset in PM from 52 (first byte) to 74 (last byte)
     ; cloud
     jsr make_cloud1
     jsr make_cloud2
     jsr make_cloud3
+    lda StateFlag
+    beq no_cloud4   ; only 3 clouds on Start (Menu) screen
+    jsr make_cloud4
+no_cloud4
     mva #0 SIZEP2_u
     sta SIZEP3_u
     lda #%01010101
     sta SIZEM_u
     mva GameColors+c_clouds PCOLR2
     sta PCOLR3
-    lda #36
+    randomize 10 230
+    sta clouds4Hpos
+    randomize 10 230
+    sta clouds3Hpos
+    randomize 10 230
     sta clouds2Hpos
-    lda #98
-    sta clouds1Hpos
-    
+    randomize 10 230
+    sta clouds1Hpos    
     clc
     sta HPOSM2_u
     adc #4
@@ -2612,10 +2620,9 @@ make_cloud1
     randomize 0 (19-5-datalines_clouds)
     adc #(datalines_clouds-1+5)
     tay
-    lda RANDOM
-    and #%00000011
+    randomize 0 2
     clc
-    adc #6  ; (6 to 9 = shapes 7 to 10)
+    adc #7  ; (7 to 9 = shapes 8 to 10)
     bne fill_cloud
 make_cloud2
     ; clear cloud 2 PMG memory 
@@ -2629,14 +2636,13 @@ make_cloud2
     randomize 0 (35-20-datalines_clouds)
     adc #(datalines_clouds-1+20)
     tay
-    lda RANDOM
-    and #%00000011
+    randomize 0 2
     clc
-    adc #3  ; (3 to 6 = shapes 4 to 7)
+    adc #5  ; (5 to 7 = shapes 6 to 8)
     bne fill_cloud
 make_cloud3
     ; clear cloud 3 PMG memory 
-    ldx #(60-36) ; ldx #(84-36)
+    ldx #(51-36) ; ldx #(84-36)
     lda #0
 @   sta PMmemory+$300+36,x
     sta PMmemory+$380+36,x
@@ -2646,8 +2652,23 @@ make_cloud3
     randomize 0 (51-36-datalines_clouds)
     adc #(datalines_clouds-1+36)
     tay
-    lda RANDOM
-    and #%00000011  ; (0 to 3 = shapes 1 to 4)
+    randomize 0 3
+    clc
+    adc #2  ; (2 to 5 = shapes 3 to 6)
+    bne fill_cloud
+make_cloud4
+    ; clear cloud 4 PMG memory 
+    ldx #(74-52)
+    lda #0
+@   sta PMmemory+$300+52,x
+    sta PMmemory+$380+52,x
+    sta PMmemory+$180+52,x
+    dex
+    bpl @-
+    randomize 0 (74-52-datalines_clouds)
+    adc #(datalines_clouds-1+52)
+    tay
+    randomize 0 2  ; (0 to 2 = shapes 1 to 3)
     ; fill cloud PMG memory
 fill_cloud
     ldx #datalines_clouds-1
