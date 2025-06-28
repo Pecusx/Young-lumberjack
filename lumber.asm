@@ -1551,10 +1551,10 @@ no_foot_delay
     jsr MenuAnimationsReset
     jsr ClearPM
     jsr HidePM
+    jsr PrepareCloudsPM.no_cloud4
     jsr PrepareTitlePM
     jsr CreditsClear
     mva #0 StateFlag
-    jsr PrepareCloudsPM
     mva #>font_logo CHBAS
     mwa #dl_title dlptrs
     mva GameColors+c_sky COLBAKS
@@ -2622,13 +2622,11 @@ datalines_bird=8
     ; 3 - vertical offset in PM from 36 (first byte) to 51 (last byte)
     ; 4 - vertical offset in PM from 52 (first byte) to 74 (last byte)
     ; cloud
+    jsr make_cloud4
+no_cloud4
     jsr make_cloud1
     jsr make_cloud2
     jsr make_cloud3
-    lda StateFlag
-    beq no_cloud4   ; only 3 clouds on Start (Menu) screen
-    jsr make_cloud4
-no_cloud4
     mva #0 SIZEP2_u
     sta SIZEP3_u
     lda #%01010101
