@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.70" ; number of this build (4 bytes)
+    dta d"0.71" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
