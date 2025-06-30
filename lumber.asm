@@ -2660,7 +2660,7 @@ make_cloud1
     dex
     bpl @-
     randomize 0 (19-5-datalines_clouds)
-    adc #(datalines_clouds-1+5)
+    adc #5
     tay
     randomize 0 2
     clc
@@ -2676,7 +2676,7 @@ make_cloud2
     dex
     bpl @-
     randomize 0 (35-20-datalines_clouds)
-    adc #(datalines_clouds-1+20)
+    adc #20
     tay
     randomize 0 2
     clc
@@ -2692,7 +2692,7 @@ make_cloud3
     dex
     bpl @-
     randomize 0 (51-36-datalines_clouds)
-    adc #(datalines_clouds-1+36)
+    adc #36
     tay
     randomize 0 3
     clc
@@ -2708,149 +2708,34 @@ make_cloud4
     dex
     bpl @-
     randomize 0 (74-52-datalines_clouds)
-    adc #(datalines_clouds-1+52)
+    adc #52
     tay
     randomize 0 2  ; (0 to 2 = shapes 1 to 3)
     ; fill cloud PMG memory
 fill_cloud
-    ldx #datalines_clouds-1
     and #%00001111
-    bne not_shape_1
-    ; shape1
+    ; now we have shape number in A
+    ; calculate offset (each cloud dataset = 12 bytes)
+    ; calculate A*12
+    :2 asl  ; A*4
+    sta tempbyte
+    asl ; A*2 (shape*8)
+    adc tempbyte
+    tax ; shape number * 12 in X register
+    ; shape 1-10
+    mva #datalines_clouds-1 tempbyte
 @   lda cloud1_P2,x
     sta PMmemory+$300,y
     lda cloud1_P3,x
     sta PMmemory+$380,y
     lda cloud1_M,x
     sta PMmemory+$180,y
-    dey
-    dex
+    iny
+    inx
+    dec tempbyte
     bpl @-
     rts
-not_shape_1
-    cmp #1
-    bne not_shape_2
-    ; shape 2
-@   lda cloud2_P2,x
-    sta PMmemory+$300,y
-    lda cloud2_P3,x
-    sta PMmemory+$380,y
-    lda cloud2_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_2
-    cmp #2
-    bne not_shape_3
-    ; shape 3
-@   lda cloud3_P2,x
-    sta PMmemory+$300,y
-    lda cloud3_P3,x
-    sta PMmemory+$380,y
-    lda cloud3_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_3
-    cmp #3
-    bne not_shape_4
-    ; shape 4
-@   lda cloud4_P2,x
-    sta PMmemory+$300,y
-    lda cloud4_P3,x
-    sta PMmemory+$380,y
-    lda cloud4_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_4
-    cmp #4
-    bne not_shape_5
-    ; shape 5
-@   lda cloud5_P2,x
-    sta PMmemory+$300,y
-    lda cloud5_P3,x
-    sta PMmemory+$380,y
-    lda cloud5_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_5
-    cmp #5
-    bne not_shape_6
-    ; shape 6
-@   lda cloud6_P2,x
-    sta PMmemory+$300,y
-    lda cloud6_P3,x
-    sta PMmemory+$380,y
-    lda cloud6_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_6
-    cmp #6
-    bne not_shape_7
-    ; shape 7
-@   lda cloud7_P2,x
-    sta PMmemory+$300,y
-    lda cloud7_P3,x
-    sta PMmemory+$380,y
-    lda cloud7_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_7
-    cmp #7
-    bne not_shape_8
-    ; shape 8
-@   lda cloud8_P2,x
-    sta PMmemory+$300,y
-    lda cloud8_P3,x
-    sta PMmemory+$380,y
-    lda cloud8_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_8
-    cmp #8
-    bne not_shape_9
-    ; shape 9
-@   lda cloud9_P2,x
-    sta PMmemory+$300,y
-    lda cloud9_P3,x
-    sta PMmemory+$380,y
-    lda cloud9_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
-not_shape_9
-    ; shape 10
-@   lda cloud10_P2,x
-    sta PMmemory+$300,y
-    lda cloud10_P3,x
-    sta PMmemory+$380,y
-    lda cloud10_M,x
-    sta PMmemory+$180,y
-    dey
-    dex
-    bpl @-
-    rts
+
 ; clouds data
 ; shapes 1 to 10 for clouds
 ; player 2
