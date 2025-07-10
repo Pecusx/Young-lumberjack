@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.71" ; number of this build (4 bytes)
+    dta d"0.72" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -1496,10 +1496,10 @@ DLI8
     rti
 DLI9
     pha
-    lda StateFlag
-    cmp #3  ; RIP screen
-    beq @+
-    :3 sta WSYNC
+    ;lda StateFlag
+    ;cmp #3  ; RIP screen
+    ;beq @+
+    :4 sta WSYNC
     mva GameColors+c_shadow COLPF2 ; shadow
 @   pla
     rti
