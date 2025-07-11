@@ -1214,7 +1214,9 @@ DLI8
     ; character set change
     sta WSYNC
     mva #>font_over CHBASE
-    ; set cloud 3 horizontal position
+    ; set lower colors
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2 COLPF2
     inc SyncByte
     pla
     rti
