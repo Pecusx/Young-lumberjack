@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.75" ; number of this build (4 bytes)
+    dta d"0.76" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -38,6 +38,7 @@ display = $a000
     .zpvar tempbyte2 .byte
     .zpvar SyncByte .byte
     .zpvar NTSCCounter  .byte
+    .zpvar DLIcount .byte
     .zpvar StateFlag .byte    ; 0 - menu, 1 = GO!, 2 - game screen, 3 RIP screen, 4 - game over screen, 5 - halp screen, etc.
     .zpvar PowerValue .byte ; power: 0 - 48
     .zpvar PowerTimer .byte
@@ -1091,30 +1092,47 @@ DLI_L2
     mva GameColors+c_font1b COLPF1
     :2 sta WSYNC
     mva GameColors+c_font3 COLPF3
+    mva #0 DLIcount
     mwa #GameOverDLI1.DLI3 VDSLST
     pla
     rti
-DLI2
+/* DLI2
     pha
     ; end of chain
     :3 sta WSYNC
     mva GameColors+c_font1b COLPF1
     mwa #GameOverDLI1.DLI3 VDSLST
     pla
-    rti
-DLI3
+    rti */
+DLI8
     pha
     ; character set change
     sta WSYNC
+LastLine
+    mva #>font_over CHBASE
+    ; set lower colors
+    mva GameColors+c_font1b COLPF1
+    mva GameColors+c_font2 COLPF2
+    inc SyncByte
+    pla
+    rti
+DLI3
+    pha
+    lda DLIcount
+    cmp #5
+    bcs LastLine
+    ; character set change
+    sta WSYNC
     mva #>font_titles CHBASE
-    lda NewHiScorePosition
+    lda DLIcount
+    cmp NewHiScorePosition
     beq this_line_score1
     ; and font colors
     mva GameColors+c_font1 COLPF1
     mva GameColors+c_font2 COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI4 VDSLST
+    inc DLIcount
     pla
     rti
 this_line_score1
@@ -1122,10 +1140,10 @@ this_line_score1
     mva GameColors+c_font2b COLPF2
     :12 sta WSYNC
     mva GameColors+c_font5b COLPF2
-    mwa #GameOverDLI1.DLI4 VDSLST
+    inc DLIcount
     pla
     rti
-DLI4
+/* DLI4
     pha
     sta WSYNC
     lda NewHiScorePosition
@@ -1208,18 +1226,7 @@ this_line_score5
     mva GameColors+c_font5b COLPF2
     mwa #GameOverDLI1.DLI8 VDSLST
     pla
-    rti
-DLI8
-    pha
-    ; character set change
-    sta WSYNC
-    mva #>font_over CHBASE
-    ; set lower colors
-    mva GameColors+c_font1b COLPF1
-    mva GameColors+c_font2 COLPF2
-    inc SyncByte
-    pla
-    rti
+    rti */
 .endp
 ;--------------------------------------------------
 .proc HelpDLI1
