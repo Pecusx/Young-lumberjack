@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.76" ; number of this build (4 bytes)
+    dta d"0.77" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -30,7 +30,6 @@
     icl 'lib/ATARISYS.ASM'
     icl 'lib/MACRO.ASM'
 
-display = $a000
     .zpvar temp .word = $80
     .zpvar temp2 .word
     .zpvar VBItemp .word
@@ -265,7 +264,7 @@ Power = power_bar+32+10
 gamescreen_middle
     .ds 32*18   ; 18 lines
 screen_score = gamescreen_middle+9*32+14  
-screen_level = gamescreen_middle+1*32+12  
+screen_timer = gamescreen_middle+1*32+12  
 ;---------------------------------------------------
 GameColors
     .ds 64
@@ -470,7 +469,7 @@ is_PAL
     ; time up
     bit TimeCount
     bpl time_stopped
-    jsr LevelUp
+    jsr TimelUp
 time_stopped
     ; power down
     dec PowerTimer
@@ -1093,22 +1092,13 @@ DLI_L2
     :2 sta WSYNC
     mva GameColors+c_font3 COLPF3
     mva #0 DLIcount
-    mwa #GameOverDLI1.DLI3 VDSLST
+    mwa #GameOverDLI1.DLI2 VDSLST
     pla
     rti
-/* DLI2
-    pha
-    ; end of chain
-    :3 sta WSYNC
-    mva GameColors+c_font1b COLPF1
-    mwa #GameOverDLI1.DLI3 VDSLST
-    pla
-    rti */
-DLI8
-    pha
+    ;
+LastLine
     ; character set change
     sta WSYNC
-LastLine
     mva #>font_over CHBASE
     ; set lower colors
     mva GameColors+c_font1b COLPF1
@@ -1116,7 +1106,7 @@ LastLine
     inc SyncByte
     pla
     rti
-DLI3
+DLI2
     pha
     lda DLIcount
     cmp #5
@@ -1143,90 +1133,7 @@ this_line_score1
     inc DLIcount
     pla
     rti
-/* DLI4
-    pha
-    sta WSYNC
-    lda NewHiScorePosition
-    cmp #1
-    beq this_line_score2
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI5 VDSLST
-    pla
-    rti
-this_line_score2
-    mva GameColors+c_font1b COLPF1
-    mva GameColors+c_font2b COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5b COLPF2
-    mwa #GameOverDLI1.DLI5 VDSLST
-    pla
-    rti
-DLI5
-    pha
-    sta WSYNC
-    lda NewHiScorePosition
-    cmp #2
-    beq this_line_score3
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI6 VDSLST
-    pla
-    rti
-this_line_score3
-    mva GameColors+c_font1b COLPF1
-    mva GameColors+c_font2b COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5b COLPF2
-    mwa #GameOverDLI1.DLI6 VDSLST
-    pla
-    rti
-DLI6
-    pha
-    sta WSYNC
-    lda NewHiScorePosition
-    cmp #3
-    beq this_line_score4
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI7 VDSLST
-    pla
-    rti
-this_line_score4
-    mva GameColors+c_font1b COLPF1
-    mva GameColors+c_font2b COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5b COLPF2
-    mwa #GameOverDLI1.DLI7 VDSLST
-    pla
-    rti
-DLI7
-    pha
-    sta WSYNC
-    lda NewHiScorePosition
-    cmp #4
-    beq this_line_score5
-    mva GameColors+c_font1 COLPF1
-    mva GameColors+c_font2 COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5 COLPF2
-    mwa #GameOverDLI1.DLI8 VDSLST
-    pla
-    rti
-this_line_score5
-    mva GameColors+c_font1b COLPF1
-    mva GameColors+c_font2b COLPF2
-    :12 sta WSYNC
-    mva GameColors+c_font5b COLPF2
-    mwa #GameOverDLI1.DLI8 VDSLST
-    pla
-    rti */
+
 .endp
 ;--------------------------------------------------
 .proc HelpDLI1
@@ -1643,7 +1550,7 @@ EndOfStartScreen
     iny
 reverse_birds    
     sty birds_order    ; set birds order
-    jsr LevelReset
+    jsr TimerReset
     jsr InitBranches
     jsr draw_branches
     mva #24 PowerValue  ; half power
@@ -2350,7 +2257,7 @@ next_line
 
     jsr CreditsClear
     mva #$00 birds_order    ; standard birds order
-    jsr LevelReset
+    jsr TimerReset
     jsr InitBranches
     jsr draw_branches
     mva #24 PowerValue  ; half power
@@ -3125,7 +3032,7 @@ branches_anim_phase ; from 0 to 4
     .by 1
 score
     dta d"0000"
-level
+timer
     dta d"00", $1a, d"00", $1a, d"00"
 EyesPhase
     .ds 1
@@ -3254,113 +3161,113 @@ ScoreReady
     sbc #("0"-'0')
     sta hs_posX+9
     ; time
-    lda level
+    lda timer
     sec
     sbc #("0"-'0')
     sta hs_posX
-    lda level+1
+    lda timer+1
     sec
     sbc #("0"-'0')
     sta hs_posX+1
-    lda level+3
+    lda timer+3
     sec
     sbc #("0"-'0')
     sta hs_posX+2
-    lda level+4
+    lda timer+4
     sec
     sbc #("0"-'0')
     sta hs_posX+3
-    lda level+6
+    lda timer+6
     sec
     sbc #("0"-'0')
     sta hs_posX+4
-    lda level+7
+    lda timer+7
     sec
     sbc #("0"-'0')
     sta hs_posX+5   
     rts
 .endp
 ;--------------------------------------------------
-.proc LevelToScreen
+.proc TimeToScreen
 ;--------------------------------------------------
     ldx #7
-@   lda level,x
-    sta screen_level,x
+@   lda timer,x
+    sta screen_timer,x
     dex
     bpl @-
     rts
 .endp
 ;--------------------------------------------------
-.proc LevelReset
+.proc TimerReset
 ;--------------------------------------------------
-; set level to 1 and PowerDownSpeed to ??
+; set timer to 1 and PowerDownSpeed to ??
     lda #"0"
-    sta level
-    sta level+1
-    sta level+3
-    sta level+4
-    sta level+6
-    sta level+7
+    sta timer
+    sta timer+1
+    sta timer+3
+    sta timer+4
+    sta timer+6
+    sta timer+7
 
     mvy #0 PowerSpeedIndex
     lda (SpeedTableAdr),y
     sta PowerDownSpeed
-    jsr LevelToScreen
+    jsr TimeToScreen
     rts
 .endp
 ;--------------------------------------------------
-.proc LevelUp
+.proc TimelUp
 ;--------------------------------------------------
     lda #"0"    ; for speed
-    ldx level+7
+    ldx timer+7
     inx
     inx
     cpx #"9"+1
     bcs next_digit6
-    stx level+7
+    stx timer+7
     bne to_screen
 next_digit6
     tax ; "0"
-    stx level+7
-    ldx level+6
+    stx timer+7
+    ldx timer+6
     inx
     cpx #"9"+1
     bcs next_digit4
-    stx level+6
+    stx timer+6
     bne to_screen
 next_digit4
     tax ; "0"
-    stx level+6
-    ldx level+4
+    stx timer+6
+    ldx timer+4
     inx
     cpx #"9"+1
     bcs next_digit3
-    stx level+4
+    stx timer+4
     bne to_screen
 next_digit3
     tax ; "0"
-    stx level+4
-    ldx level+3
+    stx timer+4
+    ldx timer+3
     inx
     cpx #"6"
     bcs next_digit1
-    stx level+3
+    stx timer+3
     bne to_screen
 next_digit1
     tax ; "0"
-    stx level+3
-    ldx level+1
+    stx timer+3
+    ldx timer+1
     inx
     cpx #"9"+1
     bcs next_digit0
-    stx level+1
+    stx timer+1
     bne to_screen
 next_digit0
     tax ; "0"
-    stx level+1
-    inc level
+    stx timer+1
+    inc timer
 to_screen    
-    jsr LevelToScreen
+    jsr TimeToScreen
     rts
 .endp
 ;--------------------------------------------------
@@ -3487,7 +3394,7 @@ draw_branch1
     iny
     cpy #(5*32) ;5 lines
     bne @-
-    jsr LevelToScreen
+    jsr TimeToScreen
 draw_branch2
     lda branches_anim_phase
     ; now calculate start screen address
