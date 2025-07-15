@@ -269,7 +269,7 @@ screen_timer = gamescreen_middle+1*32+12
 GameColors
     .ds 64
 c_black = 0
-c_white = 1 ; (numbers and letters)
+c_white = 1 ; (numbers and letters anf chain)
 c_sky = 2
 c_dark_brown = 3
 c_light_brown = 4
@@ -305,6 +305,8 @@ c_shirtC = 33  ; timberman shirt on title screen
 c_over1 = 34   ; additional Game Over color
 c_shadow = 35   ; lumberjack green shadow
 c_fonti = 36    ; invertet font color
+c_chain1 = 37   ; chain
+c_chain2 = 38
 ;---------------------------------------------------
     icl 'art/anim_exported.asm'
 ; Animations:
@@ -1070,24 +1072,24 @@ DLI_L2
     sta WSYNC
     mva GameColors+c_sky COLBAK
     ldy #2
-@   mva #8 COLPF3
+@   mva GameColors+c_chain1 COLPF3
     :2 sta WSYNC
-    mva #10 COLPF3
+    mva GameColors+c_chain2 COLPF3
     :4 sta WSYNC
-    mva #12 COLPF3
+    mva GameColors+c_white COLPF3
     :2 sta WSYNC
-    mva #10 COLPF3
+    mva GameColors+c_chain2 COLPF3
     :2 sta WSYNC
-    mva #8 COLPF3
+    mva GameColors+c_chain1 COLPF3
     :2 sta WSYNC
-    mva #12 COLPF3
+    mva GameColors+c_white COLPF3
     :4 sta WSYNC
     dey
     bpl @-
-    mva #10 COLPF3
+    mva GameColors+c_chain2 COLPF3
     ply
     :2 sta WSYNC
-    mva #8 COLPF3
+    mva GameColors+c_chain1 COLPF3
     mva GameColors+c_font1b COLPF1
     :2 sta WSYNC
     mva GameColors+c_font3 COLPF3
@@ -3766,6 +3768,9 @@ PAL_colors
     .by $c6
     ; inverted fonts
     .by $fa
+    ; chain
+    .by $08
+    .by $0a
 NTSC_colors
     ; black
     .by $00
@@ -3831,6 +3836,9 @@ NTSC_colors
     .by $d6
     ; inverted fonts
     .by $2a
+    ; chain
+    .by $08
+    .by $0a
 ;--------------------------------------------------
 title_anime_tableL
     .by <eyes_0 ; first eyes animation
