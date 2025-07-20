@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.79" ; number of this build (4 bytes)
+    dta d"0.80" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -4138,11 +4138,11 @@ PLAYER
 ;-------------------------------------------------
 ;-------------------------------------------------
 ; music and sfx
-    org $a900  ; address of RMT module
+    org $b000  ; address of RMT module
 MODUL
                ; RMT module is standard Atari binary file already
                ; include music RMT module:
-      ins "msx/tbm4_str.rmt",+6
+      ins "msx/tbm5_str.rmt",+6
 MODULEND
 
 ;-----------------------------------
@@ -4155,13 +4155,10 @@ sfx_go2 = $0d
 ; RMT songs (lines)
 ;--------------------------------
 song_main_menu  = $00
-song_ingame     = $1c
+song_ingame     = $17
 song_game_over  = $0d
-song_go         = $15
-song_go1        = $11
-song_go2        = $13
-song_scores    = $17
-song_empty      = $12
+song_go         = $10
+song_scores    = $12
 
 
     RUN main
