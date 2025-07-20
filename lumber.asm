@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.77" ; number of this build (4 bytes)
+    dta d"0.78" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -4114,11 +4114,11 @@ PLAYER
 ;-------------------------------------------------
 ;-------------------------------------------------
 ; music and sfx
-    org $b000  ; address of RMT module
+    org $a900  ; address of RMT module
 MODUL
                ; RMT module is standard Atari binary file already
                ; include music RMT module:
-      ins "msx/tbm3_str.rmt",+6
+      ins "msx/tbm4_str.rmt",+6
 MODULEND
 
 ;-----------------------------------
