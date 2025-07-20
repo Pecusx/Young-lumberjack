@@ -2942,9 +2942,9 @@ datalines_tlogo=11
     sta PCOLR3
     mva GameColors+c_font1b PCOLR0  ; same color like font b
     lda #$50
-    sta HPOSP1_u
-    lda #$70
     sta HPOSP2_u
+    lda #$70
+    sta HPOSP1_u
     lda #$90
     sta HPOSP3_u
     lda #$a8
