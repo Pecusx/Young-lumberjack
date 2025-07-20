@@ -2920,7 +2920,7 @@ datalines_tlogo=11
     sta PMmemory+$380+Hoffset_over,x    ; P3
     dex
     bpl @-
-    mva #11 SIZEP1_u
+    mva #%11 SIZEP1_u
     sta SIZEP2_u
     sta SIZEP3_u
     
@@ -2936,6 +2936,7 @@ datalines_tlogo=11
     bpl @-
     lda #%00000001
     sta SIZEM_u
+    mva #0 SIZEP0_u
     
     mva GameColors+c_buckle PCOLR1    ; same color like buckle
     sta PCOLR2
