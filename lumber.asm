@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.78" ; number of this build (4 bytes)
+    dta d"0.79" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -1092,7 +1092,7 @@ DLI_L2
     mva GameColors+c_chain1 COLPF3
     mva GameColors+c_font1b COLPF1
     :2 sta WSYNC
-    mva GameColors+c_font3 COLPF3
+    mva GameColors+c_logo4 COLPF3
     mva #0 DLIcount
     mwa #GameOverDLI1.DLI2 VDSLST
     pla
@@ -1603,7 +1603,7 @@ training_mode
     mva GameColors+c_over1 COLOR0
     mva GameColors+c_white2 COLOR1
     mva GameColors+c_white2 COLOR2
-    mva GameColors+c_font3 COLOR3
+    mva GameColors+c_logo4 COLOR3
     lda #@dmactl(narrow|dma|missiles|players|lineX2)  ; narrow screen width, DL on, P/M on (2lines)
     sta dmactls
     mva #%00000011 GRACTL
@@ -2738,6 +2738,7 @@ datalines_clouds=12
     sta HPOSP0_u
     lda #$98
     sta HPOSP1_u
+    mva #0 VDELAY
 
     rts
 clearP0_1
@@ -2913,26 +2914,49 @@ datalines_tlogo=11
     ; Players 1,2,3 filled fram ... to ...
     jsr ClearPM
     ldx #High_over-1
-    lda #$ff    ; fill
-@   sta PMmemory+$280+Hoffset_over,x
-    sta PMmemory+$300+Hoffset_over,x
-    sta PMmemory+$380+Hoffset_over,x
+    lda #$ff    ; fill background
+@   sta PMmemory+$280+Hoffset_over,x    ; P1
+    sta PMmemory+$300+Hoffset_over,x    ; P2
+    sta PMmemory+$380+Hoffset_over,x    ; P3
     dex
     bpl @-
     mva #11 SIZEP1_u
     sta SIZEP2_u
     sta SIZEP3_u
+    
+    ; prepare sides
+    ldx #datalines_over2-1
+@   lda #$ff
+    ;lda sides_data_a,x
+    sta PMmemory+$200+Hoffset_over2,x   ; P0
+    lda #%00000011
+    ;lda sides_data_b,x
+    sta PMmemory+$180+Hoffset_over2,x   ; M0
+    dex
+    bpl @-
+    lda #%00000001
+    sta SIZEM_u
+    
     mva GameColors+c_buckle PCOLR1    ; same color like buckle
     sta PCOLR2
     sta PCOLR3
+    mva GameColors+c_font1b PCOLR0  ; same color like font b
     lda #$50
     sta HPOSP1_u
     lda #$70
     sta HPOSP2_u
     lda #$90
     sta HPOSP3_u
+    lda #$a8
+    sta HPOSP0_u
+    lda #$50
+    sta HPOSM0_u
+    lda #%00010001
+    sta VDELAY
 Hoffset_over = 30
 High_over=78
+Hoffset_over2=60
+datalines_over2=40
     rts
 .endp
 ;--------------------------------------------------
