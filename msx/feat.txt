@@ -1,4 +1,5 @@
 STEREOMODE	equ 0
+PSEUDOSTEREO equ 1
 ;* --------BEGIN--------
 ;* Z:\GitHub\Young-lumberjack\msx\tbm5_str.rmt
 FEAT_SFX		equ 1

@@ -21,6 +21,14 @@
 ;*									;2 => compile RMTplayer for 4 tracks stereo L1 R2 R3 L4
 ;*									;3 => compile RMTplayer for 4 tracks stereo L1 L2 R3 R4
 ;*
+; Message from Pecus:
+; This is a new minor feature.
+; It only works if STEREOMODE is set to 0 (mono)
+; If on then plays on the second POKEY all sounds delayed by one frame.
+;
+; PSEUDOSTEREO  equ 0/1
+;
+;*
 ;* RMT FEATures definitions file
 ;* For optimizations of RMT player routine to concrete RMT modul only!
 	icl "feat.txt"
@@ -31,12 +39,6 @@ TRACKS		equ 8
 TRACKS		equ 4
 	.ENDIF
 
-; Message from Pecus:
-; This is a new minor feature.
-; It only works if STEREOMODE is set to 0
-; It plays on the second POKEY all sounds delayed by one frame.
-
-PSEUDOSTEREO equ 1  ; 0=off , 1=on
 
 ;*
 ;*PLAYER		equ $3400
