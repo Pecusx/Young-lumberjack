@@ -30,6 +30,14 @@ TRACKS		equ 8
 	.ELSE
 TRACKS		equ 4
 	.ENDIF
+
+; Message from Pecus:
+; This is a new minor feature.
+; It only works if STEREOMODE is set to 0
+; It plays on the second POKEY all sounds delayed by one frame.
+
+PSEUDOSTEREO equ 1  ; 0=off , 1=on
+
 ;*
 ;*PLAYER		equ $3400
 ;*
@@ -1246,6 +1254,10 @@ rmt_p5
 	.ELSE
 	lda #1
 	.ENDIF
+    .IF PSEUDOSTEREO==1&&STEREOMODE==0
+    ldy #$10
+    bne SetPokey_OffsetY
+    .ENDIF
 	rts
 SetPokey
 	.IF STEREOMODE==1		;* L1 L2 L3 L4 R1 R2 R3 R4
@@ -1286,23 +1298,25 @@ xstastx08	sta $d217
 xstysta01	sty $d218
 	sta $d208
 	.ELSEIF STEREOMODE==0		;* L1 L2 L3 L4
-	ldy v_audctl
+    ldy #$00
+SetPokey_OffsetY
 	lda trackn_audf+0
-	ldx trackn_audc+0
-	sta $d200
-	stx $d201
+	sta $d200,y
+	lda trackn_audc+0
+	sta $d201,y
 	lda trackn_audf+1
-	ldx trackn_audc+1
-	sta $d200+2
-	stx $d201+2
+	sta $d200+2,y
+	lda trackn_audc+1
+	sta $d201+2,y
 	lda trackn_audf+2
-	ldx trackn_audc+2
-	sta $d200+4
-	stx $d201+4
+	sta $d200+4,y
+	lda trackn_audc+2
+	sta $d201+4,y
 	lda trackn_audf+3
-	ldx trackn_audc+3
-	sta $d200+6
-	stx $d201+6
+	sta $d200+6,y
+	lda trackn_audc+3
+	sta $d201+6,y
+	ldy v_audctl
 	sty $d208
 	.ELSEIF STEREOMODE==2		;* L1 R2 R3 L4
 	ldy v_audctl
