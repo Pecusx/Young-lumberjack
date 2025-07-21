@@ -1318,8 +1318,8 @@ SetPokey_OffsetY
 	sta $d200+6,y
 	lda trackn_audc+3
 	sta $d201+6,y
-	ldy v_audctl
-	sty $d208
+	lda v_audctl
+	sta $d208,y
 	.ELSEIF STEREOMODE==2		;* L1 R2 R3 L4
 	ldy v_audctl
 	lda trackn_audf+0
