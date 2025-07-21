@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.80" ; number of this build (4 bytes)
+    dta d"0.81" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -2927,7 +2927,7 @@ datalines_tlogo=11
     ; prepare sides
     ldx #datalines_over2-1
 @   lda #$ff
-    ;lda sides_data_a,x
+    lda sides_data_a,x
     sta PMmemory+$200+Hoffset_over2,x   ; P0
     lda #%00000011
     ;lda sides_data_b,x
@@ -2954,6 +2954,13 @@ datalines_tlogo=11
     sta HPOSM0_u
     lda #%00010001
     sta VDELAY
+; player 0
+sides_data_a
+    dta $0F,$03,$01,$3F,$0F,$00,$01,$01
+    dta $1F,$01,$03,$01,$1F,$0F,$01,$01
+    dta $71,$07,$00,$01,$03,$1F,$0F,$00
+    dta $00,$01,$01,$03,$3F,$00,$01,$03
+    dta $FF,$03,$01,$07,$01,$1F,$03,$07 
 Hoffset_over = 30
 High_over=78
 Hoffset_over2=60
