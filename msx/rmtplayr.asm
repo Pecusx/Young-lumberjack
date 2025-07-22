@@ -33,11 +33,20 @@
 ;* For optimizations of RMT player routine to concrete RMT modul only!
 	icl "feat.txt"
 
-	.IF STEREOMODE==1
-TRACKS		equ 8
-	.ELSE
-TRACKS		equ 4
-	.ENDIF
+; set default values for STEREOMODE and PSEUDOSTEREO if not defined
+.IFNDEF STEREOMODE
+    STEREOMODE equ 0 ; 4 track mono
+.ENDIF
+.IFNDEF PSEUDOSTEREO
+    PSEUDOSTEREO equ 0 ; no pseudo stereo
+.ENDIF
+
+
+.IF STEREOMODE==1
+    TRACKS equ 8
+.ELSE
+    TRACKS equ 4
+.ENDIF
 
 
 ;*
@@ -45,6 +54,8 @@ TRACKS		equ 4
 ;*
 ;*
 ;* RMT ZeroPage addresses
+; Remember to use the ".zpvar" directive in your program for declaring the starting address
+; .zpvar first_zp_variable .byte = $80 (where $80 is the first used address on the zero page)
     .zpvar p_instrstable    .word
     .zpvar p_trackslbstable	.word
     .zpvar p_trackshbstable	.word
@@ -85,6 +96,8 @@ p_tis = p_instrstable
 	.ELSE
 	org PLAYER-$400+$e0
 	.ENDIF
+; Non zero page variables block
+; You can move this block to the place where you plan to store variables
 track_variables
 trackn_db           .ds TRACKS
 trackn_hb           .ds TRACKS
@@ -150,6 +163,8 @@ trackn_audctl       .ds TRACKS
 	.ENDIF
 v_aspeed    .ds 1
 track_endvariables
+; End of non zero page variables block
+
 		org PLAYER-$100-$140-$40+2
 INSTRPAR	equ 12
 tabbeganddistor
