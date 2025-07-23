@@ -91,6 +91,7 @@ p_tis = p_instrstable
     .ENDIF
 	.IF FEAT_SFX
     .zpvar RMTSFXVOLUME     .byte
+    .zpvar  sfx_flag    .byte
     .ENDIF
     ; end of de-self-modification vars
 	.IF TRACKS>4
@@ -360,6 +361,12 @@ si1	sta $d200,y
 	.ELSE
 	lda #FEAT_INSTRSPEED
 	.ENDIF
+    ; sfx priority (Pecus)
+    .IF FEAT_SFX
+    lda #$80
+    sta sfx_flag
+    .ENDIF
+    ; --------
 	rts
 GetSongLineTrackLineInitOfNewSetInstrumentsOnlyRmtp3
 GetSongLine
@@ -518,9 +525,16 @@ InitOfNewSetInstrumentsOnly
 p2x1 ldy trackn_instrx2,x
 	bmi p2x0
 	.IF FEAT_SFX
-	jsr SetUpInstrumentY2
+	jsr SetUpInstrumentY2_continue
 	jmp p2x0
+SetUpInstrumentY2
+    ; sfx priority (Pecus)
+    cpx sfx_flag
+    bne SetUpInstrumentY2_continue
+    rts
+    ; -------
 rmt_sfx
+    stx sfx_flag    ; sfx priority (Pecus)
 	sta trackn_note,x
 	.IF FEAT_BASS16
 	sta trackn_outnote,x
@@ -528,7 +542,7 @@ rmt_sfx
 	lda RMTSFXVOLUME    ;* sfx note volume*16
 	sta trackn_volume,x
 	.ENDIF
-SetUpInstrumentY2
+SetUpInstrumentY2_continue
 	lda (p_instrstable),y
 	sta trackn_instrdb,x
 	sta nt
@@ -683,6 +697,14 @@ pp1
 	beq pp2
 	lda #$80
 	sta trackn_instrreachend,x
+    ; sfx priority (Pecus)
+    .IF FEAT_SFX
+    cpx sfx_flag
+    bne no_this_channel
+    sta sfx_flag    ; $80
+no_this_channel
+    .ENDIF
+    ; --------
 pp1b
 	lda trackn_instrlop,x
 pp2	sta trackn_instridx,x
