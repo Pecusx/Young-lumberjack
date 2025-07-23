@@ -30,6 +30,14 @@
 ;
 ; PSEUDOSTEREO  equ 0/1
 ;
+; And second new feature :)
+; It only works if FEAT_SFX is set to 1 (SFX enabled)
+; If this option is enabled, SFX take priority over music.
+; Music instruments on the SFX channel starts playing after the effect sounds
+; (never interrupts SFX)
+;
+; SFX_PRIOR equ 0/1
+;
 ;*
 ;* RMT FEATures definitions file
 ;* For optimizations of RMT player routine to concrete RMT modul only!
@@ -41,6 +49,9 @@
 .ENDIF
 .IFNDEF PSEUDOSTEREO
     PSEUDOSTEREO equ 0 ; no pseudo stereo
+.ENDIF
+.IFNDEF SFX_PRIOR
+    SFX_PRIOR equ 0 ; no SFX priority
 .ENDIF
 
 
@@ -91,6 +102,9 @@ p_tis = p_instrstable
     .ENDIF
 	.IF FEAT_SFX
     .zpvar RMTSFXVOLUME     .byte
+    .ENDIF
+    .IF FEAT_SFX&&SFX_PRIOR
+    .zpvar  sfx_flag    .byte
     .ENDIF
     ; end of de-self-modification vars
 	.IF TRACKS>4
@@ -360,6 +374,12 @@ si1	sta $d200,y
 	.ELSE
 	lda #FEAT_INSTRSPEED
 	.ENDIF
+    ; sfx priority (Pecus)
+    .IF FEAT_SFX&&SFX_PRIOR
+    lda #$80
+    sta sfx_flag
+    .ENDIF
+    ; --------
 	rts
 GetSongLineTrackLineInitOfNewSetInstrumentsOnlyRmtp3
 GetSongLine
@@ -518,9 +538,24 @@ InitOfNewSetInstrumentsOnly
 p2x1 ldy trackn_instrx2,x
 	bmi p2x0
 	.IF FEAT_SFX
+    .IF SFX_PRIOR
 	jsr SetUpInstrumentY2
+    .ELSE
+    jsr SetUpInstrumentY2_continue
+    .ENDIF
 	jmp p2x0
+SetUpInstrumentY2
+    ; sfx priority (Pecus)
+    .IF SFX_PRIOR
+    cpx sfx_flag
+    bne SetUpInstrumentY2_continue
+    rts
+    .ENDIF
+    ; -------
 rmt_sfx
+    .IF SFX_PRIOR
+    stx sfx_flag    ; sfx priority (Pecus)
+    .ENDIF
 	sta trackn_note,x
 	.IF FEAT_BASS16
 	sta trackn_outnote,x
@@ -528,7 +563,7 @@ rmt_sfx
 	lda RMTSFXVOLUME    ;* sfx note volume*16
 	sta trackn_volume,x
 	.ENDIF
-SetUpInstrumentY2
+SetUpInstrumentY2_continue
 	lda (p_instrstable),y
 	sta trackn_instrdb,x
 	sta nt
@@ -683,6 +718,14 @@ pp1
 	beq pp2
 	lda #$80
 	sta trackn_instrreachend,x
+    ; sfx priority (Pecus)
+    .IF FEAT_SFX&&SFX_PRIOR
+    cpx sfx_flag
+    bne no_this_channel
+    sta sfx_flag    ; $80
+no_this_channel
+    .ENDIF
+    ; --------
 pp1b
 	lda trackn_instrlop,x
 pp2	sta trackn_instridx,x

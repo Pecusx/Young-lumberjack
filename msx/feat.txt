@@ -1,3 +1,4 @@
+SFX_PRIOR equ 0
 STEREOMODE	equ 0
 PSEUDOSTEREO equ 1
 ;* --------BEGIN--------
