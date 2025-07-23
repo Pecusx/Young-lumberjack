@@ -3,6 +3,8 @@
 ;* (c) Radek Sterba, Raster/C.P.U., 2002 - 2009
 ;* http://raster.atari.org
 ;*
+; de-self-modification and pseudo stereo option - Pecus 2025
+;
 ;* Warnings:
 ;*
 ;* 1. RMT player routine needs 19 itself reserved bytes in zero page (no accessed
