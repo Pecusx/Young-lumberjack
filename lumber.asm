@@ -22,9 +22,20 @@
 
 ;---------------------------------------------------
 .IF TARGET = 800
+        ORG $3000
+        ; dark screean and BASIC off
+        mva #0 dmactls             ; dark screen
+        mva #$ff portb
+        ; and wait one frame :)
+        waitRTC                   ; or waitRTC ?
+        mva #$ff portb        ; BASIC off
+        rts
+        ini $3000
+
 .local
     icl 'art/DM_logo_src/digital_melody_logo.asm'
 .endl
+
 .ENDIF
 ;---------------------------------------------------
     icl 'lib/ATARISYS.ASM'
