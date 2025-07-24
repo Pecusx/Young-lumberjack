@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.84" ; number of this build (4 bytes)
+    dta d"0.85" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -2937,11 +2937,9 @@ datalines_tlogo=11
     
     ; prepare sides
     ldx #datalines_over2-1
-@   lda #$ff
-    lda sides_data_a,x
+@   lda sides_data_a,x
     sta PMmemory+$200+Hoffset_over2,x   ; P0
-    lda #%00000011
-    ;lda sides_data_b,x
+    lda sides_data_b,x
     sta PMmemory+$180+Hoffset_over2,x   ; M0
     dex
     bpl @-
@@ -2965,6 +2963,7 @@ datalines_tlogo=11
     sta HPOSM0_u
     lda #%00010001
     sta VDELAY
+    rts
 ; player 0
 sides_data_a
     dta $0F,$03,$01,$3F,$0F,$00,$01,$01
@@ -2972,11 +2971,17 @@ sides_data_a
     dta $71,$07,$00,$01,$03,$1F,$0F,$00
     dta $00,$01,$01,$03,$3F,$00,$01,$03
     dta $FF,$03,$01,$07,$01,$1F,$03,$07 
+; missiles
+sides_data_b
+    dta $00,$00,$02,$03,$00,$00,$00,$02
+    dta $00,$03,$02,$00,$00,$00,$02,$03
+    dta $00,$00,$00,$00,$02,$03,$00,$00
+    dta $02,$03,$00,$00,$00,$02,$00,$03
+    dta $02,$02,$00,$00,$00,$02,$02,$00
 Hoffset_over = 30
 High_over=78
 Hoffset_over2=60
 datalines_over2=40
-    rts
 .endp
 ;--------------------------------------------------
 .proc SetPMl1
