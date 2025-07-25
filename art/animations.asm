@@ -79,6 +79,7 @@
     ;WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph2p2 animation_addr
+    jsr SetPMr2
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p1 animation_addr
@@ -112,6 +113,7 @@
     ;WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph2p2 animation_addr
+    jsr SetPMl2
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p1 animation_addr
@@ -209,6 +211,7 @@
     ;WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph2p11 animation_addr
+    jsr SetPMr2
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p9 animation_addr
@@ -239,6 +242,7 @@
     ;WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph2p11 animation_addr
+    jsr SetPMl2
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p9 animation_addr
@@ -333,6 +337,7 @@
     ;WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph2p7 animation_addr
+    jsr SetPMr2
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_r_ph3p5 animation_addr
@@ -366,6 +371,7 @@
     ;WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph2p7 animation_addr
+    jsr SetPMl2
     WaitForSync
     jsr branches_go_down
     mwa #gamescreen_l_ph3p5 animation_addr
