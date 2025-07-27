@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.89" ; number of this build (4 bytes)
+    dta d"0.90" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -4104,9 +4104,9 @@ hs_pos2
 hs_pos3
     .by "0000000130 ADAM "
 hs_pos4
-    .by "0000000110 ALEX "
+    .by "0000000100 ALEX "
 hs_pos5
-    .by "0000000090 TDC  "
+    .by "0000000080 TDC  "
 hs_posX
     .by "0000000000 NEW  "  ; buffer for last score
 hs_def_name
