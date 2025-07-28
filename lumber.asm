@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"0.90" ; number of this build (4 bytes)
+    dta d"1.00" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -1515,6 +1515,7 @@ leftkey
     lda Difficulty
     eor #$01
     sta Difficulty
+        jsr ZeroClock  ; reset delay for ayto screen change
     jmp difficulty_display
 notdirectionskeys
     cmp #@kbcode._help
