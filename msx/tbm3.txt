@@ -1,0 +1,9 @@
+00 - title
+0D - death
+10 - in game (old)
+15 - count down
+17 - high score 
+1C - in game (new)
+
+0C - count down 1
+0D - count down 2

@@ -1,0 +1,8 @@
+00 - title
+07 - death
+0A - in game (old)
+0F - count down
+11 - count down (pim 1)
+13 - count down (pim 2)
+15 - high score 
+1A - in game (new)
