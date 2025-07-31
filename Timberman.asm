@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"1.01" ; number of this build (4 bytes)
+    dta d"1.02" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -3195,22 +3195,13 @@ ScoreReady
 .proc ScoreToBuffer
 ;--------------------------------------------------
     ; points
-    lda score
+    ldx #3 ; 4 digits 
+@   lda score,x
     sec
     sbc #("0"-'0')
-    sta hs_posX+6
-    lda score+1
-    sec
-    sbc #("0"-'0')
-    sta hs_posX+7
-    lda score+2
-    sec
-    sbc #("0"-'0')
-    sta hs_posX+8
-    lda score+3
-    sec
-    sbc #("0"-'0')
-    sta hs_posX+9
+    sta hs_posX+6,x
+    dex
+    bpl @-
     ; time
     lda timer
     sec
@@ -4112,6 +4103,9 @@ hs_posX
     .by "0000000000 NEW  "  ; buffer for last score
 hs_def_name
     .by "A    "
+    .by "("
+    build
+    .by ")"
 ;-------------------------------------------------
 ;RMT PLAYER variables
 .IF RMT = 2
