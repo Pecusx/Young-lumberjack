@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"1.03" ; number of this build (4 bytes)
+    dta d"1.04" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -195,7 +195,7 @@ timber_foot_addr
     .wo foot_0
     .by $44+$80 ; DLI_L2 - fonts
     .wo title_timber+(32*7) ; rest of shadow
-    .by $45 
+    .by $45
 difficulty_text_addr
     .wo difficulty_normal_text
     .by $45+$80
@@ -203,6 +203,8 @@ difficulty_text_addr
     .by $45+$80
     .wo credits_lines
     .by $85
+    .by $44         ; anty ANTIC 40/32 switch glitch :)
+    .wo empty_line
     .by $41
     .wo dl_title
 ;---------------------------------------------------
