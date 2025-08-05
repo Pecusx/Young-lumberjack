@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"1.02" ; number of this build (4 bytes)
+    dta d"1.03" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -3466,7 +3466,7 @@ draw_branch3
     bne not_phase4
     ldx #(4*32)     ; how many lines draw
 not_phase4
-    stx tempbyte
+    stx tempbyte2
     ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
@@ -3484,7 +3484,7 @@ not_phase4
 @   lda (temp2),y
     sta (temp),y
     iny
-    cpy tempbyte ;? lines
+    cpy tempbyte2 ;? lines
     bne @-
 draw_branch4    
     lda branches_anim_phase
@@ -3500,7 +3500,7 @@ not_phase1
     bne not_phase2
     ldx #(1*32)     ; how many lines draw
 not_phase2    
-    stx tempbyte
+    stx tempbyte2
     ; now calculate start screen address
     :5 asl  ; phase*32
     ;clc
@@ -3518,7 +3518,7 @@ not_phase2
 @   lda (temp2),y
     sta (temp),y
     iny
-    cpy tempbyte ;? lines
+    cpy tempbyte2 ;? lines
     bne @-    
 all_drawed
     rts
