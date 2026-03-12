@@ -10,7 +10,7 @@
 fcnt	.ds 2
 fadr	.ds 2
 fhlp	.ds 2
-cloc	.ds 1
+cloc	.ds 2
 regA	.ds 1
 regX	.ds 1
 regY	.ds 1
@@ -78,8 +78,7 @@ _lp	lda trig0		; FIRE #0
 	and #1
 	beq stop
 
-    lda cloc
-    cmp #200    ; timer - 4s.
+    cpw cloc #500   ; timer 10s
     bcs stop
 
 	lda skctl
@@ -194,7 +193,7 @@ VBL
 
 	mva #@dmactl(standard|dma|lineX1|players|missiles) dmactl	;set new screen width
 
-	inc cloc		;little timer
+	inw cloc		;little timer
 
 ; Initial values
 

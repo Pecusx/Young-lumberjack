@@ -12,7 +12,7 @@
 
 ;---------------------------------------------------
 .macro build
-    dta d"1.04" ; number of this build (4 bytes)
+    dta d"1.05" ; number of this build (4 bytes)
 .endm
 
 .macro RMTSong
@@ -3615,7 +3615,6 @@ notpressedJoyGetKey
     .IF TARGET = 800           ; Second joy button , Select and Option key only on A800
       jsr Check2button
       bcc SecondButton
-      bne checkSelectKey
 checkSelectKey
       lda CONSOL
       and #%00000010           ; Select
@@ -3627,6 +3626,8 @@ checkSelectKey
       and #%00000001           ; Start
       beq StartPressed
     .ENDIF
+    lda STRIG1
+    beq SecondButton
     lda #@kbcode._none
     bne getkeyend
 OptionPressed
@@ -3676,6 +3677,8 @@ StillWait
       cmp #$0f
       bne StillWait
       lda STRIG0
+      beq StillWait
+      lda STRIG1
       beq StillWait
     .IF TARGET = 800
       lda SKSTAT
